@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Asset & Installation Tracker</title>
   
-  <!-- PWA & Apple Meta Tags -->
+  <!-- PWA & Mobile Meta Tags -->
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#F5F5F7" />
+  <meta name="theme-color" content="#EDE8E4" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="AssetTracker" />
@@ -20,86 +20,267 @@
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
     :root {
-      --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, sans-serif;
+      --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      --bg-canvas: #EDE8E4;
+      --clay-teal: linear-gradient(135deg, #00C496 0%, #009E77 100%);
+      --clay-orange: linear-gradient(135deg, #FF9500 0%, #FF6E00 100%);
+      --clay-purple: linear-gradient(135deg, #B588F8 0%, #9055E8 100%);
+      --clay-white: linear-gradient(180deg, #FFFFFF 0%, #F8F5F2 100%);
+      --clay-rose: linear-gradient(135deg, #FF6584 0%, #E8365B 100%);
+      --clay-slate: linear-gradient(135deg, #718096 0%, #4A5568 100%);
     }
+
     body {
-      font-family: var(--font-apple);
-      background-color: #F5F5F7;
-      color: #1D1D1F;
+      font-family: var(--font-main);
+      background: radial-gradient(circle at 50% 12%, #FAF6F3 0%, #EDE6E1 45%, #DFD6D0 100%);
+      background-attachment: fixed;
+      color: #2D2926;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
+
     input, textarea, select {
       user-select: text;
     }
-    .apple-glass {
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(0, 0, 0, 0.06);
+
+    /* Ambient Floating Liquid Bubbles (Matches the Art Direction) */
+    .ambient-orb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
     }
-    .apple-card {
+    .orb-1 {
+      width: 280px;
+      height: 280px;
+      top: -60px;
+      right: -40px;
+      background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.95), rgba(0, 196, 150, 0.22) 40%, rgba(0, 196, 150, 0.05) 75%);
+      box-shadow: 0 20px 50px rgba(0, 196, 150, 0.15), inset 0 -8px 20px rgba(0, 196, 150, 0.25);
+      filter: blur(1px);
+    }
+    .orb-2 {
+      width: 220px;
+      height: 220px;
+      bottom: 40px;
+      left: -50px;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(255, 149, 0, 0.22) 45%, rgba(255, 149, 0, 0.04) 75%);
+      box-shadow: 0 20px 45px rgba(255, 149, 0, 0.14), inset 0 -8px 18px rgba(255, 149, 0, 0.22);
+      filter: blur(1px);
+    }
+    .orb-3 {
+      width: 140px;
+      height: 140px;
+      top: 45%;
+      right: 5%;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(181, 136, 248, 0.25) 45%, rgba(181, 136, 248, 0.05) 75%);
+      box-shadow: 0 15px 35px rgba(181, 136, 248, 0.16);
+    }
+
+    /* Master Porcelain Baseplate (The sculpted liquid foundation) */
+    .porcelain-plate {
+      background: #FAF7F5;
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-radius: 40px;
+      box-shadow: 
+        0 30px 70px -15px rgba(95, 80, 75, 0.15),
+        0 10px 25px -5px rgba(95, 80, 75, 0.08),
+        inset 0 3px 6px rgba(255, 255, 255, 0.95),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.02);
+      position: relative;
+    }
+
+    /* Claymorphism 3D Tactile Cards & Components */
+    .clay-card-white {
+      background: var(--clay-white);
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 
+        0 14px 30px -4px rgba(85, 75, 70, 0.09),
+        0 4px 10px -2px rgba(85, 75, 70, 0.04),
+        inset 0 2px 4px rgba(255, 255, 255, 0.95);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clay-card-white:hover {
+      transform: translateY(-5px);
+      box-shadow: 
+        0 22px 42px -6px rgba(85, 75, 70, 0.14),
+        0 8px 16px -3px rgba(85, 75, 70, 0.06),
+        inset 0 2px 4px rgba(255, 255, 255, 1);
+    }
+
+    .clay-btn-teal {
+      background: var(--clay-teal);
+      color: #FFFFFF;
+      border-radius: 26px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 
+        0 14px 28px -5px rgba(0, 196, 150, 0.42),
+        inset 0 2px 4px rgba(255, 255, 255, 0.45);
+      transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clay-btn-teal:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 
+        0 20px 38px -5px rgba(0, 196, 150, 0.52),
+        inset 0 2px 4px rgba(255, 255, 255, 0.6);
+    }
+    .clay-btn-teal:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 8px 16px -3px rgba(0, 196, 150, 0.35);
+    }
+
+    .clay-btn-orange {
+      background: var(--clay-orange);
+      color: #FFFFFF;
+      border-radius: 26px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 
+        0 14px 28px -5px rgba(255, 110, 0, 0.42),
+        inset 0 2px 4px rgba(255, 255, 255, 0.45);
+      transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clay-btn-orange:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 
+        0 20px 38px -5px rgba(255, 110, 0, 0.52),
+        inset 0 2px 4px rgba(255, 255, 255, 0.6);
+    }
+    .clay-btn-orange:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    .clay-btn-purple {
+      background: var(--clay-purple);
+      color: #FFFFFF;
+      border-radius: 26px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 
+        0 14px 28px -5px rgba(144, 85, 232, 0.38),
+        inset 0 2px 4px rgba(255, 255, 255, 0.45);
+      transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clay-btn-purple:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 
+        0 20px 38px -5px rgba(144, 85, 232, 0.48),
+        inset 0 2px 4px rgba(255, 255, 255, 0.6);
+    }
+
+    .clay-btn-rose {
+      background: var(--clay-rose);
+      color: #FFFFFF;
+      border-radius: 26px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 
+        0 14px 28px -5px rgba(232, 54, 91, 0.38),
+        inset 0 2px 4px rgba(255, 255, 255, 0.45);
+      transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clay-btn-rose:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 
+        0 20px 38px -5px rgba(232, 54, 91, 0.48);
+    }
+
+    .clay-btn-slate {
+      background: var(--clay-slate);
+      color: #FFFFFF;
+      border-radius: 26px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 
+        0 12px 24px -4px rgba(74, 85, 104, 0.32),
+        inset 0 2px 3px rgba(255, 255, 255, 0.35);
+      transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clay-btn-slate:hover {
+      transform: translateY(-4px) scale(1.02);
+    }
+
+    /* Recessed 3D Inputs */
+    .clay-input {
+      background: #F2ECE8;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
+      box-shadow: 
+        inset 0 2px 5px rgba(95, 80, 75, 0.08),
+        inset 0 1px 2px rgba(95, 80, 75, 0.05),
+        0 1px 2px rgba(255, 255, 255, 0.9);
+      transition: all 0.2s ease;
+    }
+    .clay-input:focus {
       background: #FFFFFF;
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border-color: #00C496;
+      box-shadow: 
+        0 0 0 4px rgba(0, 196, 150, 0.15),
+        inset 0 1px 2px rgba(0, 0, 0, 0.03);
     }
-    .apple-card:active {
-      transform: scale(0.985);
-    }
-    .apple-shadow {
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-    }
-    /* Soft Pastel Color Badges */
+
+    /* Badges with Glowing Clay Depth */
     .badge-installed {
-      background-color: #E8F8F0;
-      color: #15803D;
-      border: 1px solid rgba(21, 128, 61, 0.15);
+      background: #D9F7EE;
+      color: #008765;
+      border: 1px solid rgba(0, 196, 150, 0.3);
+      box-shadow: 0 4px 10px rgba(0, 196, 150, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.8);
     }
     .badge-received {
-      background-color: #EFF6FF;
-      color: #1D4ED8;
-      border: 1px solid rgba(29, 78, 216, 0.15);
+      background: #EBF4FF;
+      color: #1E60D5;
+      border: 1px solid rgba(30, 96, 213, 0.25);
+      box-shadow: 0 4px 10px rgba(30, 96, 213, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.8);
     }
     .badge-storage {
-      background-color: #F0FDF4;
-      color: #166534;
-      border: 1px solid rgba(22, 101, 52, 0.15);
+      background: #E8F9ED;
+      color: #167A3C;
+      border: 1px solid rgba(22, 122, 60, 0.25);
+      box-shadow: 0 4px 10px rgba(22, 122, 60, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.8);
     }
     .badge-handover {
-      background-color: #FEF3C7;
-      color: #B45309;
-      border: 1px solid rgba(180, 83, 9, 0.15);
+      background: #FFF1DE;
+      color: #C05800;
+      border: 1px solid rgba(255, 110, 0, 0.3);
+      box-shadow: 0 4px 10px rgba(255, 110, 0, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.8);
     }
     .badge-rejected {
-      background-color: #FFE4E6;
-      color: #BE123C;
-      border: 1px solid rgba(190, 18, 60, 0.15);
+      background: #FFE8ED;
+      color: #C51D42;
+      border: 1px solid rgba(232, 54, 91, 0.3);
+      box-shadow: 0 4px 10px rgba(232, 54, 91, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.8);
     }
     .badge-pickup {
-      background-color: #F1F5F9;
-      color: #475569;
-      border: 1px solid rgba(71, 85, 105, 0.15);
+      background: #EDF2F7;
+      color: #4A5568;
+      border: 1px solid rgba(74, 85, 104, 0.25);
+      box-shadow: 0 4px 10px rgba(74, 85, 104, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.8);
     }
+
+    /* Modal Backdrop with Ambient Frost */
+    .modal-backdrop {
+      background: rgba(45, 38, 35, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
     .timeline-line::before {
       content: '';
       position: absolute;
-      top: 24px;
-      bottom: -20px;
-      left: 17px;
-      width: 2px;
-      background: #E2E8F0;
+      top: 28px;
+      bottom: -24px;
+      left: 19px;
+      width: 3px;
+      background: linear-gradient(180deg, #D5CCC6 0%, #E6DFDA 100%);
+      border-radius: 4px;
       z-index: 0;
     }
     .timeline-item:last-child .timeline-line::before {
       display: none;
     }
-    .modal-backdrop {
-      background: rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
+
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -109,36 +290,41 @@
     }
   </style>
 </head>
-<body class="h-full flex flex-col antialiased">
+<body class="h-full flex flex-col antialiased relative">
+
+  <!-- Ambient Floating Orbs in Background -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
 
   <!-- ================= TOP NAVIGATION ================= -->
-  <header id="topNav" class="hidden sticky top-0 z-40 apple-glass border-b border-black/[0.06] px-4 py-3 sm:px-6">
+  <header id="topNav" class="hidden sticky top-0 z-40 bg-[#FAF7F5]/85 backdrop-blur-xl border-b border-black/[0.05] px-4 py-3 sm:px-6 shadow-sm">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-sm shadow-blue-500/20">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#009E77] to-[#00C496] flex items-center justify-center text-white shadow-md shadow-[#00C496]/25 border border-white/40">
           <i data-lucide="package-search" class="w-5 h-5"></i>
         </div>
         <div>
-          <h1 id="navTitle" class="text-base font-semibold tracking-tight text-neutral-900 leading-tight">Asset & Installation</h1>
-          <p id="navSubtitle" class="text-xs text-neutral-500 font-normal">Tracking Portal</p>
+          <h1 id="navTitle" class="text-base font-bold tracking-tight text-[#2D2926] leading-tight">Asset & Installation</h1>
+          <p id="navSubtitle" class="text-xs text-[#7A726C] font-medium">Tracking Portal</p>
         </div>
       </div>
 
       <div class="flex items-center gap-2.5">
         <!-- Language Switcher Pill -->
-        <button onclick="toggleLanguage()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/[0.04] hover:bg-black/[0.08] border border-black/[0.06] text-xs font-semibold text-neutral-700 transition">
-          <i data-lucide="globe" class="w-3.5 h-3.5 text-neutral-500"></i>
+        <button onclick="toggleLanguage()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#F0EAE5] hover:bg-[#E8E1DC] border border-white/80 text-xs font-bold text-[#4A433E] shadow-sm transition active:scale-95">
+          <i data-lucide="globe" class="w-3.5 h-3.5 text-[#009E77]"></i>
           <span id="langSwitchLabel">हिन्दी</span>
         </button>
 
         <!-- User Profile Pill -->
-        <div id="userProfilePill" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/[0.04] border border-black/[0.05]">
-          <span id="userNameBadge" class="text-xs font-semibold text-neutral-800">User</span>
-          <span id="userRoleBadge" class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Admin</span>
+        <div id="userProfilePill" class="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-white border border-black/[0.06] shadow-sm">
+          <span id="userNameBadge" class="text-xs font-bold text-[#2D2926]">User</span>
+          <span id="userRoleBadge" class="text-[10px] uppercase font-extrabold tracking-wider px-2.5 py-0.5 rounded-xl bg-[#00C496]/15 text-[#008765]">Admin</span>
         </div>
 
         <!-- Logout Button -->
-        <button onclick="handleLogout()" id="logoutBtn" title="Sign Out" class="p-2 rounded-full hover:bg-neutral-200/60 active:scale-95 text-neutral-600 transition">
+        <button onclick="handleLogout()" id="logoutBtn" title="Sign Out" class="p-2.5 rounded-2xl bg-[#F0EAE5] hover:bg-[#E8E1DC] active:scale-95 text-[#6B625B] transition shadow-sm border border-white/70">
           <i data-lucide="log-out" class="w-4 h-4"></i>
         </button>
       </div>
@@ -146,68 +332,68 @@
   </header>
 
   <!-- ================= MAIN CONTAINER ================= -->
-  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 pb-24 sm:pb-12">
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 pb-24 sm:pb-12 z-10">
     
-    <!-- 1. LOGIN SCREEN -->
-    <div id="loginSection" class="min-h-[80vh] flex flex-col items-center justify-center px-4">
+    <!-- 1. LOGIN SCREEN (Claymorphism 3D Style) -->
+    <div id="loginSection" class="min-h-[82vh] flex flex-col items-center justify-center px-4">
       
       <!-- Language Switcher on Login Page -->
       <div class="w-full max-w-md flex justify-end mb-3">
-        <button onclick="toggleLanguage()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-neutral-200 text-xs font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 transition">
-          <i data-lucide="globe" class="w-3.5 h-3.5 text-neutral-500"></i>
+        <button onclick="toggleLanguage()" class="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white/90 border border-white text-xs font-bold text-[#4A433E] shadow-md hover:bg-white transition active:scale-95">
+          <i data-lucide="globe" class="w-3.5 h-3.5 text-[#009E77]"></i>
           <span id="loginLangSwitchLabel">हिन्दी</span>
         </button>
       </div>
 
-      <div class="w-full max-w-md bg-white rounded-3xl p-8 apple-card apple-shadow">
+      <div class="w-full max-w-md porcelain-plate p-8 sm:p-10">
         <div class="text-center mb-8">
-          <div class="w-16 h-16 rounded-3xl bg-blue-600 mx-auto flex items-center justify-center text-white shadow-lg shadow-blue-500/25 mb-4">
+          <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-[#009E77] to-[#00C496] mx-auto flex items-center justify-center text-white shadow-xl shadow-[#00C496]/30 border border-white/50 mb-4 transform hover:scale-105 transition">
             <i data-lucide="shield-check" class="w-8 h-8"></i>
           </div>
-          <h2 id="loginHeading" class="text-2xl font-semibold text-neutral-900 tracking-tight">Sign In</h2>
-          <p id="loginSubheading" class="text-sm text-neutral-500 mt-1">Asset & Installation Tracking</p>
+          <h2 id="loginHeading" class="text-2xl font-extrabold text-[#2D2926] tracking-tight">Sign In</h2>
+          <p id="loginSubheading" class="text-xs text-[#7A726C] font-medium mt-1">Asset & Installation Tracking</p>
         </div>
 
         <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
           <div>
-            <label id="lblLoginPhone" class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Phone Number</label>
+            <label id="lblLoginPhone" class="block text-xs font-bold uppercase tracking-wider text-[#7A726C] mb-1.5">Phone Number</label>
             <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-400">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-[#9C9289]">
                 <i data-lucide="phone" class="w-4 h-4"></i>
               </span>
               <input id="loginPhone" type="tel" required placeholder="9876543210" maxlength="10" 
-                class="w-full pl-10 pr-4 py-3 rounded-2xl bg-neutral-100/80 border border-neutral-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition text-sm font-medium" />
+                class="w-full pl-11 pr-4 py-3.5 clay-input outline-none text-sm font-semibold text-[#2D2926]" />
             </div>
           </div>
 
           <div>
-            <label id="lblLoginPin" class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">PIN / Password</label>
+            <label id="lblLoginPin" class="block text-xs font-bold uppercase tracking-wider text-[#7A726C] mb-1.5">PIN / Password</label>
             <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-400">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-[#9C9289]">
                 <i data-lucide="lock" class="w-4 h-4"></i>
               </span>
               <input id="loginPin" type="password" required placeholder="••••" maxlength="20"
-                class="w-full pl-10 pr-4 py-3 rounded-2xl bg-neutral-100/80 border border-neutral-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition text-sm font-medium" />
+                class="w-full pl-11 pr-4 py-3.5 clay-input outline-none text-sm font-semibold text-[#2D2926]" />
             </div>
           </div>
 
-          <button type="submit" id="loginBtn" class="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white rounded-2xl font-semibold text-sm shadow-md shadow-blue-500/20 transition flex items-center justify-center gap-2">
+          <button type="submit" id="loginBtn" class="w-full py-4 px-4 clay-btn-teal font-bold text-sm transition flex items-center justify-center gap-2 mt-2">
             <span id="loginBtnText">Sign In</span>
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </button>
         </form>
 
-        <!-- Quick Test Logins -->
-        <div class="mt-8 pt-6 border-t border-neutral-100 space-y-2">
-          <p id="quickTestLabel" class="text-xs font-semibold text-neutral-500 text-center">Test Accounts (Click to Fill):</p>
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="fillLogin('9876543210', '1234')" class="px-3 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-left transition">
-              <p class="text-xs font-bold text-neutral-800">Admin</p>
-              <p class="text-[10px] text-neutral-500 font-mono">9876543210 / 1234</p>
+        <!-- Quick Test Accounts -->
+        <div class="mt-8 pt-6 border-t border-[#EAE3DE] space-y-2.5">
+          <p id="quickTestLabel" class="text-xs font-bold text-[#7A726C] text-center">Test Accounts (Click to Fill):</p>
+          <div class="grid grid-cols-2 gap-2.5">
+            <button onclick="fillLogin('9876543210', '1234')" class="p-3 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#00C496] shadow-sm text-left transition transform hover:-translate-y-0.5">
+              <p class="text-xs font-bold text-[#009E77]">Admin</p>
+              <p class="text-[11px] text-[#7A726C] font-mono mt-0.5">9876543210 / 1234</p>
             </button>
-            <button onclick="fillLogin('9876543211', '1234')" class="px-3 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-left transition">
-              <p class="text-xs font-bold text-neutral-800">Employee</p>
-              <p class="text-[10px] text-neutral-500 font-mono">9876543211 / 1234</p>
+            <button onclick="fillLogin('9876543211', '1234')" class="p-3 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#FF9500] shadow-sm text-left transition transform hover:-translate-y-0.5">
+              <p class="text-xs font-bold text-[#FF8A00]">Employee</p>
+              <p class="text-[11px] text-[#7A726C] font-mono mt-0.5">9876543211 / 1234</p>
             </button>
           </div>
         </div>
@@ -217,17 +403,17 @@
     <!-- 2. APP MAIN WORKSPACE -->
     <div id="appSection" class="hidden space-y-6">
 
-      <!-- Navigation Tabs -->
+      <!-- Navigation Tabs (Sculpted Pill Segmented Bar) -->
       <div class="flex items-center justify-between flex-wrap gap-4">
-        <div class="inline-flex p-1 rounded-2xl bg-neutral-200/70 border border-black/[0.04]">
-          <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shadow-sm bg-white text-neutral-900">Dashboard</button>
-          <button onclick="switchTab('inventory')" id="tabBtnInventory" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition text-neutral-600 hover:text-neutral-900">Inventory</button>
-          <button onclick="switchTab('timeline')" id="tabBtnTimeline" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition text-neutral-600 hover:text-neutral-900">Timeline Audit</button>
-          <button onclick="switchTab('staff')" id="tabBtnStaff" class="hidden px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition text-neutral-600 hover:text-neutral-900">Staff</button>
+        <div class="inline-flex p-1.5 rounded-3xl bg-[#E8E1DC] border border-white/70 shadow-inner">
+          <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition shadow-md bg-white text-[#2D2926]">Dashboard</button>
+          <button onclick="switchTab('inventory')" id="tabBtnInventory" class="px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition text-[#7A726C] hover:text-[#2D2926]">Inventory</button>
+          <button onclick="switchTab('timeline')" id="tabBtnTimeline" class="px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition text-[#7A726C] hover:text-[#2D2926]">Timeline Audit</button>
+          <button onclick="switchTab('staff')" id="tabBtnStaff" class="hidden px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition text-[#7A726C] hover:text-[#2D2926]">Staff</button>
         </div>
 
-        <!-- Quick Scan Button -->
-        <button onclick="openLiveScanner('timelineSerialInput')" class="inline-flex items-center gap-2 px-4 py-2 bg-neutral-900 text-white rounded-2xl text-xs sm:text-sm font-semibold shadow-sm hover:bg-black active:scale-95 transition">
+        <!-- Quick Scan Button (Teal Clay Button) -->
+        <button onclick="openLiveScanner('timelineSerialInput')" class="inline-flex items-center gap-2 px-5 py-3 clay-btn-teal text-xs sm:text-sm font-bold transition">
           <i data-lucide="scan" class="w-4 h-4"></i>
           <span id="btnQuickScan">Scan Barcode / QR</span>
         </button>
@@ -236,124 +422,131 @@
       <!-- ================= TAB 1: DASHBOARD ================= -->
       <div id="tabDashboard" class="space-y-6">
         
-        <!-- Counter Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('all')">
-            <span id="lblStatTotal" class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Total</span>
-            <div id="statTotal" class="text-2xl sm:text-3xl font-bold text-neutral-900 mt-1">0</div>
-            <span id="badgeStatTotal" class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600">All Items</span>
+        <!-- Counter Cards Grid (Sculpted Claymorphism) -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+          
+          <div class="clay-card-white p-4 sm:p-5 cursor-pointer" onclick="filterByStatusAndSwitch('all')">
+            <span id="lblStatTotal" class="text-[11px] font-bold text-[#8C827A] uppercase tracking-wider">Total</span>
+            <div id="statTotal" class="text-3xl font-extrabold text-[#2D2926] mt-1.5">0</div>
+            <span id="badgeStatTotal" class="inline-block mt-2.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-xl bg-[#F0EAE5] text-[#5C534D]">All Items</span>
           </div>
 
-          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('received')">
-            <span id="lblStatReceived" class="text-[11px] font-semibold text-blue-500 uppercase tracking-wider">Received</span>
-            <div id="statReceived" class="text-2xl sm:text-3xl font-bold text-blue-600 mt-1">0</div>
-            <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full badge-received">Received</span>
+          <div class="clay-card-white p-4 sm:p-5 cursor-pointer" onclick="filterByStatusAndSwitch('received')">
+            <span id="lblStatReceived" class="text-[11px] font-bold text-[#1E60D5] uppercase tracking-wider">Received</span>
+            <div id="statReceived" class="text-3xl font-extrabold text-[#1E60D5] mt-1.5">0</div>
+            <span class="inline-block mt-2.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-xl badge-received">Received</span>
           </div>
 
-          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('in_storage')">
-            <span id="lblStatStorage" class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">In Storage</span>
-            <div id="statStorage" class="text-2xl sm:text-3xl font-bold text-emerald-600 mt-1">0</div>
-            <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full badge-storage">Storage</span>
+          <div class="clay-card-white p-4 sm:p-5 cursor-pointer" onclick="filterByStatusAndSwitch('in_storage')">
+            <span id="lblStatStorage" class="text-[11px] font-bold text-[#009E77] uppercase tracking-wider">In Storage</span>
+            <div id="statStorage" class="text-3xl font-extrabold text-[#009E77] mt-1.5">0</div>
+            <span class="inline-block mt-2.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-xl badge-storage">Storage</span>
           </div>
 
-          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('handed_over')">
-            <span id="lblStatHandover" class="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">Handed Over</span>
-            <div id="statHandover" class="text-2xl sm:text-3xl font-bold text-amber-600 mt-1">0</div>
-            <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full badge-handover">Handover</span>
+          <div class="clay-card-white p-4 sm:p-5 cursor-pointer" onclick="filterByStatusAndSwitch('handed_over')">
+            <span id="lblStatHandover" class="text-[11px] font-bold text-[#FF8A00] uppercase tracking-wider">Handed Over</span>
+            <div id="statHandover" class="text-3xl font-extrabold text-[#FF8A00] mt-1.5">0</div>
+            <span class="inline-block mt-2.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-xl badge-handover">Handover</span>
           </div>
 
-          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('installed')">
-            <span id="lblStatInstalled" class="text-[11px] font-semibold text-green-600 uppercase tracking-wider">Installed</span>
-            <div id="statInstalled" class="text-2xl sm:text-3xl font-bold text-green-700 mt-1">0</div>
-            <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full badge-installed">Installed</span>
+          <div class="clay-card-white p-4 sm:p-5 cursor-pointer" onclick="filterByStatusAndSwitch('installed')">
+            <span id="lblStatInstalled" class="text-[11px] font-bold text-[#00C496] uppercase tracking-wider">Installed</span>
+            <div id="statInstalled" class="text-3xl font-extrabold text-[#008765] mt-1.5">0</div>
+            <span class="inline-block mt-2.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-xl badge-installed">Installed</span>
           </div>
 
-          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('rejected')">
-            <span id="lblStatRejected" class="text-[11px] font-semibold text-rose-600 uppercase tracking-wider">Rejected</span>
-            <div id="statRejected" class="text-2xl sm:text-3xl font-bold text-rose-600 mt-1">0</div>
-            <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full badge-rejected">Rejected</span>
+          <div class="clay-card-white p-4 sm:p-5 cursor-pointer" onclick="filterByStatusAndSwitch('rejected')">
+            <span id="lblStatRejected" class="text-[11px] font-bold text-[#E8365B] uppercase tracking-wider">Rejected</span>
+            <div id="statRejected" class="text-3xl font-extrabold text-[#E8365B] mt-1.5">0</div>
+            <span class="inline-block mt-2.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-xl badge-rejected">Rejected</span>
           </div>
         </div>
 
-        <!-- Action Grid -->
+        <!-- 3D Action Cards (Matching Image: Green, Orange, Purple, White) -->
         <div>
-          <h2 id="headingQuickActions" class="text-base font-semibold text-neutral-800 mb-3 tracking-tight">Quick Actions</h2>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          <h2 id="headingQuickActions" class="text-base font-extrabold text-[#2D2926] mb-3.5 tracking-tight">Quick Actions</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
             
-            <button onclick="openModal('receiveModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-blue-300">
-              <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <!-- 1. Receive (Vibrant Teal Clay Card like the green one in image) -->
+            <button onclick="openModal('receiveModal')" class="clay-btn-teal p-4 text-left flex flex-col justify-between h-36">
+              <div class="w-11 h-11 rounded-2xl bg-white/20 border border-white/40 flex items-center justify-center text-white shadow-sm">
                 <i data-lucide="package-plus" class="w-5 h-5"></i>
               </div>
               <div>
-                <p id="actRecTitle" class="font-semibold text-sm text-neutral-900 leading-snug">1. Receive</p>
-                <p id="actRecSub" class="text-[11px] text-neutral-500">Inbound Mal</p>
+                <p id="actRecTitle" class="font-extrabold text-sm text-white leading-snug">1. Receive</p>
+                <p id="actRecSub" class="text-[11px] text-white/80 font-medium">Inbound Mal</p>
               </div>
             </button>
 
-            <button onclick="openModal('storageModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-emerald-300">
-              <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <!-- 2. Storage (Porcelain Clay Card with soft green depth) -->
+            <button onclick="openModal('storageModal')" class="clay-card-white p-4 text-left flex flex-col justify-between h-36 border-emerald-100">
+              <div class="w-11 h-11 rounded-2xl bg-[#E8F9ED] text-[#009E77] flex items-center justify-center shadow-sm border border-[#00C496]/20">
                 <i data-lucide="archive" class="w-5 h-5"></i>
               </div>
               <div>
-                <p id="actStoreTitle" class="font-semibold text-sm text-neutral-900 leading-snug">2. Storage</p>
-                <p id="actStoreSub" class="text-[11px] text-neutral-500">Rack / Shelf</p>
+                <p id="actStoreTitle" class="font-extrabold text-sm text-[#2D2926] leading-snug">2. Storage</p>
+                <p id="actStoreSub" class="text-[11px] text-[#7A726C] font-medium">Rack / Shelf</p>
               </div>
             </button>
 
-            <button onclick="openModal('handoverModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-amber-300">
-              <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <!-- 3. Handover (Vibrant Tangerine/Orange Clay Card like the orange pill in image) -->
+            <button onclick="openModal('handoverModal')" class="clay-btn-orange p-4 text-left flex flex-col justify-between h-36">
+              <div class="w-11 h-11 rounded-2xl bg-white/20 border border-white/40 flex items-center justify-center text-white shadow-sm">
                 <i data-lucide="user-check" class="w-5 h-5"></i>
               </div>
               <div>
-                <p id="actHandTitle" class="font-semibold text-sm text-neutral-900 leading-snug">3. Handover</p>
-                <p id="actHandSub" class="text-[11px] text-neutral-500">To Installer</p>
+                <p id="actHandTitle" class="font-extrabold text-sm text-white leading-snug">3. Handover</p>
+                <p id="actHandSub" class="text-[11px] text-white/80 font-medium">To Installer</p>
               </div>
             </button>
 
-            <button onclick="openModal('installModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-green-300">
-              <div class="w-10 h-10 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center">
+            <!-- 4. Installed (Porcelain Card with Emerald accents) -->
+            <button onclick="openModal('installModal')" class="clay-card-white p-4 text-left flex flex-col justify-between h-36 border-green-100">
+              <div class="w-11 h-11 rounded-2xl bg-[#D9F7EE] text-[#008765] flex items-center justify-center shadow-sm border border-[#00C496]/20">
                 <i data-lucide="check-circle" class="w-5 h-5"></i>
               </div>
               <div>
-                <p id="actInstTitle" class="font-semibold text-sm text-neutral-900 leading-snug">4. Installed</p>
-                <p id="actInstSub" class="text-[11px] text-neutral-500">GPS & Photo</p>
+                <p id="actInstTitle" class="font-extrabold text-sm text-[#2D2926] leading-snug">4. Installed</p>
+                <p id="actInstSub" class="text-[11px] text-[#7A726C] font-medium">GPS & Photo</p>
               </div>
             </button>
 
-            <button onclick="openModal('rejectModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-rose-300">
-              <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+            <!-- 5. Reject (Vibrant Purple Clay Card like the lilac element in image) -->
+            <button onclick="openModal('rejectModal')" class="clay-btn-purple p-4 text-left flex flex-col justify-between h-36">
+              <div class="w-11 h-11 rounded-2xl bg-white/20 border border-white/40 flex items-center justify-center text-white shadow-sm">
                 <i data-lucide="alert-octagon" class="w-5 h-5"></i>
               </div>
               <div>
-                <p id="actRejTitle" class="font-semibold text-sm text-neutral-900 leading-snug">5. Reject</p>
-                <p id="actRejSub" class="text-[11px] text-neutral-500">With Evidence</p>
+                <p id="actRejTitle" class="font-extrabold text-sm text-white leading-snug">5. Reject</p>
+                <p id="actRejSub" class="text-[11px] text-white/80 font-medium">With Evidence</p>
               </div>
             </button>
 
-            <button onclick="openModal('pickupModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-slate-300">
-              <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center">
+            <!-- 6. Pickup (Satin Slate / Graphite Clay Card) -->
+            <button onclick="openModal('pickupModal')" class="clay-btn-slate p-4 text-left flex flex-col justify-between h-36">
+              <div class="w-11 h-11 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-white shadow-sm">
                 <i data-lucide="truck" class="w-5 h-5"></i>
               </div>
               <div>
-                <p id="actPickTitle" class="font-semibold text-sm text-neutral-900 leading-snug">6. Pickup</p>
-                <p id="actPickSub" class="text-[11px] text-neutral-500">Return Handover</p>
+                <p id="actPickTitle" class="font-extrabold text-sm text-white leading-snug">6. Pickup</p>
+                <p id="actPickSub" class="text-[11px] text-white/80 font-medium">Return Handover</p>
               </div>
             </button>
 
           </div>
         </div>
 
-        <!-- Recent Activity Feed -->
-        <div class="apple-card rounded-3xl p-5">
+        <!-- Recent Activity Feed (Porcelain Plate) -->
+        <div class="clay-card-white p-6 sm:p-7">
           <div class="flex items-center justify-between mb-4">
-            <h3 id="headingRecentActivity" class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
-              <i data-lucide="history" class="w-4 h-4 text-blue-600"></i>
+            <h3 id="headingRecentActivity" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
+              <i data-lucide="history" class="w-4 h-4 text-[#00C496]"></i>
               <span>Recent Activity</span>
             </h3>
-            <button onclick="loadDashboardStats()" id="btnRefreshActivity" class="text-xs text-blue-600 hover:underline">Refresh</button>
+            <button onclick="loadDashboardStats()" id="btnRefreshActivity" class="text-xs font-bold text-[#009E77] hover:underline">Refresh</button>
           </div>
           <div id="recentActivityList" class="space-y-3">
-            <p class="text-xs text-neutral-400 py-3 text-center">Loading activity log...</p>
+            <p class="text-xs text-[#8C827A] py-3 text-center">Loading activity log...</p>
           </div>
         </div>
 
@@ -362,32 +555,32 @@
       <!-- ================= TAB 2: INVENTORY LIST ================= -->
       <div id="tabInventory" class="hidden space-y-4">
         
-        <!-- Search and Filters -->
-        <div class="apple-card p-4 rounded-3xl flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <!-- Search and Filters Bar (Clay Style) -->
+        <div class="clay-card-white p-4 sm:p-5 flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div class="relative w-full sm:w-96">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-400">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-[#9C9289]">
               <i data-lucide="search" class="w-4 h-4"></i>
             </span>
             <input id="inventorySearchInput" type="text" placeholder="Search by serial, name, or phone..." 
               oninput="handleSearchInventory()"
-              class="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-neutral-100/80 border border-neutral-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none text-xs sm:text-sm font-medium" />
-            <button onclick="openLiveScanner('inventorySearchInput', () => handleSearchInventory())" class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-400 hover:text-neutral-900">
+              class="w-full pl-11 pr-11 py-3 clay-input outline-none text-xs sm:text-sm font-semibold text-[#2D2926]" />
+            <button onclick="openLiveScanner('inventorySearchInput', () => handleSearchInventory())" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#009E77] hover:scale-110 transition">
               <i data-lucide="scan" class="w-4 h-4"></i>
             </button>
           </div>
 
           <div class="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 no-scrollbar">
-            <button onclick="filterInventory('all')" id="filterBtn_all" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-neutral-900 text-white">All</button>
-            <button onclick="filterInventory('received')" id="filterBtn_received" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200">Received</button>
-            <button onclick="filterInventory('in_storage')" id="filterBtn_in_storage" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200">Storage</button>
-            <button onclick="filterInventory('handed_over')" id="filterBtn_handed_over" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200">Handover</button>
-            <button onclick="filterInventory('installed')" id="filterBtn_installed" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200">Installed</button>
-            <button onclick="filterInventory('rejected')" id="filterBtn_rejected" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200">Rejected</button>
+            <button onclick="filterInventory('all')" id="filterBtn_all" class="px-4 py-2 rounded-2xl text-xs font-extrabold bg-[#2D2926] text-white shadow-md">All</button>
+            <button onclick="filterInventory('received')" id="filterBtn_received" class="px-4 py-2 rounded-2xl text-xs font-extrabold bg-white text-[#7A726C] hover:bg-[#F2ECE8] border border-[#EAE3DE] shadow-sm">Received</button>
+            <button onclick="filterInventory('in_storage')" id="filterBtn_in_storage" class="px-4 py-2 rounded-2xl text-xs font-extrabold bg-white text-[#7A726C] hover:bg-[#F2ECE8] border border-[#EAE3DE] shadow-sm">Storage</button>
+            <button onclick="filterInventory('handed_over')" id="filterBtn_handed_over" class="px-4 py-2 rounded-2xl text-xs font-extrabold bg-white text-[#7A726C] hover:bg-[#F2ECE8] border border-[#EAE3DE] shadow-sm">Handover</button>
+            <button onclick="filterInventory('installed')" id="filterBtn_installed" class="px-4 py-2 rounded-2xl text-xs font-extrabold bg-white text-[#7A726C] hover:bg-[#F2ECE8] border border-[#EAE3DE] shadow-sm">Installed</button>
+            <button onclick="filterInventory('rejected')" id="filterBtn_rejected" class="px-4 py-2 rounded-2xl text-xs font-extrabold bg-white text-[#7A726C] hover:bg-[#F2ECE8] border border-[#EAE3DE] shadow-sm">Rejected</button>
           </div>
         </div>
 
         <div id="inventoryCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <p class="col-span-full text-center py-12 text-xs text-neutral-400">Loading products...</p>
+          <p class="col-span-full text-center py-12 text-xs text-[#8C827A]">Loading products...</p>
         </div>
 
       </div>
@@ -395,27 +588,27 @@
       <!-- ================= TAB 3: TIMELINE AUDIT ================= -->
       <div id="tabTimeline" class="hidden space-y-6">
         
-        <div class="apple-card p-5 rounded-3xl max-w-xl mx-auto">
-          <label id="lblTimelineSearch" class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Search Product Serial Number</label>
-          <div class="flex gap-2">
+        <div class="clay-card-white p-6 rounded-[32px] max-w-xl mx-auto">
+          <label id="lblTimelineSearch" class="block text-xs font-bold uppercase tracking-wider text-[#7A726C] mb-2.5">Search Product Serial Number</label>
+          <div class="flex gap-2.5">
             <div class="relative flex-1">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-400">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-[#9C9289]">
                 <i data-lucide="barcode" class="w-4 h-4"></i>
               </span>
               <input id="timelineSerialInput" type="text" placeholder="e.g. SN-90823412" 
-                class="w-full pl-10 pr-4 py-3 rounded-2xl bg-neutral-100/80 border border-neutral-200 focus:bg-white focus:border-blue-500 outline-none text-sm font-semibold uppercase tracking-wider" />
+                class="w-full pl-11 pr-4 py-3.5 clay-input outline-none text-sm font-bold uppercase tracking-wider text-[#2D2926]" />
             </div>
-            <button onclick="openLiveScanner('timelineSerialInput')" class="px-3.5 py-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-700 hover:bg-neutral-200 transition">
+            <button onclick="openLiveScanner('timelineSerialInput')" class="px-4 py-3.5 rounded-2xl bg-white border border-[#EAE3DE] text-[#009E77] hover:bg-[#F2ECE8] shadow-sm transition">
               <i data-lucide="scan" class="w-5 h-5"></i>
             </button>
-            <button onclick="loadProductTimeline()" id="btnTimelineSearch" class="px-5 py-3 rounded-2xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 active:scale-95 transition">
+            <button onclick="loadProductTimeline()" id="btnTimelineSearch" class="px-6 py-3.5 clay-btn-teal font-bold text-sm transition">
               Search
             </button>
           </div>
         </div>
 
         <div id="timelineResultContainer" class="max-w-2xl mx-auto space-y-6">
-          <p id="timelineEmptyNotice" class="text-xs text-neutral-400 text-center py-8">Search a serial number to view the complete audit trail.</p>
+          <p id="timelineEmptyNotice" class="text-xs text-[#8C827A] text-center py-8">Search a serial number to view the complete audit trail.</p>
         </div>
 
       </div>
@@ -423,39 +616,39 @@
       <!-- ================= TAB 4: STAFF MANAGEMENT ================= -->
       <div id="tabStaff" class="hidden space-y-6 max-w-3xl mx-auto">
         
-        <div class="apple-card p-6 rounded-3xl">
-          <h3 id="headingAddStaff" class="font-semibold text-neutral-900 text-sm mb-4 flex items-center gap-2">
-            <i data-lucide="user-plus" class="w-4 h-4 text-blue-600"></i>
+        <div class="clay-card-white p-7 rounded-[32px]">
+          <h3 id="headingAddStaff" class="font-extrabold text-[#2D2926] text-sm mb-4 flex items-center gap-2">
+            <i data-lucide="user-plus" class="w-4 h-4 text-[#00C496]"></i>
             <span>Add New Staff Member</span>
           </h3>
           <form onsubmit="handleAddEmployee(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label id="lblStaffName" class="block text-[11px] font-semibold text-neutral-500 mb-1">Full Name</label>
-              <input id="newEmpName" type="text" required placeholder="Name" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+              <label id="lblStaffName" class="block text-[11px] font-bold text-[#7A726C] mb-1">Full Name</label>
+              <input id="newEmpName" type="text" required placeholder="Name" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
             </div>
             <div>
-              <label id="lblStaffPhone" class="block text-[11px] font-semibold text-neutral-500 mb-1">Phone Number</label>
-              <input id="newEmpPhone" type="tel" required maxlength="10" placeholder="10 digits" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+              <label id="lblStaffPhone" class="block text-[11px] font-bold text-[#7A726C] mb-1">Phone Number</label>
+              <input id="newEmpPhone" type="tel" required maxlength="10" placeholder="10 digits" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
             </div>
             <div>
-              <label id="lblStaffPin" class="block text-[11px] font-semibold text-neutral-500 mb-1">4-Digit Login PIN</label>
-              <input id="newEmpPin" type="password" required maxlength="4" placeholder="••••" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+              <label id="lblStaffPin" class="block text-[11px] font-bold text-[#7A726C] mb-1">4-Digit Login PIN</label>
+              <input id="newEmpPin" type="password" required maxlength="4" placeholder="••••" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
             </div>
-            <div class="sm:col-span-3 flex justify-end">
-              <button type="submit" id="btnSaveStaff" class="px-5 py-2.5 rounded-2xl bg-blue-600 text-white font-semibold text-xs sm:text-sm hover:bg-blue-700 active:scale-95 transition">
+            <div class="sm:col-span-3 flex justify-end mt-1">
+              <button type="submit" id="btnSaveStaff" class="px-6 py-3 clay-btn-teal font-bold text-xs sm:text-sm transition">
                 + Save Employee
               </button>
             </div>
           </form>
         </div>
 
-        <div class="apple-card p-6 rounded-3xl">
-          <h3 class="font-semibold text-neutral-900 text-sm mb-4 flex items-center justify-between">
+        <div class="clay-card-white p-7 rounded-[32px]">
+          <h3 class="font-extrabold text-[#2D2926] text-sm mb-4 flex items-center justify-between">
             <span id="headingStaffList">Active Staff Members</span>
-            <button onclick="loadEmployees()" id="btnRefreshStaff" class="text-xs text-blue-600 hover:underline">Refresh</button>
+            <button onclick="loadEmployees()" id="btnRefreshStaff" class="text-xs font-bold text-[#009E77] hover:underline">Refresh</button>
           </h3>
-          <div id="staffListContainer" class="space-y-2">
-            <p class="text-xs text-neutral-400 py-3 text-center">Loading staff members...</p>
+          <div id="staffListContainer" class="space-y-2.5">
+            <p class="text-xs text-[#8C827A] py-3 text-center">Loading staff members...</p>
           </div>
         </div>
 
@@ -465,25 +658,25 @@
 
   </main>
 
-  <!-- ================= MODALS ================= -->
+  <!-- ================= MODALS SECTION (Porcelain & Clay 3D Aesthetic) ================= -->
 
   <!-- 1. LIVE BARCODE / QR SCANNER MODAL -->
   <div id="scannerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
-    <div class="bg-white rounded-3xl w-full max-w-sm p-5 apple-shadow space-y-4">
+    <div class="porcelain-plate w-full max-w-sm p-6 space-y-4">
       <div class="flex items-center justify-between">
-        <h3 id="modalScannerTitle" class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
-          <i data-lucide="scan" class="w-4 h-4 text-blue-600"></i>
+        <h3 id="modalScannerTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
+          <i data-lucide="scan" class="w-4 h-4 text-[#00C496]"></i>
           <span>Scan Barcode or QR Code</span>
         </h3>
-        <button onclick="closeScannerModal()" class="p-1 rounded-full text-neutral-400 hover:text-neutral-900">
+        <button onclick="closeScannerModal()" class="p-1.5 rounded-full text-[#7A726C] hover:text-[#2D2926]">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div id="reader" class="w-full rounded-2xl overflow-hidden bg-black aspect-square"></div>
-      <p id="modalScannerHint" class="text-[11px] text-neutral-400 text-center">Position the barcode or QR code inside the frame.</p>
+      <div id="reader" class="w-full rounded-3xl overflow-hidden bg-black aspect-square shadow-inner"></div>
+      <p id="modalScannerHint" class="text-[11px] text-[#7A726C] text-center font-medium">Position the barcode or QR code inside the frame.</p>
       
-      <button onclick="closeScannerModal()" id="btnCancelScan" class="w-full py-2.5 rounded-2xl bg-neutral-100 text-neutral-700 font-semibold text-xs hover:bg-neutral-200">
+      <button onclick="closeScannerModal()" id="btnCancelScan" class="w-full py-3 rounded-2xl bg-white border border-[#EAE3DE] text-[#5C534D] font-bold text-xs hover:bg-[#F2ECE8] shadow-sm">
         Cancel
       </button>
     </div>
@@ -491,45 +684,47 @@
 
   <!-- 2. RECEIVE PRODUCT MODAL -->
   <div id="receiveModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
-    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+    <div class="porcelain-plate w-full max-w-md p-7 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between">
-        <h3 id="modalRecTitle" class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
-          <i data-lucide="package-plus" class="w-4 h-4 text-blue-600"></i>
+        <h3 id="modalRecTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-[#00C496]/20 text-[#008765] flex items-center justify-center">
+            <i data-lucide="package-plus" class="w-4 h-4"></i>
+          </div>
           <span>1. Receive Product</span>
         </h3>
-        <button onclick="closeModal('receiveModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+        <button onclick="closeModal('receiveModal')" class="p-1.5 text-[#7A726C] hover:text-[#2D2926]">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form onsubmit="handleReceiveSubmit(event)" class="space-y-3.5">
+      <form onsubmit="handleReceiveSubmit(event)" class="space-y-4">
         <div>
-          <label id="lblRecSerial" class="block text-[11px] font-semibold text-neutral-500 mb-1">Serial Number / IMEI / Barcode *</label>
+          <label id="lblRecSerial" class="block text-[11px] font-bold text-[#7A726C] mb-1">Serial Number / IMEI / Barcode *</label>
           <div class="flex gap-2">
-            <input id="recSerial" type="text" required placeholder="Serial Number" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-blue-500" />
-            <button type="button" onclick="openLiveScanner('recSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+            <input id="recSerial" type="text" required placeholder="Serial Number" class="flex-1 px-4 py-3 clay-input text-xs sm:text-sm font-bold uppercase outline-none" />
+            <button type="button" onclick="openLiveScanner('recSerial')" class="px-3.5 rounded-2xl bg-white border border-[#EAE3DE] text-[#009E77] shadow-sm">
               <i data-lucide="scan" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
         <div>
-          <label id="lblRecName" class="block text-[11px] font-semibold text-neutral-500 mb-1">Product Name *</label>
-          <input id="recName" type="text" required placeholder="e.g. GPS Tracker / Fiber Router" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+          <label id="lblRecName" class="block text-[11px] font-bold text-[#7A726C] mb-1">Product Name *</label>
+          <input id="recName" type="text" required placeholder="e.g. GPS Tracker / Fiber Router" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-2.5">
           <div>
-            <label id="lblRecModel" class="block text-[11px] font-semibold text-neutral-500 mb-1">Model Number</label>
-            <input id="recModel" type="text" placeholder="e.g. GT06N" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+            <label id="lblRecModel" class="block text-[11px] font-bold text-[#7A726C] mb-1">Model Number</label>
+            <input id="recModel" type="text" placeholder="e.g. GT06N" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
           </div>
           <div>
-            <label id="lblRecSupplier" class="block text-[11px] font-semibold text-neutral-500 mb-1">Supplier / Vendor</label>
-            <input id="recSupplier" type="text" placeholder="e.g. Concox Corp" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+            <label id="lblRecSupplier" class="block text-[11px] font-bold text-[#7A726C] mb-1">Supplier / Vendor</label>
+            <input id="recSupplier" type="text" placeholder="e.g. Concox Corp" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
           </div>
         </div>
 
-        <button type="submit" id="btnSubmitRec" class="w-full py-3 rounded-2xl bg-blue-600 text-white font-semibold text-xs sm:text-sm hover:bg-blue-700 active:scale-95 transition mt-2">
+        <button type="submit" id="btnSubmitRec" class="w-full py-4 clay-btn-teal font-bold text-xs sm:text-sm transition mt-2">
           Record Received Product
         </button>
       </form>
@@ -538,34 +733,36 @@
 
   <!-- 3. PUT IN STORAGE MODAL -->
   <div id="storageModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
-    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4">
+    <div class="porcelain-plate w-full max-w-md p-7 space-y-4">
       <div class="flex items-center justify-between">
-        <h3 id="modalStoreTitle" class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
-          <i data-lucide="archive" class="w-4 h-4 text-emerald-600"></i>
+        <h3 id="modalStoreTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-[#009E77]/15 text-[#009E77] flex items-center justify-center">
+            <i data-lucide="archive" class="w-4 h-4"></i>
+          </div>
           <span>2. Store in Rack</span>
         </h3>
-        <button onclick="closeModal('storageModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+        <button onclick="closeModal('storageModal')" class="p-1.5 text-[#7A726C] hover:text-[#2D2926]">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form onsubmit="handleStorageSubmit(event)" class="space-y-3.5">
+      <form onsubmit="handleStorageSubmit(event)" class="space-y-4">
         <div>
-          <label id="lblStoreSerial" class="block text-[11px] font-semibold text-neutral-500 mb-1">Serial Number *</label>
+          <label id="lblStoreSerial" class="block text-[11px] font-bold text-[#7A726C] mb-1">Serial Number *</label>
           <div class="flex gap-2">
-            <input id="storeSerial" type="text" required placeholder="Serial Number" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-blue-500" />
-            <button type="button" onclick="openLiveScanner('storeSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+            <input id="storeSerial" type="text" required placeholder="Serial Number" class="flex-1 px-4 py-3 clay-input text-xs sm:text-sm font-bold uppercase outline-none" />
+            <button type="button" onclick="openLiveScanner('storeSerial')" class="px-3.5 rounded-2xl bg-white border border-[#EAE3DE] text-[#009E77] shadow-sm">
               <i data-lucide="scan" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
         <div>
-          <label id="lblStoreLocation" class="block text-[11px] font-semibold text-neutral-500 mb-1">Rack / Shelf / Location *</label>
-          <input id="storeLocation" type="text" required placeholder="e.g. Rack A-3 / Shelf 2" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+          <label id="lblStoreLocation" class="block text-[11px] font-bold text-[#7A726C] mb-1">Rack / Shelf / Location *</label>
+          <input id="storeLocation" type="text" required placeholder="e.g. Rack A-3 / Shelf 2" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
         </div>
 
-        <button type="submit" id="btnSubmitStore" class="w-full py-3 rounded-2xl bg-emerald-600 text-white font-semibold text-xs sm:text-sm hover:bg-emerald-700 active:scale-95 transition mt-2">
+        <button type="submit" id="btnSubmitStore" class="w-full py-4 clay-btn-teal font-bold text-xs sm:text-sm transition mt-2">
           Update Storage Location
         </button>
       </form>
@@ -574,43 +771,45 @@
 
   <!-- 4. HANDOVER FOR INSTALLATION MODAL -->
   <div id="handoverModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
-    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+    <div class="porcelain-plate w-full max-w-md p-7 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between">
-        <h3 id="modalHandTitle" class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
-          <i data-lucide="user-check" class="w-4 h-4 text-amber-600"></i>
+        <h3 id="modalHandTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-[#FF9500]/20 text-[#FF8A00] flex items-center justify-center">
+            <i data-lucide="user-check" class="w-4 h-4"></i>
+          </div>
           <span>3. Handover for Installation</span>
         </h3>
-        <button onclick="closeModal('handoverModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+        <button onclick="closeModal('handoverModal')" class="p-1.5 text-[#7A726C] hover:text-[#2D2926]">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form onsubmit="handleHandoverSubmit(event)" class="space-y-3.5">
+      <form onsubmit="handleHandoverSubmit(event)" class="space-y-4">
         <div>
-          <label id="lblHandSerial" class="block text-[11px] font-semibold text-neutral-500 mb-1">Serial Number *</label>
+          <label id="lblHandSerial" class="block text-[11px] font-bold text-[#7A726C] mb-1">Serial Number *</label>
           <div class="flex gap-2">
-            <input id="handoverSerial" type="text" required placeholder="Serial Number" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-blue-500" />
-            <button type="button" onclick="openLiveScanner('handoverSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+            <input id="handoverSerial" type="text" required placeholder="Serial Number" class="flex-1 px-4 py-3 clay-input text-xs sm:text-sm font-bold uppercase outline-none" />
+            <button type="button" onclick="openLiveScanner('handoverSerial')" class="px-3.5 rounded-2xl bg-white border border-[#EAE3DE] text-[#FF8A00] shadow-sm">
               <i data-lucide="scan" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
         <div>
-          <label id="lblHandAssignee" class="block text-[11px] font-semibold text-neutral-500 mb-1">Assigned Employee *</label>
-          <select id="handoverEmployeeSelect" required class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500">
+          <label id="lblHandAssignee" class="block text-[11px] font-bold text-[#7A726C] mb-1">Assigned Employee *</label>
+          <select id="handoverEmployeeSelect" required class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none">
             <option value="">Select Employee...</option>
           </select>
         </div>
 
-        <div class="pt-2 border-t border-neutral-100 space-y-2.5">
-          <p id="lblCustomerDetails" class="text-xs font-semibold text-neutral-700">Customer / Site Details (Optional)</p>
-          <input id="handoverCustName" type="text" placeholder="Customer Name" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none" />
-          <input id="handoverCustPhone" type="tel" maxlength="10" placeholder="Customer Phone Number" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none" />
-          <textarea id="handoverCustAddress" rows="2" placeholder="Installation Address" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none"></textarea>
+        <div class="pt-3 border-t border-[#EAE3DE] space-y-3">
+          <p id="lblCustomerDetails" class="text-xs font-bold text-[#2D2926]">Customer / Site Details (Optional)</p>
+          <input id="handoverCustName" type="text" placeholder="Customer Name" class="w-full px-4 py-3 clay-input text-xs font-semibold outline-none" />
+          <input id="handoverCustPhone" type="tel" maxlength="10" placeholder="Customer Phone Number" class="w-full px-4 py-3 clay-input text-xs font-semibold outline-none" />
+          <textarea id="handoverCustAddress" rows="2" placeholder="Installation Address" class="w-full px-4 py-3 clay-input text-xs font-semibold outline-none"></textarea>
         </div>
 
-        <button type="submit" id="btnSubmitHand" class="w-full py-3 rounded-2xl bg-amber-600 text-white font-semibold text-xs sm:text-sm hover:bg-amber-700 active:scale-95 transition mt-2">
+        <button type="submit" id="btnSubmitHand" class="w-full py-4 clay-btn-orange font-bold text-xs sm:text-sm transition mt-2">
           Confirm Handover
         </button>
       </form>
@@ -619,78 +818,80 @@
 
   <!-- 5. MARK INSTALLED MODAL -->
   <div id="installModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
-    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+    <div class="porcelain-plate w-full max-w-md p-7 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between">
-        <h3 id="modalInstTitle" class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
-          <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+        <h3 id="modalInstTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-[#00C496]/20 text-[#008765] flex items-center justify-center">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+          </div>
           <span>4. Mark Installed</span>
         </h3>
-        <button onclick="closeModal('installModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+        <button onclick="closeModal('installModal')" class="p-1.5 text-[#7A726C] hover:text-[#2D2926]">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form onsubmit="handleInstallSubmit(event)" class="space-y-3.5">
+      <form onsubmit="handleInstallSubmit(event)" class="space-y-4">
         <div>
-          <label id="lblInstSerial" class="block text-[11px] font-semibold text-neutral-500 mb-1">Serial Number *</label>
+          <label id="lblInstSerial" class="block text-[11px] font-bold text-[#7A726C] mb-1">Serial Number *</label>
           <div class="flex gap-2">
-            <input id="instSerial" type="text" required placeholder="Serial Number" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-blue-500" />
-            <button type="button" onclick="openLiveScanner('instSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+            <input id="instSerial" type="text" required placeholder="Serial Number" class="flex-1 px-4 py-3 clay-input text-xs sm:text-sm font-bold uppercase outline-none" />
+            <button type="button" onclick="openLiveScanner('instSerial')" class="px-3.5 rounded-2xl bg-white border border-[#EAE3DE] text-[#008765] shadow-sm">
               <i data-lucide="scan" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-2.5">
           <div>
-            <label id="lblInstCustName" class="block text-[11px] font-semibold text-neutral-500 mb-1">Customer Name *</label>
-            <input id="instCustName" type="text" required placeholder="Name" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+            <label id="lblInstCustName" class="block text-[11px] font-bold text-[#7A726C] mb-1">Customer Name *</label>
+            <input id="instCustName" type="text" required placeholder="Name" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
           </div>
           <div>
-            <label id="lblInstCustPhone" class="block text-[11px] font-semibold text-neutral-500 mb-1">Customer Phone *</label>
-            <input id="instCustPhone" type="tel" required maxlength="10" placeholder="10 digits" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+            <label id="lblInstCustPhone" class="block text-[11px] font-bold text-[#7A726C] mb-1">Customer Phone *</label>
+            <input id="instCustPhone" type="tel" required maxlength="10" placeholder="10 digits" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
           </div>
         </div>
 
         <div>
-          <label id="lblInstCustAddr" class="block text-[11px] font-semibold text-neutral-500 mb-1">Installation Address</label>
-          <textarea id="instCustAddress" rows="2" placeholder="Full Address" class="w-full px-3.5 py-2 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none focus:bg-white focus:border-blue-500"></textarea>
+          <label id="lblInstCustAddr" class="block text-[11px] font-bold text-[#7A726C] mb-1">Installation Address</label>
+          <textarea id="instCustAddress" rows="2" placeholder="Full Address" class="w-full px-4 py-3 clay-input text-xs font-semibold outline-none"></textarea>
         </div>
 
         <!-- GPS Location Display -->
-        <div class="p-3 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <i data-lucide="map-pin" class="w-4 h-4 text-rose-500"></i>
+        <div class="p-4 rounded-2xl bg-white border border-[#EAE3DE] shadow-sm flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="map-pin" class="w-5 h-5 text-[#FF6584]"></i>
             <div>
-              <p id="lblGpsTitle" class="text-[11px] font-semibold text-neutral-700">GPS Location (Auto-captured)</p>
-              <p id="instGpsText" class="text-[10px] text-neutral-500">Detecting location...</p>
+              <p id="lblGpsTitle" class="text-[11px] font-bold text-[#2D2926]">GPS Location (Auto-captured)</p>
+              <p id="instGpsText" class="text-[10px] text-[#7A726C] font-mono">Detecting location...</p>
             </div>
           </div>
-          <button type="button" onclick="captureCurrentLocation('instGpsText')" id="btnGpsRetry" class="px-2.5 py-1 rounded-xl bg-white border border-neutral-200 text-[10px] font-semibold text-neutral-700 hover:bg-neutral-100">
+          <button type="button" onclick="captureCurrentLocation('instGpsText')" id="btnGpsRetry" class="px-3 py-1.5 rounded-xl bg-[#F0EAE5] border border-white text-[11px] font-bold text-[#5C534D] hover:bg-[#EAE3DE]">
             Refresh
           </button>
         </div>
 
-        <!-- Live Photo Upload -->
+        <!-- Live Camera Photo Upload -->
         <div>
-          <label id="lblInstPhoto" class="block text-[11px] font-semibold text-neutral-500 mb-1">Installation Photo *</label>
+          <label id="lblInstPhoto" class="block text-[11px] font-bold text-[#7A726C] mb-1">Installation Photo *</label>
           <input id="instPhotoInput" type="file" accept="image/*" capture="environment" required onchange="handleImageSelection(event, 'instPhotoPreview', 'instCompressedData')" class="hidden" />
-          <button type="button" onclick="document.getElementById('instPhotoInput').click()" class="w-full py-4 border-2 border-dashed border-neutral-200 rounded-2xl flex flex-col items-center justify-center gap-1.5 hover:border-green-400 hover:bg-green-50/20 transition">
-            <i data-lucide="camera" class="w-6 h-6 text-green-600"></i>
-            <span id="btnTakeInstPhoto" class="text-xs font-semibold text-neutral-700">Capture Live Camera Photo</span>
-            <span id="hintInstPhotoCompress" class="text-[10px] text-neutral-400">Auto-compressed under 150KB</span>
+          <button type="button" onclick="document.getElementById('instPhotoInput').click()" class="w-full py-5 border-2 border-dashed border-[#00C496]/50 bg-[#00C496]/5 rounded-3xl flex flex-col items-center justify-center gap-1.5 hover:bg-[#00C496]/10 transition">
+            <i data-lucide="camera" class="w-7 h-7 text-[#008765]"></i>
+            <span id="btnTakeInstPhoto" class="text-xs font-bold text-[#008765]">Capture Live Camera Photo</span>
+            <span id="hintInstPhotoCompress" class="text-[10px] text-[#7A726C]">Auto-compressed under 150KB</span>
           </button>
-          <div id="instPhotoPreview" class="hidden mt-2 p-2 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center gap-3">
-            <img id="instPhotoPreviewImg" src="" class="w-12 h-12 object-cover rounded-xl" />
-            <div class="text-[11px] text-neutral-600">
-              <p id="txtInstPhotoReady" class="font-semibold text-emerald-700">Photo compressed and ready</p>
-              <p id="instPhotoSizeText" class="text-[10px] text-neutral-400"></p>
+          <div id="instPhotoPreview" class="hidden mt-3 p-3 rounded-2xl bg-white border border-[#EAE3DE] flex items-center gap-3 shadow-sm">
+            <img id="instPhotoPreviewImg" src="" class="w-14 h-14 object-cover rounded-xl border border-black/[0.08]" />
+            <div class="text-[11px] text-[#2D2926]">
+              <p id="txtInstPhotoReady" class="font-bold text-[#008765]">Photo compressed and ready</p>
+              <p id="instPhotoSizeText" class="text-[10px] text-[#7A726C] font-mono"></p>
             </div>
           </div>
           <input type="hidden" id="instCompressedData" />
         </div>
 
-        <button type="submit" id="instSubmitBtn" class="w-full py-3 rounded-2xl bg-green-600 text-white font-semibold text-xs sm:text-sm hover:bg-green-700 active:scale-95 transition mt-2">
+        <button type="submit" id="instSubmitBtn" class="w-full py-4 clay-btn-teal font-bold text-xs sm:text-sm transition mt-2">
           Save Installation Record
         </button>
       </form>
@@ -699,31 +900,33 @@
 
   <!-- 6. REJECT PRODUCT MODAL -->
   <div id="rejectModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
-    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+    <div class="porcelain-plate w-full max-w-md p-7 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between">
-        <h3 id="modalRejTitle" class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
-          <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600"></i>
+        <h3 id="modalRejTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-[#B588F8]/20 text-[#9055E8] flex items-center justify-center">
+            <i data-lucide="alert-octagon" class="w-4 h-4"></i>
+          </div>
           <span>5. Reject Product</span>
         </h3>
-        <button onclick="closeModal('rejectModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+        <button onclick="closeModal('rejectModal')" class="p-1.5 text-[#7A726C] hover:text-[#2D2926]">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form onsubmit="handleRejectSubmit(event)" class="space-y-3.5">
+      <form onsubmit="handleRejectSubmit(event)" class="space-y-4">
         <div>
-          <label id="lblRejSerial" class="block text-[11px] font-semibold text-neutral-500 mb-1">Serial Number *</label>
+          <label id="lblRejSerial" class="block text-[11px] font-bold text-[#7A726C] mb-1">Serial Number *</label>
           <div class="flex gap-2">
-            <input id="rejSerial" type="text" required placeholder="Serial Number" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-rose-500" />
-            <button type="button" onclick="openLiveScanner('rejSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+            <input id="rejSerial" type="text" required placeholder="Serial Number" class="flex-1 px-4 py-3 clay-input text-xs sm:text-sm font-bold uppercase outline-none" />
+            <button type="button" onclick="openLiveScanner('rejSerial')" class="px-3.5 rounded-2xl bg-white border border-[#EAE3DE] text-[#9055E8] shadow-sm">
               <i data-lucide="scan" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
         <div>
-          <label id="lblRejReason" class="block text-[11px] font-semibold text-neutral-500 mb-1">Rejection Reason *</label>
-          <select id="rejReason" required class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-rose-500">
+          <label id="lblRejReason" class="block text-[11px] font-bold text-[#7A726C] mb-1">Rejection Reason *</label>
+          <select id="rejReason" required class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none">
             <option value="">Select Reason...</option>
             <option value="Physical Damaged">Physical Damaged</option>
             <option value="Faulty / Not Working">Faulty / Not Working</option>
@@ -735,29 +938,29 @@
         </div>
 
         <div>
-          <label id="lblRejRemarks" class="block text-[11px] font-semibold text-neutral-500 mb-1">Remarks</label>
-          <textarea id="rejRemarks" rows="2" placeholder="Describe the defect or reason..." class="w-full px-3.5 py-2 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none focus:bg-white focus:border-rose-500"></textarea>
+          <label id="lblRejRemarks" class="block text-[11px] font-bold text-[#7A726C] mb-1">Remarks</label>
+          <textarea id="rejRemarks" rows="2" placeholder="Describe the defect or reason..." class="w-full px-4 py-3 clay-input text-xs font-semibold outline-none"></textarea>
         </div>
 
         <div>
-          <label id="lblRejPhoto" class="block text-[11px] font-semibold text-neutral-500 mb-1">Defect Evidence Photo *</label>
+          <label id="lblRejPhoto" class="block text-[11px] font-bold text-[#7A726C] mb-1">Defect Evidence Photo *</label>
           <input id="rejPhotoInput" type="file" accept="image/*" capture="environment" required onchange="handleImageSelection(event, 'rejPhotoPreview', 'rejCompressedData')" class="hidden" />
-          <button type="button" onclick="document.getElementById('rejPhotoInput').click()" class="w-full py-4 border-2 border-dashed border-neutral-200 rounded-2xl flex flex-col items-center justify-center gap-1.5 hover:border-rose-400 hover:bg-rose-50/20 transition">
-            <i data-lucide="camera" class="w-6 h-6 text-rose-600"></i>
-            <span id="btnTakeRejPhoto" class="text-xs font-semibold text-neutral-700">Capture Defect Photo</span>
-            <span id="hintRejPhotoCompress" class="text-[10px] text-neutral-400">Auto-compressed and securely archived</span>
+          <button type="button" onclick="document.getElementById('rejPhotoInput').click()" class="w-full py-5 border-2 border-dashed border-[#B588F8]/50 bg-[#B588F8]/5 rounded-3xl flex flex-col items-center justify-center gap-1.5 hover:bg-[#B588F8]/10 transition">
+            <i data-lucide="camera" class="w-7 h-7 text-[#9055E8]"></i>
+            <span id="btnTakeRejPhoto" class="text-xs font-bold text-[#9055E8]">Capture Defect Photo</span>
+            <span id="hintRejPhotoCompress" class="text-[10px] text-[#7A726C]">Auto-compressed and securely archived</span>
           </button>
-          <div id="rejPhotoPreview" class="hidden mt-2 p-2 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center gap-3">
-            <img id="rejPhotoPreviewImg" src="" class="w-12 h-12 object-cover rounded-xl" />
-            <div class="text-[11px] text-neutral-600">
-              <p id="txtRejPhotoReady" class="font-semibold text-rose-700">Photo compressed and ready</p>
-              <p id="rejPhotoSizeText" class="text-[10px] text-neutral-400"></p>
+          <div id="rejPhotoPreview" class="hidden mt-3 p-3 rounded-2xl bg-white border border-[#EAE3DE] flex items-center gap-3 shadow-sm">
+            <img id="rejPhotoPreviewImg" src="" class="w-14 h-14 object-cover rounded-xl border border-black/[0.08]" />
+            <div class="text-[11px] text-[#2D2926]">
+              <p id="txtRejPhotoReady" class="font-bold text-[#9055E8]">Photo compressed and ready</p>
+              <p id="rejPhotoSizeText" class="text-[10px] text-[#7A726C] font-mono"></p>
             </div>
           </div>
           <input type="hidden" id="rejCompressedData" />
         </div>
 
-        <button type="submit" id="rejSubmitBtn" class="w-full py-3 rounded-2xl bg-rose-600 text-white font-semibold text-xs sm:text-sm hover:bg-rose-700 active:scale-95 transition mt-2">
+        <button type="submit" id="rejSubmitBtn" class="w-full py-4 clay-btn-purple font-bold text-xs sm:text-sm transition mt-2">
           Record Rejection
         </button>
       </form>
@@ -766,50 +969,52 @@
 
   <!-- 7. REJECTED PICKUP MODAL -->
   <div id="pickupModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
-    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+    <div class="porcelain-plate w-full max-w-md p-7 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between">
-        <h3 id="modalPickTitle" class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
-          <i data-lucide="truck" class="w-4 h-4 text-slate-700"></i>
+        <h3 id="modalPickTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-[#4A5568]/15 text-[#4A5568] flex items-center justify-center">
+            <i data-lucide="truck" class="w-4 h-4"></i>
+          </div>
           <span>6. Return Pickup Handover</span>
         </h3>
-        <button onclick="closeModal('pickupModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+        <button onclick="closeModal('pickupModal')" class="p-1.5 text-[#7A726C] hover:text-[#2D2926]">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form onsubmit="handlePickupSubmit(event)" class="space-y-3.5">
+      <form onsubmit="handlePickupSubmit(event)" class="space-y-4">
         <div>
-          <label id="lblPickSerial" class="block text-[11px] font-semibold text-neutral-500 mb-1">Serial Number (Rejected Products Only) *</label>
+          <label id="lblPickSerial" class="block text-[11px] font-bold text-[#7A726C] mb-1">Serial Number (Rejected Products Only) *</label>
           <div class="flex gap-2">
-            <input id="pickupSerial" type="text" required placeholder="Serial Number" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-slate-500" />
-            <button type="button" onclick="openLiveScanner('pickupSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+            <input id="pickupSerial" type="text" required placeholder="Serial Number" class="flex-1 px-4 py-3 clay-input text-xs sm:text-sm font-bold uppercase outline-none" />
+            <button type="button" onclick="openLiveScanner('pickupSerial')" class="px-3.5 rounded-2xl bg-white border border-[#EAE3DE] text-[#4A5568] shadow-sm">
               <i data-lucide="scan" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-2.5">
           <div>
-            <label id="lblPickName" class="block text-[11px] font-semibold text-neutral-500 mb-1">Pickup Person Name *</label>
-            <input id="pickupName" type="text" required placeholder="Name" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-slate-500" />
+            <label id="lblPickName" class="block text-[11px] font-bold text-[#7A726C] mb-1">Pickup Person Name *</label>
+            <input id="pickupName" type="text" required placeholder="Name" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
           </div>
           <div>
-            <label id="lblPickPhone" class="block text-[11px] font-semibold text-neutral-500 mb-1">Phone Number *</label>
-            <input id="pickupPhone" type="tel" required maxlength="10" placeholder="10 digits" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-slate-500" />
+            <label id="lblPickPhone" class="block text-[11px] font-bold text-[#7A726C] mb-1">Phone Number *</label>
+            <input id="pickupPhone" type="tel" required maxlength="10" placeholder="10 digits" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
           </div>
         </div>
 
         <div>
-          <label id="lblPickVehicle" class="block text-[11px] font-semibold text-neutral-500 mb-1">Vehicle / Tracking Number (Optional)</label>
-          <input id="pickupVehicle" type="text" placeholder="e.g. DL 01 AB 1234 / AWB No" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-slate-500" />
+          <label id="lblPickVehicle" class="block text-[11px] font-bold text-[#7A726C] mb-1">Vehicle / Tracking Number (Optional)</label>
+          <input id="pickupVehicle" type="text" placeholder="e.g. DL 01 AB 1234 / AWB No" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
         </div>
 
         <div>
-          <label id="lblPickRemarks" class="block text-[11px] font-semibold text-neutral-500 mb-1">Remarks</label>
-          <textarea id="pickupRemarks" rows="2" placeholder="Additional notes..." class="w-full px-3.5 py-2 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none focus:bg-white focus:border-slate-500"></textarea>
+          <label id="lblPickRemarks" class="block text-[11px] font-bold text-[#7A726C] mb-1">Remarks</label>
+          <textarea id="pickupRemarks" rows="2" placeholder="Additional notes..." class="w-full px-4 py-3 clay-input text-xs font-semibold outline-none"></textarea>
         </div>
 
-        <button type="submit" id="btnSubmitPick" class="w-full py-3 rounded-2xl bg-slate-800 text-white font-semibold text-xs sm:text-sm hover:bg-black active:scale-95 transition mt-2">
+        <button type="submit" id="btnSubmitPick" class="w-full py-4 clay-btn-slate font-bold text-xs sm:text-sm transition mt-2">
           Confirm Return Pickup
         </button>
       </form>
@@ -817,7 +1022,7 @@
   </div>
 
   <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
 
   <!-- ================= CLIENT JAVASCRIPT ================= -->
   <script>
@@ -831,7 +1036,6 @@
     let activeInventoryStatus = "all";
     let lastCapturedGps = { lat: null, lng: null };
 
-    // Clean, natural translations without mixing
     const i18n = {
       en: {
         langSwitch: "हिन्दी",
@@ -1035,7 +1239,6 @@
       document.getElementById("loginPin").value = pin;
     }
 
-    // App Initialization
     window.addEventListener("DOMContentLoaded", async () => {
       lucide.createIcons();
       applyTranslations();
@@ -1144,8 +1347,8 @@
         const btnEl = document.getElementById(`tabBtn${capitalize(tKey)}`);
         if (tabEl) tabEl.classList.add("hidden");
         if (btnEl) {
-          btnEl.classList.remove("bg-white", "text-neutral-900", "shadow-sm");
-          btnEl.classList.add("text-neutral-600");
+          btnEl.classList.remove("bg-white", "text-[#2D2926]", "shadow-md");
+          btnEl.classList.add("text-[#7A726C]");
         }
       });
 
@@ -1153,8 +1356,8 @@
       const activeBtnEl = document.getElementById(`tabBtn${capitalize(tab)}`);
       if (activeTabEl) activeTabEl.classList.remove("hidden");
       if (activeBtnEl) {
-        activeBtnEl.classList.add("bg-white", "text-neutral-900", "shadow-sm");
-        activeBtnEl.classList.remove("text-neutral-600");
+        activeBtnEl.classList.add("bg-white", "text-[#2D2926]", "shadow-md");
+        activeBtnEl.classList.remove("text-[#7A726C]");
       }
 
       if (tab === "inventory") loadInventory();
@@ -1185,7 +1388,7 @@
 
           const container = document.getElementById("recentActivityList");
           if (!data.recentActivity || data.recentActivity.length === 0) {
-            container.innerHTML = `<p class="text-xs text-neutral-400 py-3 text-center">${currentLang === 'en' ? 'No recent activity yet.' : 'अभी तक कोई गतिविधि नहीं हुई है।'}</p>`;
+            container.innerHTML = `<p class="text-xs text-[#8C827A] py-3 text-center">${currentLang === 'en' ? 'No recent activity yet.' : 'अभी तक कोई गतिविधि नहीं हुई है।'}</p>`;
             return;
           }
 
@@ -1199,18 +1402,18 @@
             if (act.action === "REJECTED_PICKUP") badgeClass = "badge-pickup";
 
             return `
-              <div class="flex items-center justify-between p-3 rounded-2xl bg-neutral-50 border border-neutral-100">
+              <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-[#EAE3DE] shadow-sm hover:border-[#00C496]/50 transition">
                 <div class="flex items-center gap-3">
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${badgeClass}">${act.action}</span>
+                  <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-xl ${badgeClass}">${act.action}</span>
                   <div>
-                    <p class="text-xs font-semibold text-neutral-800">
-                      SN: <span class="font-mono">${act.serial_number || act.serialNumber}</span>
+                    <p class="text-xs font-bold text-[#2D2926]">
+                      SN: <span class="font-mono text-[#008765]">${act.serial_number || act.serialNumber}</span>
                     </p>
-                    <p class="text-[11px] text-neutral-500">${act.actor_name || act.actorName} (${act.actor_phone || act.actorPhone})</p>
+                    <p class="text-[11px] text-[#7A726C]">${act.actor_name || act.actorName} (${act.actor_phone || act.actorPhone})</p>
                   </div>
                 </div>
                 <div class="text-right">
-                  <span class="text-[10px] text-neutral-400">${timeStr}</span>
+                  <span class="text-[10px] text-[#9C9289] font-mono">${timeStr}</span>
                 </div>
               </div>
             `;
@@ -1224,7 +1427,7 @@
 
     async function loadInventory(search = "") {
       const container = document.getElementById("inventoryCardsContainer");
-      container.innerHTML = `<p class="col-span-full text-center py-12 text-xs text-neutral-400">${currentLang === 'en' ? 'Loading products...' : 'प्रोडक्ट्स लोड हो रहे हैं...'}</p>`;
+      container.innerHTML = `<p class="col-span-full text-center py-12 text-xs text-[#8C827A]">${currentLang === 'en' ? 'Loading products...' : 'प्रोडक्ट्स लोड हो रहे हैं...'}</p>`;
 
       try {
         let url = `/api/products?status=${activeInventoryStatus}`;
@@ -1236,9 +1439,9 @@
         const data = await res.json();
 
         if (!data.success || !data.products || data.products.length === 0) {
-          container.innerHTML = `<div class="col-span-full text-center py-12">
-            <p class="text-sm font-semibold text-neutral-600">${currentLang === 'en' ? 'No records found' : 'कोई रिकॉर्ड नहीं मिला'}</p>
-            <p class="text-xs text-neutral-400 mt-1">${currentLang === 'en' ? 'No items match the selected filter.' : 'इस फ़िल्टर के अनुसार कोई प्रोडक्ट मौजूद नहीं है।'}</p>
+          container.innerHTML = `<div class="col-span-full clay-card-white text-center py-12">
+            <p class="text-sm font-bold text-[#5C534D]">${currentLang === 'en' ? 'No records found' : 'कोई रिकॉर्ड नहीं मिला'}</p>
+            <p class="text-xs text-[#8C827A] mt-1">${currentLang === 'en' ? 'No items match the selected filter.' : 'इस फ़िल्टर के अनुसार कोई प्रोडक्ट मौजूद नहीं है।'}</p>
           </div>`;
           return;
         }
@@ -1253,34 +1456,34 @@
           if (p.current_status === "picked_up") { badgeClass = "badge-pickup"; }
 
           return `
-            <div class="apple-card p-5 rounded-3xl flex flex-col justify-between">
+            <div class="clay-card-white p-5 rounded-[30px] flex flex-col justify-between">
               <div>
-                <div class="flex items-start justify-between gap-2 mb-2">
-                  <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${badgeClass}">${statusText}</span>
-                  <span class="text-[10px] text-neutral-400 font-mono">${formatDateTime(p.updated_at)}</span>
+                <div class="flex items-start justify-between gap-2 mb-2.5">
+                  <span class="text-[10px] font-extrabold px-3 py-1 rounded-xl ${badgeClass}">${statusText}</span>
+                  <span class="text-[10px] text-[#9C9289] font-mono">${formatDateTime(p.updated_at)}</span>
                 </div>
 
-                <h4 class="font-semibold text-neutral-900 text-sm">${p.name}</h4>
-                <p class="text-xs font-mono font-medium text-blue-600 mt-0.5">${p.serial_number}</p>
+                <h4 class="font-extrabold text-[#2D2926] text-sm leading-snug">${p.name}</h4>
+                <p class="text-xs font-mono font-bold text-[#008765] mt-1">${p.serial_number}</p>
                 
-                <div class="mt-3 text-xs text-neutral-500 space-y-1">
-                  ${p.model ? `<p>${t('model')}: <span class="text-neutral-800 font-medium">${p.model}</span></p>` : ''}
-                  ${p.storage_location ? `<p>${t('location')}: <span class="text-neutral-800 font-medium">${p.storage_location}</span></p>` : ''}
-                  ${p.assigned_to_name ? `<p>${t('assignedTo')}: <span class="text-neutral-800 font-medium">${p.assigned_to_name}</span></p>` : ''}
-                  ${p.customer_name ? `<p>${t('customer')}: <span class="text-neutral-800 font-medium">${p.customer_name}</span></p>` : ''}
-                  ${p.rejected_reason ? `<p class="text-rose-600 font-medium">${p.rejected_reason}</p>` : ''}
+                <div class="mt-3.5 text-xs text-[#7A726C] space-y-1 bg-[#F9F7F5] p-3 rounded-2xl border border-[#EAE3DE]">
+                  ${p.model ? `<p>${t('model')}: <span class="text-[#2D2926] font-bold">${p.model}</span></p>` : ''}
+                  ${p.storage_location ? `<p>${t('location')}: <span class="text-[#2D2926] font-bold">${p.storage_location}</span></p>` : ''}
+                  ${p.assigned_to_name ? `<p>${t('assignedTo')}: <span class="text-[#2D2926] font-bold">${p.assigned_to_name}</span></p>` : ''}
+                  ${p.customer_name ? `<p>${t('customer')}: <span class="text-[#2D2926] font-bold">${p.customer_name}</span></p>` : ''}
+                  ${p.rejected_reason ? `<p class="text-[#E8365B] font-bold">${p.rejected_reason}</p>` : ''}
                 </div>
               </div>
 
-              <div class="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
-                <button onclick="viewTimelineForSerial('${p.serial_number}')" class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                  <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
+              <div class="mt-4 pt-3 border-t border-[#EAE3DE] flex items-center justify-between">
+                <button onclick="viewTimelineForSerial('${p.serial_number}')" class="text-xs font-bold text-[#009E77] hover:underline flex items-center gap-1.5">
+                  <i data-lucide="git-commit" class="w-4 h-4"></i>
                   <span>${t('viewTimeline')}</span>
                 </button>
                 
                 ${currentUser.role === 'admin' ? `
-                  <button onclick="handleDeleteProduct(${p.id}, '${p.serial_number}')" title="Delete" class="p-1.5 text-neutral-400 hover:text-rose-600 rounded-lg">
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  <button onclick="handleDeleteProduct(${p.id}, '${p.serial_number}')" title="Delete" class="p-2 text-[#9C9289] hover:text-[#E8365B] rounded-xl hover:bg-[#FFE8ED] transition">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
                   </button>
                 ` : ''}
               </div>
@@ -1289,7 +1492,7 @@
         }).join("");
         lucide.createIcons();
       } catch (err) {
-        container.innerHTML = `<p class="col-span-full text-center py-12 text-xs text-rose-500">Error loading data.</p>`;
+        container.innerHTML = `<p class="col-span-full text-center py-12 text-xs text-[#E8365B]">Error loading data.</p>`;
       }
     }
 
@@ -1299,9 +1502,9 @@
         const btn = document.getElementById(`filterBtn_${st}`);
         if (btn) {
           if (st === status) {
-            btn.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-neutral-900 text-white";
+            btn.className = "px-4 py-2 rounded-2xl text-xs font-extrabold bg-[#2D2926] text-white shadow-md";
           } else {
-            btn.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200";
+            btn.className = "px-4 py-2 rounded-2xl text-xs font-extrabold bg-white text-[#7A726C] hover:bg-[#F2ECE8] border border-[#EAE3DE] shadow-sm";
           }
         }
       });
@@ -1356,7 +1559,7 @@
         return;
       }
 
-      container.innerHTML = `<p class="text-xs text-neutral-400 text-center py-8">${currentLang === 'en' ? 'Loading timeline...' : 'टाइमलाइन लोड हो रही है...'}</p>`;
+      container.innerHTML = `<p class="text-xs text-[#8C827A] text-center py-8">${currentLang === 'en' ? 'Loading timeline...' : 'टाइमलाइन लोड हो रही है...'}</p>`;
 
       try {
         const res = await fetch(`/api/products/timeline?serial=${encodeURIComponent(serial)}`, {
@@ -1365,9 +1568,9 @@
         const data = await res.json();
 
         if (!data.success || !data.product) {
-          container.innerHTML = `<div class="apple-card p-6 rounded-3xl text-center">
-            <i data-lucide="alert-circle" class="w-8 h-8 text-neutral-400 mx-auto mb-2"></i>
-            <p class="font-semibold text-neutral-700 text-sm">${currentLang === 'en' ? `Serial '${serial}' not found` : `सीरियल नंबर '${serial}' नहीं मिला`}</p>
+          container.innerHTML = `<div class="clay-card-white p-7 rounded-[32px] text-center">
+            <i data-lucide="alert-circle" class="w-9 h-9 text-[#8C827A] mx-auto mb-2.5"></i>
+            <p class="font-bold text-[#2D2926] text-sm">${currentLang === 'en' ? `Serial '${serial}' not found` : `सीरियल नंबर '${serial}' नहीं मिला`}</p>
           </div>`;
           lucide.createIcons();
           return;
@@ -1377,74 +1580,74 @@
         const timeline = data.timeline || [];
 
         let html = `
-          <div class="apple-card p-6 rounded-3xl space-y-3">
+          <div class="clay-card-white p-7 rounded-[34px] space-y-3.5">
             <div class="flex items-start justify-between">
               <div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Product Lifecycle Master</span>
-                <h3 class="text-lg font-bold text-neutral-900 mt-0.5">${p.name}</h3>
-                <p class="text-xs font-mono font-semibold text-neutral-500">SN: ${p.serial_number}</p>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-[#009E77]">Product Lifecycle Master</span>
+                <h3 class="text-xl font-extrabold text-[#2D2926] mt-0.5">${p.name}</h3>
+                <p class="text-xs font-mono font-bold text-[#7A726C]">SN: ${p.serial_number}</p>
               </div>
-              <span class="text-xs font-bold px-3 py-1 rounded-full badge-${p.current_status === 'in_storage' ? 'storage' : p.current_status}">${p.current_status.toUpperCase()}</span>
+              <span class="text-xs font-extrabold px-3.5 py-1 rounded-xl badge-${p.current_status === 'in_storage' ? 'storage' : p.current_status}">${p.current_status.toUpperCase()}</span>
             </div>
             
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3 border-t border-neutral-100 text-xs">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3.5 border-t border-[#EAE3DE] text-xs">
               <div>
-                <span class="text-neutral-400 text-[10px]">${t('model')}:</span>
-                <p class="font-semibold text-neutral-800">${p.model || 'N/A'}</p>
+                <span class="text-[#8C827A] text-[10px] font-semibold">${t('model')}:</span>
+                <p class="font-bold text-[#2D2926]">${p.model || 'N/A'}</p>
               </div>
               <div>
-                <span class="text-neutral-400 text-[10px]">Supplier:</span>
-                <p class="font-semibold text-neutral-800">${p.supplier || 'N/A'}</p>
+                <span class="text-[#8C827A] text-[10px] font-semibold">Supplier:</span>
+                <p class="font-bold text-[#2D2926]">${p.supplier || 'N/A'}</p>
               </div>
               <div>
-                <span class="text-neutral-400 text-[10px]">${t('location')}:</span>
-                <p class="font-semibold text-neutral-800">${p.storage_location || 'N/A'}</p>
+                <span class="text-[#8C827A] text-[10px] font-semibold">${t('location')}:</span>
+                <p class="font-bold text-[#2D2926]">${p.storage_location || 'N/A'}</p>
               </div>
             </div>
           </div>
 
           <div class="space-y-4">
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-neutral-500 px-2">${currentLang === 'en' ? 'Audit Trail History' : 'संपूर्ण ऑडिट टाइमलाइन'}</h4>
+            <h4 class="text-xs font-extrabold uppercase tracking-wider text-[#7A726C] px-3">${currentLang === 'en' ? 'Audit Trail History' : 'संपूर्ण ऑडिट टाइमलाइन'}</h4>
         `;
 
         timeline.forEach((event) => {
           const formattedDate = formatDateTime(event.timestamp);
           let actionLabel = event.action;
           let iconName = "circle";
-          let iconColor = "text-blue-600 bg-blue-50";
+          let iconBg = "bg-[#00C496] text-white";
 
           if (event.action === "RECEIVE") { actionLabel = t("actRec"); iconName = "package-plus"; }
-          if (event.action === "PUT_IN_STORAGE") { actionLabel = t("actStore"); iconName = "archive"; iconColor = "text-emerald-600 bg-emerald-50"; }
-          if (event.action === "HANDOVER_FOR_INSTALL") { actionLabel = t("actHand"); iconName = "user-check"; iconColor = "text-amber-600 bg-amber-50"; }
-          if (event.action === "MARK_INSTALLED") { actionLabel = t("actInst"); iconName = "check-circle"; iconColor = "text-green-600 bg-green-50"; }
-          if (event.action === "REJECT_PRODUCT") { actionLabel = t("actRej"); iconName = "alert-octagon"; iconColor = "text-rose-600 bg-rose-50"; }
-          if (event.action === "REJECTED_PICKUP") { actionLabel = t("actPick"); iconName = "truck"; iconColor = "text-slate-700 bg-slate-100"; }
+          if (event.action === "PUT_IN_STORAGE") { actionLabel = t("actStore"); iconName = "archive"; iconBg = "bg-[#009E77] text-white"; }
+          if (event.action === "HANDOVER_FOR_INSTALL") { actionLabel = t("actHand"); iconName = "user-check"; iconBg = "bg-[#FF9500] text-white"; }
+          if (event.action === "MARK_INSTALLED") { actionLabel = t("actInst"); iconName = "check-circle"; iconBg = "bg-[#00C496] text-white"; }
+          if (event.action === "REJECT_PRODUCT") { actionLabel = t("actRej"); iconName = "alert-octagon"; iconBg = "bg-[#B588F8] text-white"; }
+          if (event.action === "REJECTED_PICKUP") { actionLabel = t("actPick"); iconName = "truck"; iconBg = "bg-[#4A5568] text-white"; }
 
           html += `
-            <div class="relative pl-10 timeline-item">
+            <div class="relative pl-12 timeline-item">
               <div class="timeline-line"></div>
               
-              <div class="absolute left-0 top-0 w-8 h-8 rounded-full ${iconColor} flex items-center justify-center border border-black/[0.06] z-10">
+              <div class="absolute left-0 top-0.5 w-10 h-10 rounded-2xl ${iconBg} flex items-center justify-center shadow-md border-2 border-white z-10">
                 <i data-lucide="${iconName}" class="w-4 h-4"></i>
               </div>
 
-              <div class="apple-card p-4 rounded-3xl space-y-2">
+              <div class="clay-card-white p-5 rounded-[28px] space-y-2">
                 <div class="flex items-center justify-between">
-                  <h5 class="text-xs font-bold text-neutral-900">${actionLabel}</h5>
-                  <span class="text-[10px] text-neutral-400 font-mono">${formattedDate}</span>
+                  <h5 class="text-xs font-extrabold text-[#2D2926]">${actionLabel}</h5>
+                  <span class="text-[10px] text-[#8C827A] font-mono">${formattedDate}</span>
                 </div>
 
-                <p class="text-xs text-neutral-600">${event.details?.message || ''}</p>
+                <p class="text-xs text-[#5C534D] font-medium">${event.details?.message || ''}</p>
 
-                <div class="flex items-center gap-2 text-[11px] text-neutral-500 pt-1">
+                <div class="flex items-center gap-2 text-[11px] text-[#7A726C] pt-1">
                   <i data-lucide="user" class="w-3.5 h-3.5"></i>
-                  <span>${t('actorBy')}: <b>${event.actorName || event.actor_name}</b> (${event.actorPhone || event.actor_phone})</span>
+                  <span>${t('actorBy')}: <b class="text-[#2D2926]">${event.actorName || event.actor_name}</b> (${event.actorPhone || event.actor_phone})</span>
                 </div>
 
                 ${event.gpsLat ? `
                   <div class="pt-1">
-                    <a href="https://maps.google.com/?q=${event.gpsLat},${event.gpsLng}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:underline">
-                      <i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500"></i>
+                    <a href="https://maps.google.com/?q=${event.gpsLat},${event.gpsLng}" target="_blank" class="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#009E77] hover:underline bg-[#D9F7EE] px-3 py-1.5 rounded-xl border border-[#00C496]/20">
+                      <i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#FF6584]"></i>
                       <span>${t('viewMap')} (${Number(event.gpsLat).toFixed(5)}, ${Number(event.gpsLng).toFixed(5)})</span>
                     </a>
                   </div>
@@ -1455,7 +1658,7 @@
                     <div id="photoContainer_${event.id}" class="relative">
                       <img src="${event.photoUrl}" alt="Photo" loading="lazy"
                         onerror="handlePhotoLoadError('${event.id}')"
-                        class="rounded-2xl max-h-48 object-cover border border-neutral-200 shadow-sm" />
+                        class="rounded-2xl max-h-52 object-cover border border-[#EAE3DE] shadow-md" />
                     </div>
                   </div>
                 ` : ''}
@@ -1468,7 +1671,7 @@
         container.innerHTML = html;
         lucide.createIcons();
       } catch (err) {
-        container.innerHTML = `<p class="text-xs text-rose-500 text-center py-8">Failed to load timeline.</p>`;
+        container.innerHTML = `<p class="text-xs text-[#E8365B] text-center py-8">Failed to load timeline.</p>`;
       }
     }
 
@@ -1476,8 +1679,8 @@
       const el = document.getElementById(`photoContainer_${eventId}`);
       if (el) {
         el.innerHTML = `
-          <div class="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-amber-50 text-amber-900 text-xs font-medium border border-amber-200/60">
-            <i data-lucide="archive" class="w-4 h-4 text-amber-700"></i>
+          <div class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-[#FFF1DE] text-[#C05800] text-xs font-bold border border-[#FF9500]/30 shadow-sm">
+            <i data-lucide="archive" class="w-4 h-4 text-[#FF8A00]"></i>
             <span>${t('archiveNotice')}</span>
           </div>
         `;
@@ -1774,10 +1977,10 @@
             lng: pos.coords.longitude
           };
           if (textEl) {
-            textEl.innerHTML = `<span class="text-green-700 font-medium">${lastCapturedGps.lat.toFixed(5)}, ${lastCapturedGps.lng.toFixed(5)}</span>`;
+            textEl.innerHTML = `<span class="text-[#008765] font-mono font-bold">${lastCapturedGps.lat.toFixed(5)}, ${lastCapturedGps.lng.toFixed(5)}</span>`;
           }
         },
-        (err) => {
+        () => {
           if (textEl) textEl.innerText = currentLang === 'en' ? "Location permission denied" : "अनुमति नहीं मिली";
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -1801,21 +2004,21 @@
           const listContainer = document.getElementById("staffListContainer");
           if (listContainer) {
             listContainer.innerHTML = allEmployees.map(emp => `
-              <div class="flex items-center justify-between p-3 rounded-2xl bg-neutral-50 border border-neutral-100">
+              <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-[#EAE3DE] shadow-sm">
                 <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+                  <div class="w-9 h-9 rounded-2xl bg-[#00C496]/20 text-[#008765] flex items-center justify-center font-extrabold text-xs border border-[#00C496]/30">
                     ${emp.name.charAt(0)}
                   </div>
                   <div>
-                    <p class="text-xs font-semibold text-neutral-800">${emp.name}</p>
-                    <p class="text-[11px] text-neutral-500 font-mono">${emp.phone}</p>
+                    <p class="text-xs font-bold text-[#2D2926]">${emp.name}</p>
+                    <p class="text-[11px] text-[#7A726C] font-mono">${emp.phone}</p>
                   </div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${emp.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-neutral-200 text-neutral-700'}">${emp.role}</span>
+                  <span class="text-[10px] font-extrabold px-3 py-1 rounded-xl ${emp.role === 'admin' ? 'bg-[#B588F8]/20 text-[#9055E8]' : 'bg-[#EAE3DE] text-[#5C534D]'}">${emp.role}</span>
                   ${currentUser?.role === 'admin' && String(emp.phone) !== String(currentUser.phone) ? `
-                    <button onclick="handleDeleteEmployee(${emp.id}, '${emp.phone}', '${emp.name}')" title="Delete" class="p-1.5 text-neutral-400 hover:text-rose-600 rounded-lg">
-                      <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                    <button onclick="handleDeleteEmployee(${emp.id}, '${emp.phone}', '${emp.name}')" title="Delete" class="p-2 text-[#9C9289] hover:text-[#E8365B] rounded-xl hover:bg-[#FFE8ED] transition">
+                      <i data-lucide="trash" class="w-4 h-4"></i>
                     </button>
                   ` : ''}
                 </div>
@@ -1938,11 +2141,11 @@
     function showToast(message, type = "info") {
       const container = document.getElementById("toastContainer");
       const toast = document.createElement("div");
-      let bg = "bg-neutral-900 text-white";
-      if (type === "success") bg = "bg-green-600 text-white";
-      if (type === "error") bg = "bg-rose-600 text-white";
+      let bg = "bg-[#2D2926] text-white";
+      if (type === "success") bg = "bg-[#00C496] text-white";
+      if (type === "error") bg = "bg-[#E8365B] text-white";
 
-      toast.className = `px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold shadow-lg ${bg} transition-all duration-300 pointer-events-auto flex items-center gap-2 transform translate-y-4 opacity-0`;
+      toast.className = `px-5 py-3.5 rounded-2xl text-xs sm:text-sm font-bold shadow-xl ${bg} transition-all duration-300 pointer-events-auto flex items-center gap-2 transform translate-y-4 opacity-0 border border-white/20`;
       toast.innerHTML = `<span>${message}</span>`;
       container.appendChild(toast);
 
