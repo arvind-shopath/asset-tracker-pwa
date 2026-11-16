@@ -8,8 +8,12 @@ binding = "DB"
 database_name = "asset-tracker-db"
 database_id = "96498f55-1ff3-42f6-91d4-e958f603222c"
 
+# Cloudflare KV Binding
+[[kv_namespaces]]
+binding = "KV"
+id = "c5d7ff1a7ec449bda628966ac0698c1b"
+
 # (Optional) Cloudflare R2 Bucket Binding
-# Uncomment when R2 is enabled on account:
 # [[r2_buckets]]
 # binding = "BUCKET"
 # bucket_name = "asset-tracker-photos"

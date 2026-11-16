@@ -97,7 +97,8 @@ export async function findUser(env, phone, pin = null) {
         query += " AND pin = ?";
         params.push(String(pin).trim());
       }
-      return await env.DB.prepare(query).bind(...params).first();
+      const dbRow = await env.DB.prepare(query).bind(...params).first();
+      if (dbRow) return dbRow;
     } catch (e) {
       console.warn("D1 findUser warning:", e);
     }
