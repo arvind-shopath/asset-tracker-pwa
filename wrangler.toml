@@ -6,7 +6,7 @@ pages_build_output_dir = "./public"
 [[d1_databases]]
 binding = "DB"
 database_name = "asset-tracker-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "96498f55-1ff3-42f6-91d4-e958f603222c"
 
 # Cloudflare R2 Bucket Binding (For Photos)
 [[r2_buckets]]
