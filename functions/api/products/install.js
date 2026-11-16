@@ -2,7 +2,7 @@ import { jsonResponse, errorResponse, verifyAuth, recordAudit } from "../_utils.
 
 export async function onRequestPost({ request, env }) {
   const user = await verifyAuth(request);
-  if (!user) return errorResponse("लॉगिन आवश्यक है।", 401);
+  if (!user) return errorResponse("Authentication required.", 401);
 
   try {
     const { 
@@ -16,51 +16,57 @@ export async function onRequestPost({ request, env }) {
     } = await request.json();
 
     if (!serialNumber || !customerName || !customerPhone) {
-      return errorResponse("सीरियल नंबर, ग्राहक का नाम और मोबाइल नंबर अनिवार्य हैं।", 400);
+      return errorResponse("Serial number, customer name, and phone number are required.", 400);
     }
 
     if (!photoKey) {
-      return errorResponse("इंस्टॉलेशन की लाइव फोटो अपलोड करना अनिवार्य है।", 400);
+      return errorResponse("Live installation photo is required.", 400);
     }
 
     const cleanSerial = String(serialNumber).trim();
+    let product = null;
 
-    const product = await env.DB.prepare(
-      "SELECT id, name, current_status FROM products WHERE serial_number = ?"
-    ).bind(cleanSerial).first();
+    if (env.KV) {
+      product = await env.KV.get(`product:${cleanSerial}`, "json");
+    }
+
+    if (!product && env.DB) {
+      try {
+        product = await env.DB.prepare(
+          "SELECT * FROM products WHERE serial_number = ?"
+        ).bind(cleanSerial).first();
+      } catch (e) {}
+    }
 
     if (!product) {
-      return errorResponse(`सीरियल नंबर (${cleanSerial}) नहीं मिला।`, 404);
+      return errorResponse(`Serial number (${cleanSerial}) not found.`, 404);
     }
 
-    if (product.current_status === "installed") {
-      return errorResponse("यह प्रोडक्ट पहले से ही 'Installed' मार्क किया जा चुका है।", 400);
+    product.current_status = "installed";
+    product.customer_name = customerName;
+    product.customer_phone = customerPhone;
+    product.customer_address = customerAddress || "";
+    product.gps_lat = gpsLat || null;
+    product.gps_lng = gpsLng || null;
+    product.installed_photo_key = photoKey;
+    product.updated_at = new Date().toISOString();
+
+    if (env.KV) {
+      await env.KV.put(`product:${cleanSerial}`, JSON.stringify(product));
+      let list = (await env.KV.get("products_list", "json")) || [];
+      list = list.map((p) => (p.serial_number === cleanSerial ? product : p));
+      await env.KV.put("products_list", JSON.stringify(list));
     }
 
-    if (product.current_status === "rejected" || product.current_status === "picked_up") {
-      return errorResponse(`यह प्रोडक्ट '${product.current_status}' स्थिति में है। इंस्टॉलेशन संभव नहीं।`, 400);
+    if (env.DB) {
+      try {
+        await env.DB.prepare(
+          `UPDATE products 
+           SET current_status = 'installed', customer_name = ?, customer_phone = ?, customer_address = ?, gps_lat = ?, gps_lng = ?, installed_photo_key = ?, updated_at = CURRENT_TIMESTAMP 
+           WHERE serial_number = ?`
+        ).bind(customerName, customerPhone, customerAddress || "", gpsLat || null, gpsLng || null, photoKey, cleanSerial).run();
+      } catch (e) {}
     }
-
-    await env.DB.prepare(
-      `UPDATE products 
-       SET current_status = 'installed', 
-           customer_name = ?, 
-           customer_phone = ?, 
-           customer_address = ?, 
-           gps_lat = ?, 
-           gps_lng = ?, 
-           installed_photo_key = ?, 
-           updated_at = CURRENT_TIMESTAMP 
-       WHERE id = ?`
-    ).bind(
-      customerName,
-      customerPhone,
-      customerAddress || "",
-      gpsLat || null,
-      gpsLng || null,
-      photoKey,
-      product.id
-    ).run();
 
     await recordAudit(env, {
       productId: product.id,
@@ -71,7 +77,7 @@ export async function onRequestPost({ request, env }) {
         customerName,
         customerPhone,
         customerAddress,
-        message: `सफलतापूर्वक ग्राहक (${customerName}) के यहाँ इंस्टॉल किया गया।`,
+        message: `Successfully installed for ${customerName}.`,
       },
       photoKey,
       gpsLat: gpsLat || null,
@@ -80,7 +86,7 @@ export async function onRequestPost({ request, env }) {
 
     return jsonResponse({
       success: true,
-      message: "प्रोडक्ट इंस्टॉलेशन सफलतापूर्वक पूर्ण और रिकॉर्ड किया गया।",
+      message: "Installation recorded successfully.",
       serialNumber: cleanSerial,
     });
   } catch (err) {

@@ -1,21 +1,19 @@
-import { jsonResponse, errorResponse, createAuthToken } from "../_utils.js";
+import { jsonResponse, errorResponse, createAuthToken, findUser } from "../_utils.js";
 
 export async function onRequestPost({ request, env }) {
   try {
     const { phone, pin } = await request.json();
     if (!phone || !pin) {
-      return errorResponse("कृपया मोबाइल नंबर और PIN दर्ज करें।", 400);
+      return errorResponse("Please enter both phone number and PIN.", 400);
     }
 
     const cleanPhone = String(phone).trim();
     const cleanPin = String(pin).trim();
 
-    const user = await env.DB.prepare(
-      "SELECT id, name, phone, role, is_active FROM users WHERE phone = ? AND pin = ? AND is_active = 1"
-    ).bind(cleanPhone, cleanPin).first();
+    const user = await findUser(env, cleanPhone, cleanPin);
 
     if (!user) {
-      return errorResponse("अमान्य मोबाइल नंबर या गलत PIN।", 401);
+      return errorResponse("Invalid phone number or PIN.", 401);
     }
 
     const token = await createAuthToken(user);
@@ -27,10 +25,10 @@ export async function onRequestPost({ request, env }) {
         id: user.id,
         name: user.name,
         phone: user.phone,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
   } catch (err) {
-    return errorResponse("लॉगिन विफल: " + err.message, 500);
+    return errorResponse("Login failed: " + err.message, 500);
   }
 }

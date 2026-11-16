@@ -2,14 +2,9 @@ import { jsonResponse, errorResponse, verifyAuth } from "../_utils.js";
 
 export async function onRequestGet({ request, env }) {
   const user = await verifyAuth(request);
-  if (!user) return errorResponse("लॉगिन आवश्यक है।", 401);
+  if (!user) return errorResponse("Authentication required.", 401);
 
   try {
-    // Aggregated product counts by status
-    const statusCounts = await env.DB.prepare(
-      `SELECT current_status, COUNT(*) as count FROM products GROUP BY current_status`
-    ).all();
-
     const counts = {
       total: 0,
       received: 0,
@@ -20,23 +15,44 @@ export async function onRequestGet({ request, env }) {
       picked_up: 0,
     };
 
-    (statusCounts.results || []).forEach((row) => {
-      counts[row.current_status] = row.count;
-      counts.total += row.count;
-    });
+    let recentActivity = [];
 
-    // Recent 10 audit activity logs
-    const recentActivity = await env.DB.prepare(
-      `SELECT a.*, p.name as product_name 
-       FROM audit_trail a 
-       LEFT JOIN products p ON a.product_id = p.id 
-       ORDER BY a.timestamp DESC LIMIT 10`
-    ).all();
+    // 1. From KV
+    if (env.KV) {
+      const list = (await env.KV.get("products_list", "json")) || [];
+      list.forEach((p) => {
+        if (counts[p.current_status] !== undefined) {
+          counts[p.current_status]++;
+        }
+        counts.total++;
+      });
+      recentActivity = (await env.KV.get("recent_activity", "json")) || [];
+    }
+
+    // 2. From D1 fallback if KV is empty
+    if (counts.total === 0 && env.DB) {
+      try {
+        const statusCounts = await env.DB.prepare(
+          `SELECT current_status, COUNT(*) as count FROM products GROUP BY current_status`
+        ).all();
+        (statusCounts.results || []).forEach((row) => {
+          counts[row.current_status] = row.count;
+          counts.total += row.count;
+        });
+        const rec = await env.DB.prepare(
+          `SELECT a.*, p.name as product_name 
+           FROM audit_trail a 
+           LEFT JOIN products p ON a.product_id = p.id 
+           ORDER BY a.timestamp DESC LIMIT 10`
+        ).all();
+        if (rec.results) recentActivity = rec.results;
+      } catch (e) {}
+    }
 
     return jsonResponse({
       success: true,
       stats: counts,
-      recentActivity: recentActivity.results || [],
+      recentActivity: recentActivity || [],
     });
   } catch (err) {
     return errorResponse(err.message, 500);

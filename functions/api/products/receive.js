@@ -2,13 +2,13 @@ import { jsonResponse, errorResponse, verifyAuth, recordAudit } from "../_utils.
 
 export async function onRequestPost({ request, env }) {
   const user = await verifyAuth(request);
-  if (!user) return errorResponse("लॉगिन आवश्यक है।", 401);
+  if (!user) return errorResponse("Authentication required.", 401);
 
   try {
     const { serialNumber, name, model, supplier } = await request.json();
 
     if (!serialNumber || !name) {
-      return errorResponse("सीरियल नंबर और प्रोडक्ट का नाम अनिवार्य है।", 400);
+      return errorResponse("Serial number and product name are required.", 400);
     }
 
     const cleanSerial = String(serialNumber).trim();
@@ -16,25 +16,62 @@ export async function onRequestPost({ request, env }) {
     const cleanModel = (model || "").trim();
     const cleanSupplier = (supplier || "").trim();
 
-    // Check if serial already exists
-    const existing = await env.DB.prepare(
-      "SELECT id, current_status FROM products WHERE serial_number = ?"
-    ).bind(cleanSerial).first();
+    const productRecord = {
+      id: Date.now(),
+      serial_number: cleanSerial,
+      name: cleanName,
+      model: cleanModel,
+      supplier: cleanSupplier,
+      current_status: "received",
+      storage_location: "",
+      assigned_to_phone: "",
+      assigned_to_name: "",
+      customer_name: "",
+      customer_phone: "",
+      customer_address: "",
+      gps_lat: null,
+      gps_lng: null,
+      installed_photo_key: null,
+      rejected_reason: null,
+      rejected_remarks: null,
+      rejected_photo_key: null,
+      pickup_person_name: null,
+      pickup_person_phone: null,
+      pickup_vehicle_no: null,
+      pickup_remarks: null,
+      updated_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+    };
 
-    if (existing) {
-      return errorResponse(`यह सीरियल नंबर (${cleanSerial}) पहले से दर्ज है। वर्तमान स्थिति: ${existing.current_status}`, 400);
+    // Save to KV
+    if (env.KV) {
+      const existing = await env.KV.get(`product:${cleanSerial}`, "json");
+      if (existing) {
+        return errorResponse(`Serial number (${cleanSerial}) already exists. Current status: ${existing.current_status}`, 400);
+      }
+      await env.KV.put(`product:${cleanSerial}`, JSON.stringify(productRecord));
+
+      const list = (await env.KV.get("products_list", "json")) || [];
+      list.unshift(productRecord);
+      await env.KV.put("products_list", JSON.stringify(list));
     }
 
-    const res = await env.DB.prepare(
-      `INSERT INTO products (serial_number, name, model, supplier, current_status) 
-       VALUES (?, ?, ?, ?, 'received')`
-    ).bind(cleanSerial, cleanName, cleanModel, cleanSupplier).run();
-
-    const productId = res.meta?.last_row_id;
+    // Try save to D1
+    if (env.DB) {
+      try {
+        const res = await env.DB.prepare(
+          `INSERT INTO products (serial_number, name, model, supplier, current_status) 
+           VALUES (?, ?, ?, ?, 'received')`
+        ).bind(cleanSerial, cleanName, cleanModel, cleanSupplier).run();
+        productRecord.id = res.meta?.last_row_id || productRecord.id;
+      } catch (e) {
+        console.warn("D1 receive notice:", e);
+      }
+    }
 
     // Record Audit Log
     await recordAudit(env, {
-      productId,
+      productId: productRecord.id,
       serialNumber: cleanSerial,
       action: "RECEIVE",
       actor: user,
@@ -42,14 +79,14 @@ export async function onRequestPost({ request, env }) {
         productName: cleanName,
         model: cleanModel,
         supplier: cleanSupplier,
-        message: "माल प्राप्त किया गया (Product Received into Inventory)",
+        message: "Product received into inventory.",
       },
     });
 
     return jsonResponse({
       success: true,
-      message: "प्रोडक्ट सफलतापूर्वक रिसीव कर लिया गया।",
-      productId,
+      message: "Product received successfully.",
+      productId: productRecord.id,
       serialNumber: cleanSerial,
     });
   } catch (err) {

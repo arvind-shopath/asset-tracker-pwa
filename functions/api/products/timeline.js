@@ -2,57 +2,67 @@ import { jsonResponse, errorResponse, verifyAuth } from "../_utils.js";
 
 export async function onRequestGet({ request, env }) {
   const user = await verifyAuth(request);
-  if (!user) return errorResponse("लॉगिन आवश्यक है।", 401);
+  if (!user) return errorResponse("Authentication required.", 401);
 
   try {
     const url = new URL(request.url);
     const serial = url.searchParams.get("serial");
 
     if (!serial) {
-      return errorResponse("सीरियल नंबर अनिवार्य है।", 400);
+      return errorResponse("Serial number is required.", 400);
     }
 
     const cleanSerial = String(serial).trim();
+    let product = null;
+    let timeline = [];
 
-    const product = await env.DB.prepare(
-      "SELECT * FROM products WHERE serial_number = ?"
-    ).bind(cleanSerial).first();
-
-    if (!product) {
-      return errorResponse(`सीरियल नंबर '${cleanSerial}' का कोई रिकॉर्ड नहीं मिला।`, 404);
+    // 1. Try KV first
+    if (env.KV) {
+      product = await env.KV.get(`product:${cleanSerial}`, "json");
+      timeline = (await env.KV.get(`timeline:${cleanSerial}`, "json")) || [];
     }
 
-    const { results } = await env.DB.prepare(
-      "SELECT * FROM audit_trail WHERE serial_number = ? ORDER BY timestamp ASC"
-    ).bind(cleanSerial).all();
-
-    const timeline = (results || []).map((row) => {
-      let parsedDetails = {};
+    // 2. Try D1 if product not found in KV
+    if (!product && env.DB) {
       try {
-        parsedDetails = JSON.parse(row.details_json || "{}");
-      } catch (e) {
-        parsedDetails = { raw: row.details_json };
-      }
+        product = await env.DB.prepare(
+          "SELECT * FROM products WHERE serial_number = ?"
+        ).bind(cleanSerial).first();
 
-      return {
-        id: row.id,
-        action: row.action,
-        actorName: row.actor_name,
-        actorPhone: row.actor_phone,
-        actorRole: row.actor_role,
-        details: parsedDetails,
-        photoKey: row.photo_key,
-        photoUrl: row.photo_key ? `/api/photo/${row.photo_key}` : null,
-        gpsLat: row.gps_lat,
-        gpsLng: row.gps_lng,
-        timestamp: row.timestamp,
-      };
-    });
+        const { results } = await env.DB.prepare(
+          "SELECT * FROM audit_trail WHERE serial_number = ? ORDER BY timestamp ASC"
+        ).bind(cleanSerial).all();
+
+        if (results) {
+          timeline = results.map((row) => {
+            let details = {};
+            try { details = JSON.parse(row.details_json || "{}"); } catch (e) { details = { raw: row.details_json }; }
+            return {
+              id: row.id,
+              action: row.action,
+              actorName: row.actor_name,
+              actorPhone: row.actor_phone,
+              actorRole: row.actor_role,
+              details,
+              photoKey: row.photo_key,
+              photoUrl: row.photo_key ? `/api/photo/${row.photo_key}` : null,
+              gpsLat: row.gps_lat,
+              gpsLng: row.gps_lng,
+              timestamp: row.timestamp,
+            };
+          });
+        }
+      } catch (e) {}
+    }
+
+    if (!product) {
+      return errorResponse(`No record found for serial number '${cleanSerial}'.`, 404);
+    }
 
     return jsonResponse({
       success: true,
       product,
-      timeline,
+      timeline: timeline || [],
     });
   } catch (err) {
     return errorResponse(err.message, 500);
