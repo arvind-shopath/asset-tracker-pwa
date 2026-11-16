@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="hi" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Asset & Installation Tracker</title>
+  
+  <!-- PWA & Apple Meta Tags -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#F5F5F7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="AssetTracker" />
+  <link rel="apple-touch-icon" href="/manifest.json" />
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- HTML5 QR Code & Barcode Scanner -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+  <style>
+    :root {
+      --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, sans-serif;
+    }
+    body {
+      font-family: var(--font-apple);
+      background-color: #F5F5F7;
+      color: #1D1D1F;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    input, textarea, select {
+      user-select: text;
+    }
+    /* Apple Diffused Glass & Soft Shadows */
+    .apple-glass {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .apple-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .apple-card:active {
+      transform: scale(0.985);
+    }
+    .apple-shadow {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    }
+    /* Soft Pastel Color Badges */
+    .badge-installed {
+      background-color: #E8F8F0;
+      color: #15803D;
+      border: 1px solid rgba(21, 128, 61, 0.15);
+    }
+    .badge-received {
+      background-color: #EFF6FF;
+      color: #1D4ED8;
+      border: 1px solid rgba(29, 78, 216, 0.15);
+    }
+    .badge-storage {
+      background-color: #F0FDF4;
+      color: #166534;
+      border: 1px solid rgba(22, 101, 52, 0.15);
+    }
+    .badge-handover {
+      background-color: #FEF3C7;
+      color: #B45309;
+      border: 1px solid rgba(180, 83, 9, 0.15);
+    }
+    .badge-rejected {
+      background-color: #FFE4E6;
+      color: #BE123C;
+      border: 1px solid rgba(190, 18, 60, 0.15);
+    }
+    .badge-pickup {
+      background-color: #F1F5F9;
+      color: #475569;
+      border: 1px solid rgba(71, 85, 105, 0.15);
+    }
+    /* Timeline connecting line */
+    .timeline-line::before {
+      content: '';
+      position: absolute;
+      top: 24px;
+      bottom: -20px;
+      left: 17px;
+      width: 2px;
+      background: #E2E8F0;
+      z-index: 0;
+    }
+    .timeline-item:last-child .timeline-line::before {
+      display: none;
+    }
+    /* Modal Transition */
+    .modal-backdrop {
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    /* Hide scrollbars but keep functional */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col antialiased">
+
+  <!-- ================= TOP NAVIGATION (APPLE STYLE) ================= -->
+  <header id="topNav" class="hidden sticky top-0 z-40 apple-glass border-b border-black/[0.06] px-4 py-3 sm:px-6">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-sm shadow-blue-500/20">
+          <i data-lucide="package-search" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-semibold tracking-tight text-neutral-900 leading-tight">Asset & Installation</h1>
+          <p class="text-xs text-neutral-500 font-normal">Tracking Portal • Cloudflare PWA</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <div id="userProfilePill" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/[0.04] border border-black/[0.05]">
+          <span id="userNameBadge" class="text-xs font-semibold text-neutral-800">कर्मचारी</span>
+          <span id="userRoleBadge" class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Admin</span>
+        </div>
+        <button onclick="handleLogout()" title="लॉगआउट करें" class="p-2 rounded-full hover:bg-neutral-200/60 active:scale-95 text-neutral-600 transition">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 pb-24 sm:pb-12">
+    
+    <!-- 1. LOGIN SCREEN -->
+    <div id="loginSection" class="min-h-[80vh] flex flex-col items-center justify-center px-4">
+      <div class="w-full max-w-md bg-white rounded-3xl p-8 apple-card apple-shadow">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 rounded-3xl bg-blue-600 mx-auto flex items-center justify-center text-white shadow-lg shadow-blue-500/25 mb-4">
+            <i data-lucide="shield-check" class="w-8 h-8"></i>
+          </div>
+          <h2 class="text-2xl font-semibold text-neutral-900 tracking-tight">लॉगिन करें</h2>
+          <p class="text-sm text-neutral-500 mt-1">Asset & Installation Tracking System</p>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">मोबाइल नंबर</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-400">
+                <i data-lucide="phone" class="w-4 h-4"></i>
+              </span>
+              <input id="loginPhone" type="tel" required placeholder="जैसे: 9876543210" maxlength="10" 
+                class="w-full pl-10 pr-4 py-3 rounded-2xl bg-neutral-100/80 border border-neutral-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition text-sm font-medium" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">4-डिजिट PIN या पासवर्ड</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-400">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+              </span>
+              <input id="loginPin" type="password" required placeholder="••••" maxlength="20"
+                class="w-full pl-10 pr-4 py-3 rounded-2xl bg-neutral-100/80 border border-neutral-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition text-sm font-medium" />
+            </div>
+          </div>
+
+          <button type="submit" id="loginBtn" class="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white rounded-2xl font-semibold text-sm shadow-md shadow-blue-500/20 transition flex items-center justify-center gap-2">
+            <span>लॉगिन करें</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-neutral-100 text-center">
+          <p class="text-xs text-neutral-400">डिफ़ॉल्ट एडमिन क्रेडेंशियल: <b>9876543210</b> | PIN: <b>1234</b></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. APP DASHBOARD (SHOWN WHEN LOGGED IN) -->
+    <div id="appSection" class="hidden space-y-6">
+
+      <!-- Navigation Tabs (Segmented Control Apple Style) -->
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="inline-flex p-1 rounded-2xl bg-neutral-200/70 border border-black/[0.04]">
+          <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shadow-sm bg-white text-neutral-900">डैशबोर्ड</button>
+          <button onclick="switchTab('inventory')" id="tabBtnInventory" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition text-neutral-600 hover:text-neutral-900">इन्वेंटरी लिस्ट</button>
+          <button onclick="switchTab('timeline')" id="tabBtnTimeline" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition text-neutral-600 hover:text-neutral-900">ऑडिट टाइमलाइन</button>
+          <button onclick="switchTab('staff')" id="tabBtnStaff" class="hidden px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition text-neutral-600 hover:text-neutral-900">स्टाफ मैनेजमेंट</button>
+        </div>
+
+        <!-- Quick Scan Button -->
+        <button onclick="openLiveScanner('timelineSerialInput')" class="inline-flex items-center gap-2 px-4 py-2 bg-neutral-900 text-white rounded-2xl text-xs sm:text-sm font-semibold shadow-sm hover:bg-black active:scale-95 transition">
+          <i data-lucide="scan" class="w-4 h-4"></i>
+          <span>बारकोड / QR स्कैन</span>
+        </button>
+      </div>
+
+      <!-- ================= TAB 1: DASHBOARD ================= -->
+      <div id="tabDashboard" class="space-y-6">
+        
+        <!-- Live Stat Cards Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('all')">
+            <span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">कुल प्रोडक्ट्स</span>
+            <div id="statTotal" class="text-2xl sm:text-3xl font-bold text-neutral-900 mt-1">0</div>
+            <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600">सभी रिकॉर्ड</span>
+          </div>
+
+          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('received')">
+            <span class="text-[11px] font-semibold text-blue-500 uppercase tracking-wider">प्राप्त माल</span>
+            <div id="statReceived" class="text-2xl sm:text-3xl font-bold text-blue-600 mt-1">0</div>
+            <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full badge-received">Received</span>
+          </div>
+
+          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('in_storage')">
+            <span class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">स्टोरेज में</span>
+            <div id="statStorage" class="text-2xl sm:text-3xl font-bold text-emerald-600 mt-1">0</div>
+            <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full badge-storage">In Storage</span>
+          </div>
+
+          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('handed_over')">
+            <span class="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">हैंडओवर</span>
+            <div id="statHandover" class="text-2xl sm:text-3xl font-bold text-amber-600 mt-1">0</div>
+            <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full badge-handover">Handover</span>
+          </div>
+
+          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('installed')">
+            <span class="text-[11px] font-semibold text-green-600 uppercase tracking-wider">इंस्टॉल्ड</span>
+            <div id="statInstalled" class="text-2xl sm:text-3xl font-bold text-green-700 mt-1">0</div>
+            <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full badge-installed">Installed</span>
+          </div>
+
+          <div class="apple-card p-4 rounded-3xl cursor-pointer" onclick="filterByStatusAndSwitch('rejected')">
+            <span class="text-[11px] font-semibold text-rose-600 uppercase tracking-wider">रिजेक्टेड</span>
+            <div id="statRejected" class="text-2xl sm:text-3xl font-bold text-rose-600 mt-1">0</div>
+            <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full badge-rejected">Rejected</span>
+          </div>
+        </div>
+
+        <!-- Action Grid (iOS Control Center Style) -->
+        <div>
+          <h2 class="text-base font-semibold text-neutral-800 mb-3 tracking-tight">वर्कफ़्लो एक्शन चुनें (Quick Actions)</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            
+            <!-- 1. Receive -->
+            <button onclick="openModal('receiveModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-blue-300">
+              <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <i data-lucide="package-plus" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-sm text-neutral-900 leading-snug">1. माल प्राप्त करें</p>
+                <p class="text-[11px] text-neutral-500">Receive Product</p>
+              </div>
+            </button>
+
+            <!-- 2. Storage -->
+            <button onclick="openModal('storageModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-emerald-300">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <i data-lucide="archive" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-sm text-neutral-900 leading-snug">2. स्टोर में रखें</p>
+                <p class="text-[11px] text-neutral-500">Put in Storage</p>
+              </div>
+            </button>
+
+            <!-- 3. Handover -->
+            <button onclick="openModal('handoverModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-amber-300">
+              <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <i data-lucide="user-check" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-sm text-neutral-900 leading-snug">3. इंस्टॉलेशन को दें</p>
+                <p class="text-[11px] text-neutral-500">Handover Item</p>
+              </div>
+            </button>
+
+            <!-- 4. Install -->
+            <button onclick="openModal('installModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-green-300">
+              <div class="w-10 h-10 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-sm text-neutral-900 leading-snug">4. इंस्टॉलेशन पूर्ण</p>
+                <p class="text-[11px] text-neutral-500">Mark Installed (GPS)</p>
+              </div>
+            </button>
+
+            <!-- 5. Reject -->
+            <button onclick="openModal('rejectModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-rose-300">
+              <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-sm text-neutral-900 leading-snug">5. प्रोडक्ट रिजेक्ट</p>
+                <p class="text-[11px] text-neutral-500">Reject Item (Photo)</p>
+              </div>
+            </button>
+
+            <!-- 6. Pickup -->
+            <button onclick="openModal('pickupModal')" class="apple-card p-4 rounded-3xl text-left flex flex-col justify-between h-32 hover:border-slate-300">
+              <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                <i data-lucide="truck" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-sm text-neutral-900 leading-snug">6. रिजेक्टेड पिकअप</p>
+                <p class="text-[11px] text-neutral-500">Pickup Handover</p>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Recent Audit Activity -->
+        <div class="apple-card rounded-3xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
+              <i data-lucide="history" class="w-4 h-4 text-blue-600"></i>
+              <span>हालिया गतिविधियां (Live Activity Log)</span>
+            </h3>
+            <button onclick="loadDashboardStats()" class="text-xs text-blue-600 hover:underline">रिफ्रेश करें</button>
+          </div>
+          <div id="recentActivityList" class="space-y-3">
+            <p class="text-xs text-neutral-400 py-3 text-center">गतिविधियां लोड हो रही हैं...</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= TAB 2: INVENTORY LIST ================= -->
+      <div id="tabInventory" class="hidden space-y-4">
+        
+        <!-- Search and Filters Bar -->
+        <div class="apple-card p-4 rounded-3xl flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div class="relative w-full sm:w-96">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-400">
+              <i data-lucide="search" class="w-4 h-4"></i>
+            </span>
+            <input id="inventorySearchInput" type="text" placeholder="सीरियल नंबर, नाम, या फोन नंबर से खोजें..." 
+              oninput="handleSearchInventory()"
+              class="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-neutral-100/80 border border-neutral-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none text-xs sm:text-sm font-medium" />
+            <button onclick="openLiveScanner('inventorySearchInput', () => handleSearchInventory())" class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-400 hover:text-neutral-900">
+              <i data-lucide="scan" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 no-scrollbar">
+            <button onclick="filterInventory('all')" id="filterBtn_all" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-neutral-900 text-white">सभी</button>
+            <button onclick="filterInventory('received')" id="filterBtn_received" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200">Received</button>
+            <button onclick="filterInventory('in_storage')" id="filterBtn_in_storage" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200">Storage</button>
+            <button onclick="filterInventory('handed_over')" id="filterBtn_handed_over" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200">Handover</button>
+            <button onclick="filterInventory('installed')" id="filterBtn_installed" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200">Installed</button>
+            <button onclick="filterInventory('rejected')" id="filterBtn_rejected" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200">Rejected</button>
+          </div>
+        </div>
+
+        <!-- Inventory Cards Grid -->
+        <div id="inventoryCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <p class="col-span-full text-center py-12 text-xs text-neutral-400">प्रोडक्ट्स लोड हो रहे हैं...</p>
+        </div>
+
+      </div>
+
+      <!-- ================= TAB 3: TIMELINE / AUDIT ================= -->
+      <div id="tabTimeline" class="hidden space-y-6">
+        
+        <!-- Serial Input & Scanner Card -->
+        <div class="apple-card p-5 rounded-3xl max-w-xl mx-auto">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">प्रोडक्ट सीरियल नंबर दर्ज या स्कैन करें</label>
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-400">
+                <i data-lucide="barcode" class="w-4 h-4"></i>
+              </span>
+              <input id="timelineSerialInput" type="text" placeholder="उदा: SN-90823412" 
+                class="w-full pl-10 pr-4 py-3 rounded-2xl bg-neutral-100/80 border border-neutral-200 focus:bg-white focus:border-blue-500 outline-none text-sm font-semibold uppercase tracking-wider" />
+            </div>
+            <button onclick="openLiveScanner('timelineSerialInput')" class="px-3.5 py-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-700 hover:bg-neutral-200 transition">
+              <i data-lucide="scan" class="w-5 h-5"></i>
+            </button>
+            <button onclick="loadProductTimeline()" class="px-5 py-3 rounded-2xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 active:scale-95 transition">
+              खोजें
+            </button>
+          </div>
+        </div>
+
+        <!-- Timeline Result Display Container -->
+        <div id="timelineResultContainer" class="max-w-2xl mx-auto space-y-6">
+          <p class="text-xs text-neutral-400 text-center py-8">कृपया पूरा ऑडिट ट्रेल देखने के लिए कोई सीरियल नंबर सर्च करें।</p>
+        </div>
+
+      </div>
+
+      <!-- ================= TAB 4: STAFF MANAGEMENT (ADMIN ONLY) ================= -->
+      <div id="tabStaff" class="hidden space-y-6 max-w-3xl mx-auto">
+        
+        <!-- Add Employee Form -->
+        <div class="apple-card p-6 rounded-3xl">
+          <h3 class="font-semibold text-neutral-900 text-sm mb-4 flex items-center gap-2">
+            <i data-lucide="user-plus" class="w-4 h-4 text-blue-600"></i>
+            <span>नया कर्मचारी जोड़ें (Add New Staff)</span>
+          </h3>
+          <form onsubmit="handleAddEmployee(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-neutral-500 mb-1">कर्मचारी का नाम</label>
+              <input id="newEmpName" type="text" required placeholder="पूरा नाम" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-neutral-500 mb-1">मोबाइल नंबर</label>
+              <input id="newEmpPhone" type="tel" required maxlength="10" placeholder="10 अंक" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-neutral-500 mb-1">4-डिजिट लॉगिन PIN</label>
+              <input id="newEmpPin" type="password" required maxlength="4" placeholder="••••" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+            </div>
+            <div class="sm:col-span-3 flex justify-end">
+              <button type="submit" class="px-5 py-2.5 rounded-2xl bg-blue-600 text-white font-semibold text-xs sm:text-sm hover:bg-blue-700 active:scale-95 transition">
+                + कर्मचारी सेव करें
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Staff List -->
+        <div class="apple-card p-6 rounded-3xl">
+          <h3 class="font-semibold text-neutral-900 text-sm mb-4 flex items-center justify-between">
+            <span>पंजीकृत कर्मचारी सूची (Active Staff)</span>
+            <button onclick="loadEmployees()" class="text-xs text-blue-600 hover:underline">रिफ्रेश</button>
+          </h3>
+          <div id="staffListContainer" class="space-y-2">
+            <p class="text-xs text-neutral-400 py-3 text-center">स्टाफ सूची लोड हो रही है...</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= MODALS SECTION ================= -->
+
+  <!-- 1. LIVE BARCODE / QR SCANNER MODAL -->
+  <div id="scannerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl w-full max-w-sm p-5 apple-shadow space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
+          <i data-lucide="scan" class="w-4 h-4 text-blue-600"></i>
+          <span>बारकोड या QR कोड स्कैन करें</span>
+        </h3>
+        <button onclick="closeScannerModal()" class="p-1 rounded-full text-neutral-400 hover:text-neutral-900">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="reader" class="w-full rounded-2xl overflow-hidden bg-black aspect-square"></div>
+
+      <p class="text-[11px] text-neutral-400 text-center">सीरियल नंबर वाले बारकोड को कैमरे के ठीक सामने रखें।</p>
+      
+      <button onclick="closeScannerModal()" class="w-full py-2.5 rounded-2xl bg-neutral-100 text-neutral-700 font-semibold text-xs hover:bg-neutral-200">
+        रद्द करें
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. RECEIVE PRODUCT MODAL -->
+  <div id="receiveModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
+          <i data-lucide="package-plus" class="w-4 h-4 text-blue-600"></i>
+          <span>1. माल प्राप्त करें (Receive Product)</span>
+        </h3>
+        <button onclick="closeModal('receiveModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleReceiveSubmit(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">सीरियल नंबर / IMEI / बारकोड *</label>
+          <div class="flex gap-2">
+            <input id="recSerial" type="text" required placeholder="सीरियल नंबर" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-blue-500" />
+            <button type="button" onclick="openLiveScanner('recSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+              <i data-lucide="scan" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">प्रोडक्ट का नाम *</label>
+          <input id="recName" type="text" required placeholder="उदा: GPS Tracker / Fiber Router" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-neutral-500 mb-1">मॉडल नंबर</label>
+            <input id="recModel" type="text" placeholder="उदा: GT06N" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-neutral-500 mb-1">सप्लायर / वेंडर का नाम</label>
+            <input id="recSupplier" type="text" placeholder="उदा: Concox Corp" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-2xl bg-blue-600 text-white font-semibold text-xs sm:text-sm hover:bg-blue-700 active:scale-95 transition mt-2">
+          माल रिसीव दर्ज करें
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. PUT IN STORAGE MODAL -->
+  <div id="storageModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
+          <i data-lucide="archive" class="w-4 h-4 text-emerald-600"></i>
+          <span>2. स्टोर में रखें (Put in Storage)</span>
+        </h3>
+        <button onclick="closeModal('storageModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleStorageSubmit(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">सीरियल नंबर *</label>
+          <div class="flex gap-2">
+            <input id="storeSerial" type="text" required placeholder="सीरियल नंबर" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-blue-500" />
+            <button type="button" onclick="openLiveScanner('storeSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+              <i data-lucide="scan" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">रैक / शेल्फ / स्टोर लोकेशन *</label>
+          <input id="storeLocation" type="text" required placeholder="उदा: Rack A-3 / Store Room 1" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-2xl bg-emerald-600 text-white font-semibold text-xs sm:text-sm hover:bg-emerald-700 active:scale-95 transition mt-2">
+          लोकेशन अपडेट करें
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. HANDOVER FOR INSTALLATION MODAL -->
+  <div id="handoverModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
+          <i data-lucide="user-check" class="w-4 h-4 text-amber-600"></i>
+          <span>3. इंस्टॉलेशन हेतु हैंडओवर करें</span>
+        </h3>
+        <button onclick="closeModal('handoverModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleHandoverSubmit(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">सीरियल नंबर *</label>
+          <div class="flex gap-2">
+            <input id="handoverSerial" type="text" required placeholder="सीरियल नंबर" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-blue-500" />
+            <button type="button" onclick="openLiveScanner('handoverSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+              <i data-lucide="scan" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">किसे दिया जा रहा है (कर्मचारी चुनें) *</label>
+          <select id="handoverEmployeeSelect" required class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500">
+            <option value="">कर्मचारी का चयन करें...</option>
+          </select>
+        </div>
+
+        <div class="pt-2 border-t border-neutral-100 space-y-2.5">
+          <p class="text-xs font-semibold text-neutral-700">कस्टमर / साइट विवरण (वैकल्पिक)</p>
+          <input id="handoverCustName" type="text" placeholder="ग्राहक का नाम" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none" />
+          <input id="handoverCustPhone" type="tel" maxlength="10" placeholder="ग्राहक का मोबाइल नंबर" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none" />
+          <textarea id="handoverCustAddress" rows="2" placeholder="साइट / इंस्टॉलेशन पता" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-2xl bg-amber-600 text-white font-semibold text-xs sm:text-sm hover:bg-amber-700 active:scale-95 transition mt-2">
+          हैंडओवर दर्ज करें
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. MARK INSTALLED MODAL (GPS + COMPRESSED PHOTO) -->
+  <div id="installModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+          <span>4. इंस्टॉलेशन पूर्ण मार्क करें</span>
+        </h3>
+        <button onclick="closeModal('installModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleInstallSubmit(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">सीरियल नंबर *</label>
+          <div class="flex gap-2">
+            <input id="instSerial" type="text" required placeholder="सीरियल नंबर" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-blue-500" />
+            <button type="button" onclick="openLiveScanner('instSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+              <i data-lucide="scan" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-neutral-500 mb-1">ग्राहक का नाम *</label>
+            <input id="instCustName" type="text" required placeholder="नाम" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-neutral-500 mb-1">ग्राहक का फोन *</label>
+            <input id="instCustPhone" type="tel" required maxlength="10" placeholder="10 अंक" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-blue-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">इंस्टॉलेशन का पता</label>
+          <textarea id="instCustAddress" rows="2" placeholder="पूरा पता / लैंडमार्क" class="w-full px-3.5 py-2 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none focus:bg-white focus:border-blue-500"></textarea>
+        </div>
+
+        <!-- GPS Location Display -->
+        <div class="p-3 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="map-pin" class="w-4 h-4 text-rose-500"></i>
+            <div>
+              <p class="text-[11px] font-semibold text-neutral-700">GPS लोकेशन (ऑटो-कैप्चर)</p>
+              <p id="instGpsText" class="text-[10px] text-neutral-500">लोकेशन प्राप्त की जा रही है...</p>
+            </div>
+          </div>
+          <button type="button" onclick="captureCurrentLocation('instGpsText')" class="px-2.5 py-1 rounded-xl bg-white border border-neutral-200 text-[10px] font-semibold text-neutral-700 hover:bg-neutral-100">
+            पुनः लें
+          </button>
+        </div>
+
+        <!-- Live Camera Photo Upload with Canvas Compression -->
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">इंस्टॉलेशन की लाइव फोटो (अनिवार्य) *</label>
+          <input id="instPhotoInput" type="file" accept="image/*" capture="environment" required onchange="handleImageSelection(event, 'instPhotoPreview', 'instCompressedData')" class="hidden" />
+          <button type="button" onclick="document.getElementById('instPhotoInput').click()" class="w-full py-4 border-2 border-dashed border-neutral-200 rounded-2xl flex flex-col items-center justify-center gap-1.5 hover:border-green-400 hover:bg-green-50/20 transition">
+            <i data-lucide="camera" class="w-6 h-6 text-green-600"></i>
+            <span class="text-xs font-semibold text-neutral-700">लाइव कैमरा से फोटो खींचें (ऑटो-कंप्रेस)</span>
+            <span class="text-[10px] text-neutral-400">अधिकतम 150KB-200KB तक कंप्रेस होगी</span>
+          </button>
+          <div id="instPhotoPreview" class="hidden mt-2 p-2 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center gap-3">
+            <img id="instPhotoPreviewImg" src="" class="w-12 h-12 object-cover rounded-xl" />
+            <div class="text-[11px] text-neutral-600">
+              <p class="font-semibold text-emerald-700">फोटो कंप्रेस हो चुकी है</p>
+              <p id="instPhotoSizeText" class="text-[10px] text-neutral-400"></p>
+            </div>
+          </div>
+          <input type="hidden" id="instCompressedData" />
+        </div>
+
+        <button type="submit" id="instSubmitBtn" class="w-full py-3 rounded-2xl bg-green-600 text-white font-semibold text-xs sm:text-sm hover:bg-green-700 active:scale-95 transition mt-2">
+          इंस्टॉलेशन रिकॉर्ड सेव करें
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. REJECT PRODUCT MODAL (PHOTO MANDATORY) -->
+  <div id="rejectModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
+          <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600"></i>
+          <span>5. प्रोडक्ट रिजेक्ट करें (Reject Product)</span>
+        </h3>
+        <button onclick="closeModal('rejectModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleRejectSubmit(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">सीरियल नंबर *</label>
+          <div class="flex gap-2">
+            <input id="rejSerial" type="text" required placeholder="सीरियल नंबर" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-rose-500" />
+            <button type="button" onclick="openLiveScanner('rejSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+              <i data-lucide="scan" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">रिजेक्शन का कारण *</label>
+          <select id="rejReason" required class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-rose-500">
+            <option value="">कारण चुनें...</option>
+            <option value="Physical Damaged">Physical Damaged (टूटा/क्षतिग्रस्त)</option>
+            <option value="Faulty / Not Working">Faulty / Not Working (चालू नहीं हो रहा)</option>
+            <option value="Wrong Model / Item">Wrong Model / Item (गलत मॉडल भेजा)</option>
+            <option value="Missing Accessories">Missing Accessories (सामान कम है)</option>
+            <option value="Customer Refused">Customer Refused (ग्राहक ने मना किया)</option>
+            <option value="Other">Other (अन्य कारण)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">विस्तृत रिमार्क्स</label>
+          <textarea id="rejRemarks" rows="2" placeholder="खराबी या समस्या का विवरण लिखें..." class="w-full px-3.5 py-2 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none focus:bg-white focus:border-rose-500"></textarea>
+        </div>
+
+        <!-- Live Camera Photo Upload -->
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">रिजेक्टेड माल की फोटो (अनिवार्य) *</label>
+          <input id="rejPhotoInput" type="file" accept="image/*" capture="environment" required onchange="handleImageSelection(event, 'rejPhotoPreview', 'rejCompressedData')" class="hidden" />
+          <button type="button" onclick="document.getElementById('rejPhotoInput').click()" class="w-full py-4 border-2 border-dashed border-neutral-200 rounded-2xl flex flex-col items-center justify-center gap-1.5 hover:border-rose-400 hover:bg-rose-50/20 transition">
+            <i data-lucide="camera" class="w-6 h-6 text-rose-600"></i>
+            <span class="text-xs font-semibold text-neutral-700">कैमरे से खराबी की फोटो लें</span>
+            <span class="text-[10px] text-neutral-400">ऑटो-कंप्रेस होकर R2 बकेट में जाएगी</span>
+          </button>
+          <div id="rejPhotoPreview" class="hidden mt-2 p-2 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center gap-3">
+            <img id="rejPhotoPreviewImg" src="" class="w-12 h-12 object-cover rounded-xl" />
+            <div class="text-[11px] text-neutral-600">
+              <p class="font-semibold text-rose-700">फोटो तैयार है</p>
+              <p id="rejPhotoSizeText" class="text-[10px] text-neutral-400"></p>
+            </div>
+          </div>
+          <input type="hidden" id="rejCompressedData" />
+        </div>
+
+        <button type="submit" id="rejSubmitBtn" class="w-full py-3 rounded-2xl bg-rose-600 text-white font-semibold text-xs sm:text-sm hover:bg-rose-700 active:scale-95 transition mt-2">
+          रिजेक्शन दर्ज करें
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. REJECTED PICKUP MODAL -->
+  <div id="pickupModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl w-full max-w-md p-6 apple-shadow space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-neutral-900 text-sm flex items-center gap-2">
+          <i data-lucide="truck" class="w-4 h-4 text-slate-700"></i>
+          <span>6. रिजेक्टेड माल का पिकअप / वापसी</span>
+        </h3>
+        <button onclick="closeModal('pickupModal')" class="p-1 text-neutral-400 hover:text-neutral-900">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handlePickupSubmit(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">सीरियल नंबर (केवल Rejected प्रोडक्ट्स) *</label>
+          <div class="flex gap-2">
+            <input id="pickupSerial" type="text" required placeholder="सीरियल नंबर" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-semibold uppercase outline-none focus:bg-white focus:border-slate-500" />
+            <button type="button" onclick="openLiveScanner('pickupSerial')" class="px-3 rounded-2xl bg-neutral-100 border border-neutral-200 text-neutral-600">
+              <i data-lucide="scan" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-neutral-500 mb-1">पिकअप व्यक्ति का नाम *</label>
+            <input id="pickupName" type="text" required placeholder="नाम" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-slate-500" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-neutral-500 mb-1">मोबाइल नंबर *</label>
+            <input id="pickupPhone" type="tel" required maxlength="10" placeholder="10 अंक" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-slate-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">गाड़ी / पार्सल नंबर (वैकल्पिक)</label>
+          <input id="pickupVehicle" type="text" placeholder="उदा: UP 32 AB 1234 / Bluedart AWB" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs sm:text-sm font-medium outline-none focus:bg-white focus:border-slate-500" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-neutral-500 mb-1">रिमार्क्स / नोट</label>
+          <textarea id="pickupRemarks" rows="2" placeholder="कोई अतिरिक्त विवरण..." class="w-full px-3.5 py-2 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-medium outline-none focus:bg-white focus:border-slate-500"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-2xl bg-slate-800 text-white font-semibold text-xs sm:text-sm hover:bg-black active:scale-95 transition mt-2">
+          पिकअप हैंडओवर दर्ज करें
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ================= CLIENT JAVASCRIPT ================= -->
+  <script>
+    // State management
+    let currentUser = null;
+    let authToken = localStorage.getItem("asset_auth_token");
+    let currentHtml5QrCode = null;
+    let activeScannerTargetInputId = null;
+    let allEmployees = [];
+    let activeInventoryStatus = "all";
+    let lastCapturedGps = { lat: null, lng: null };
+
+    // Initialize App
+    window.addEventListener("DOMContentLoaded", async () => {
+      lucide.createIcons();
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").catch(() => {});
+      }
+
+      if (authToken) {
+        await verifyAndRestoreSession();
+      } else {
+        showLogin();
+      }
+    });
+
+    // 1. Auth & Session Management
+    async function verifyAndRestoreSession() {
+      try {
+        const res = await fetch("/api/auth/me", {
+          headers: { "Authorization": `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.user) {
+          currentUser = data.user;
+          renderApp();
+        } else {
+          handleLogout();
+        }
+      } catch (e) {
+        handleLogout();
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const phone = document.getElementById("loginPhone").value.trim();
+      const pin = document.getElementById("loginPin").value.trim();
+      const btn = document.getElementById("loginBtn");
+
+      btn.disabled = true;
+      btn.innerText = "सत्यापित किया जा रहा है...";
+
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone, pin })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          authToken = data.token;
+          currentUser = data.user;
+          localStorage.setItem("asset_auth_token", authToken);
+          showToast("लॉगिन सफल!", "success");
+          renderApp();
+        } else {
+          showToast(data.error || "लॉगिन विफल", "error");
+        }
+      } catch (err) {
+        showToast("सर्वर से संपर्क नहीं हो सका।", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "लॉगिन करें";
+      }
+    }
+
+    function handleLogout() {
+      authToken = null;
+      currentUser = null;
+      localStorage.removeItem("asset_auth_token");
+      showLogin();
+      showToast("आप लॉगआउट हो चुके हैं।", "info");
+    }
+
+    function showLogin() {
+      document.getElementById("topNav").classList.add("hidden");
+      document.getElementById("appSection").classList.add("hidden");
+      document.getElementById("loginSection").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function renderApp() {
+      document.getElementById("loginSection").classList.add("hidden");
+      document.getElementById("topNav").classList.remove("hidden");
+      document.getElementById("appSection").classList.remove("hidden");
+
+      document.getElementById("userNameBadge").innerText = currentUser.name;
+      document.getElementById("userRoleBadge").innerText = currentUser.role;
+
+      if (currentUser.role === "admin") {
+        document.getElementById("tabBtnStaff").classList.remove("hidden");
+      } else {
+        document.getElementById("tabBtnStaff").classList.add("hidden");
+      }
+
+      loadDashboardStats();
+      loadEmployees();
+      switchTab("dashboard");
+      lucide.createIcons();
+    }
+
+    // 2. Tab Navigation
+    function switchTab(tab) {
+      ["dashboard", "inventory", "timeline", "staff"].forEach(t => {
+        const tabEl = document.getElementById(`tab${capitalize(t)}`);
+        const btnEl = document.getElementById(`tabBtn${capitalize(t)}`);
+        if (tabEl) tabEl.classList.add("hidden");
+        if (btnEl) {
+          btnEl.classList.remove("bg-white", "text-neutral-900", "shadow-sm");
+          btnEl.classList.add("text-neutral-600");
+        }
+      });
+
+      const activeTabEl = document.getElementById(`tab${capitalize(tab)}`);
+      const activeBtnEl = document.getElementById(`tabBtn${capitalize(tab)}`);
+      if (activeTabEl) activeTabEl.classList.remove("hidden");
+      if (activeBtnEl) {
+        activeBtnEl.classList.add("bg-white", "text-neutral-900", "shadow-sm");
+        activeBtnEl.classList.remove("text-neutral-600");
+      }
+
+      if (tab === "inventory") loadInventory();
+      if (tab === "staff") loadEmployees();
+      lucide.createIcons();
+    }
+
+    function filterByStatusAndSwitch(status) {
+      activeInventoryStatus = status;
+      switchTab("inventory");
+      filterInventory(status);
+    }
+
+    // 3. Dashboard Statistics & Recent Activity
+    async function loadDashboardStats() {
+      try {
+        const res = await fetch("/api/dashboard/stats", {
+          headers: { "Authorization": `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          const s = data.stats;
+          document.getElementById("statTotal").innerText = s.total || 0;
+          document.getElementById("statReceived").innerText = s.received || 0;
+          document.getElementById("statStorage").innerText = s.in_storage || 0;
+          document.getElementById("statHandover").innerText = s.handed_over || 0;
+          document.getElementById("statInstalled").innerText = s.installed || 0;
+          document.getElementById("statRejected").innerText = s.rejected || 0;
+
+          // Render Recent Activity
+          const container = document.getElementById("recentActivityList");
+          if (!data.recentActivity || data.recentActivity.length === 0) {
+            container.innerHTML = `<p class="text-xs text-neutral-400 py-3 text-center">अभी तक कोई गतिविधि नहीं हुई है।</p>`;
+            return;
+          }
+
+          container.innerHTML = data.recentActivity.map(act => {
+            const timeStr = formatDateTime(act.timestamp);
+            let badgeClass = "badge-received";
+            if (act.action === "PUT_IN_STORAGE") badgeClass = "badge-storage";
+            if (act.action === "HANDOVER_FOR_INSTALL") badgeClass = "badge-handover";
+            if (act.action === "MARK_INSTALLED") badgeClass = "badge-installed";
+            if (act.action === "REJECT_PRODUCT") badgeClass = "badge-rejected";
+            if (act.action === "REJECTED_PICKUP") badgeClass = "badge-pickup";
+
+            return `
+              <div class="flex items-center justify-between p-3 rounded-2xl bg-neutral-50 border border-neutral-100">
+                <div class="flex items-center gap-3">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${badgeClass}">${act.action}</span>
+                  <div>
+                    <p class="text-xs font-semibold text-neutral-800">
+                      SN: <span class="font-mono">${act.serial_number}</span> ${act.product_name ? `• ${act.product_name}` : ''}
+                    </p>
+                    <p class="text-[11px] text-neutral-500">${act.actor_name} (${act.actor_phone})</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] text-neutral-400">${timeStr}</span>
+                </div>
+              </div>
+            `;
+          }).join("");
+          lucide.createIcons();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // 4. Inventory List
+    async function loadInventory(search = "") {
+      const container = document.getElementById("inventoryCardsContainer");
+      container.innerHTML = `<p class="col-span-full text-center py-12 text-xs text-neutral-400">प्रोडक्ट्स लोड हो रहे हैं...</p>`;
+
+      try {
+        let url = `/api/products?status=${activeInventoryStatus}`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+
+        const res = await fetch(url, {
+          headers: { "Authorization": `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+
+        if (!data.success || !data.products || data.products.length === 0) {
+          container.innerHTML = `<div class="col-span-full text-center py-12">
+            <p class="text-sm font-semibold text-neutral-600">कोई रिकॉर्ड नहीं मिला</p>
+            <p class="text-xs text-neutral-400 mt-1">इस फ़िल्टर या खोज के अनुसार कोई प्रोडक्ट मौजूद नहीं है।</p>
+          </div>`;
+          return;
+        }
+
+        container.innerHTML = data.products.map(p => {
+          let badgeClass = "badge-received";
+          let statusText = "Received";
+          if (p.current_status === "in_storage") { badgeClass = "badge-storage"; statusText = "In Storage"; }
+          if (p.current_status === "handed_over") { badgeClass = "badge-handover"; statusText = "Handed Over"; }
+          if (p.current_status === "installed") { badgeClass = "badge-installed"; statusText = "Installed"; }
+          if (p.current_status === "rejected") { badgeClass = "badge-rejected"; statusText = "Rejected"; }
+          if (p.current_status === "picked_up") { badgeClass = "badge-pickup"; statusText = "Picked Up"; }
+
+          return `
+            <div class="apple-card p-5 rounded-3xl flex flex-col justify-between">
+              <div>
+                <div class="flex items-start justify-between gap-2 mb-2">
+                  <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${badgeClass}">${statusText}</span>
+                  <span class="text-[10px] text-neutral-400 font-mono">${formatDateTime(p.updated_at)}</span>
+                </div>
+
+                <h4 class="font-semibold text-neutral-900 text-sm">${p.name}</h4>
+                <p class="text-xs font-mono font-medium text-blue-600 mt-0.5">${p.serial_number}</p>
+                
+                <div class="mt-3 text-xs text-neutral-500 space-y-1">
+                  ${p.model ? `<p>मॉडल: <span class="text-neutral-800 font-medium">${p.model}</span></p>` : ''}
+                  ${p.storage_location ? `<p>लोकेशन: <span class="text-neutral-800 font-medium">${p.storage_location}</span></p>` : ''}
+                  ${p.assigned_to_name ? `<p>हैंडओवर: <span class="text-neutral-800 font-medium">${p.assigned_to_name}</span></p>` : ''}
+                  ${p.customer_name ? `<p>कस्टमर: <span class="text-neutral-800 font-medium">${p.customer_name} (${p.customer_phone || ''})</span></p>` : ''}
+                  ${p.rejected_reason ? `<p class="text-rose-600 font-medium">कारण: ${p.rejected_reason}</p>` : ''}
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
+                <button onclick="viewTimelineForSerial('${p.serial_number}')" class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                  <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
+                  <span>ऑडिट टाइमलाइन</span>
+                </button>
+                
+                ${currentUser.role === 'admin' ? `
+                  <button onclick="handleDeleteProduct(${p.id}, '${p.serial_number}')" title="डिलीट करें" class="p-1.5 text-neutral-400 hover:text-rose-600 rounded-lg">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join("");
+        lucide.createIcons();
+      } catch (err) {
+        container.innerHTML = `<p class="col-span-full text-center py-12 text-xs text-rose-500">डेटा लोड करने में त्रुटि।</p>`;
+      }
+    }
+
+    function filterInventory(status) {
+      activeInventoryStatus = status;
+      ["all", "received", "in_storage", "handed_over", "installed", "rejected"].forEach(st => {
+        const btn = document.getElementById(`filterBtn_${st}`);
+        if (btn) {
+          if (st === status) {
+            btn.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-neutral-900 text-white";
+          } else {
+            btn.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200";
+          }
+        }
+      });
+      loadInventory();
+    }
+
+    let searchTimeout = null;
+    function handleSearchInventory() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const query = document.getElementById("inventorySearchInput").value.trim();
+        loadInventory(query);
+      }, 300);
+    }
+
+    async function handleDeleteProduct(id, serial) {
+      if (!confirm(`क्या आप वाकई सीरियल नंबर ${serial} का संपूर्ण रिकॉर्ड डिलीट करना चाहते हैं?`)) return;
+      try {
+        const res = await fetch(`/api/products?id=${id}`, {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, "success");
+          loadInventory();
+          loadDashboardStats();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (e) {
+        showToast("डिलीट विफल", "error");
+      }
+    }
+
+    // 5. Timeline Audit Trail
+    function viewTimelineForSerial(serial) {
+      document.getElementById("timelineSerialInput").value = serial;
+      switchTab("timeline");
+      loadProductTimeline();
+    }
+
+    async function loadProductTimeline() {
+      const serial = document.getElementById("timelineSerialInput").value.trim();
+      const container = document.getElementById("timelineResultContainer");
+
+      if (!serial) {
+        showToast("कृपया सीरियल नंबर दर्ज करें", "info");
+        return;
+      }
+
+      container.innerHTML = `<p class="text-xs text-neutral-400 text-center py-8">टाइमलाइन लोड हो रही है...</p>`;
+
+      try {
+        const res = await fetch(`/api/products/timeline?serial=${encodeURIComponent(serial)}`, {
+          headers: { "Authorization": `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+
+        if (!data.success || !data.product) {
+          container.innerHTML = `<div class="apple-card p-6 rounded-3xl text-center">
+            <i data-lucide="alert-circle" class="w-8 h-8 text-neutral-400 mx-auto mb-2"></i>
+            <p class="font-semibold text-neutral-700 text-sm">सीरियल नंबर '${serial}' नहीं मिला</p>
+            <p class="text-xs text-neutral-400 mt-1">कृपया सही सीरियल नंबर जांचें।</p>
+          </div>`;
+          lucide.createIcons();
+          return;
+        }
+
+        const p = data.product;
+        const timeline = data.timeline || [];
+
+        let html = `
+          <!-- Product Header Summary Card -->
+          <div class="apple-card p-6 rounded-3xl space-y-3">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Product Lifecycle Master</span>
+                <h3 class="text-lg font-bold text-neutral-900 mt-0.5">${p.name}</h3>
+                <p class="text-xs font-mono font-semibold text-neutral-500">SN: ${p.serial_number}</p>
+              </div>
+              <span class="text-xs font-bold px-3 py-1 rounded-full badge-${p.current_status === 'in_storage' ? 'storage' : p.current_status}">${p.current_status.toUpperCase()}</span>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3 border-t border-neutral-100 text-xs">
+              <div>
+                <span class="text-neutral-400 text-[10px]">मॉडल:</span>
+                <p class="font-semibold text-neutral-800">${p.model || 'N/A'}</p>
+              </div>
+              <div>
+                <span class="text-neutral-400 text-[10px]">सप्लायर:</span>
+                <p class="font-semibold text-neutral-800">${p.supplier || 'N/A'}</p>
+              </div>
+              <div>
+                <span class="text-neutral-400 text-[10px]">वर्तमान स्थान:</span>
+                <p class="font-semibold text-neutral-800">${p.storage_location || 'N/A'}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vertical Timeline Events List -->
+          <div class="space-y-4">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-neutral-500 px-2">संपूर्ण टाइमलाइन ऑडिट ट्रेल (Chronological History)</h4>
+        `;
+
+        timeline.forEach((event, idx) => {
+          const formattedDate = formatDateTime(event.timestamp);
+          let actionLabel = event.action;
+          let iconName = "circle";
+          let iconColor = "text-blue-600 bg-blue-50";
+
+          if (event.action === "RECEIVE") { actionLabel = "1. माल प्राप्त किया (Received)"; iconName = "package-plus"; }
+          if (event.action === "PUT_IN_STORAGE") { actionLabel = "2. स्टोर/रैक में रखा (Storage)"; iconName = "archive"; iconColor = "text-emerald-600 bg-emerald-50"; }
+          if (event.action === "HANDOVER_FOR_INSTALL") { actionLabel = "3. इंस्टॉलेशन हेतु हैंडओवर"; iconName = "user-check"; iconColor = "text-amber-600 bg-amber-50"; }
+          if (event.action === "MARK_INSTALLED") { actionLabel = "4. इंस्टॉलेशन पूर्ण (Installed)"; iconName = "check-circle"; iconColor = "text-green-600 bg-green-50"; }
+          if (event.action === "REJECT_PRODUCT") { actionLabel = "5. प्रोडक्ट रिजेक्टेड"; iconName = "alert-octagon"; iconColor = "text-rose-600 bg-rose-50"; }
+          if (event.action === "REJECTED_PICKUP") { actionLabel = "6. रिजेक्टेड माल वापसी पिकअप"; iconName = "truck"; iconColor = "text-slate-700 bg-slate-100"; }
+
+          html += `
+            <div class="relative pl-10 timeline-item">
+              <div class="timeline-line"></div>
+              
+              <!-- Timeline Marker Icon -->
+              <div class="absolute left-0 top-0 w-8 h-8 rounded-full ${iconColor} flex items-center justify-center border border-black/[0.06] z-10">
+                <i data-lucide="${iconName}" class="w-4 h-4"></i>
+              </div>
+
+              <!-- Event Card -->
+              <div class="apple-card p-4 rounded-3xl space-y-2">
+                <div class="flex items-center justify-between">
+                  <h5 class="text-xs font-bold text-neutral-900">${actionLabel}</h5>
+                  <span class="text-[10px] text-neutral-400 font-mono">${formattedDate}</span>
+                </div>
+
+                <p class="text-xs text-neutral-600">${event.details?.message || ''}</p>
+
+                <!-- Actor Details -->
+                <div class="flex items-center gap-2 text-[11px] text-neutral-500 pt-1">
+                  <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                  <span><b>${event.actorName}</b> (${event.actorPhone}) • <i>${event.actorRole}</i></span>
+                </div>
+
+                <!-- GPS Link if available -->
+                ${event.gpsLat ? `
+                  <div class="pt-1">
+                    <a href="https://maps.google.com/?q=${event.gpsLat},${event.gpsLng}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:underline">
+                      <i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500"></i>
+                      <span>मैप्स पर लोकेशन देखें (${event.gpsLat.toFixed(5)}, ${event.gpsLng.toFixed(5)})</span>
+                    </a>
+                  </div>
+                ` : ''}
+
+                <!-- Photo with 60-Day Auto-Expiry Handling -->
+                ${event.photoUrl ? `
+                  <div class="pt-2">
+                    <div id="photoContainer_${event.id}" class="relative">
+                      <img src="${event.photoUrl}" alt="Photo" loading="lazy"
+                        onerror="handlePhotoLoadError('${event.id}')"
+                        class="rounded-2xl max-h-48 object-cover border border-neutral-200 shadow-sm" />
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+        container.innerHTML = html;
+        lucide.createIcons();
+      } catch (err) {
+        container.innerHTML = `<p class="text-xs text-rose-500 text-center py-8">टाइमलाइन लोड करने में विफलता।</p>`;
+      }
+    }
+
+    // Handle 60-Day R2 Photo Lifecycle Expiry without broken image
+    function handlePhotoLoadError(eventId) {
+      const el = document.getElementById(`photoContainer_${eventId}`);
+      if (el) {
+        el.innerHTML = `
+          <div class="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-amber-50 text-amber-900 text-xs font-medium border border-amber-200/60">
+            <i data-lucide="archive" class="w-4 h-4 text-amber-700"></i>
+            <span>60 दिन बाद फोटो आर्काइव/डिलीट की गई (रिकॉर्ड सुरक्षित है)</span>
+          </div>
+        `;
+        lucide.createIcons();
+      }
+    }
+
+    // 6. Action Form Handlers
+    async function handleReceiveSubmit(e) {
+      e.preventDefault();
+      const serialNumber = document.getElementById("recSerial").value.trim();
+      const name = document.getElementById("recName").value.trim();
+      const model = document.getElementById("recModel").value.trim();
+      const supplier = document.getElementById("recSupplier").value.trim();
+
+      try {
+        const res = await fetch("/api/products/receive", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+          body: JSON.stringify({ serialNumber, name, model, supplier })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, "success");
+          closeModal("receiveModal");
+          e.target.reset();
+          loadDashboardStats();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (e) {
+        showToast("अनपेक्षित त्रुटि", "error");
+      }
+    }
+
+    async function handleStorageSubmit(e) {
+      e.preventDefault();
+      const serialNumber = document.getElementById("storeSerial").value.trim();
+      const storageLocation = document.getElementById("storeLocation").value.trim();
+
+      try {
+        const res = await fetch("/api/products/storage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+          body: JSON.stringify({ serialNumber, storageLocation })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, "success");
+          closeModal("storageModal");
+          e.target.reset();
+          loadDashboardStats();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (e) {
+        showToast("अनपेक्षित त्रुटि", "error");
+      }
+    }
+
+    async function handleHandoverSubmit(e) {
+      e.preventDefault();
+      const serialNumber = document.getElementById("handoverSerial").value.trim();
+      const select = document.getElementById("handoverEmployeeSelect");
+      const assignedToPhone = select.value;
+      const assignedToName = select.options[select.selectedIndex]?.text.split(" (")[0] || "";
+      const customerName = document.getElementById("handoverCustName").value.trim();
+      const customerPhone = document.getElementById("handoverCustPhone").value.trim();
+      const customerAddress = document.getElementById("handoverCustAddress").value.trim();
+
+      try {
+        const res = await fetch("/api/products/handover", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+          body: JSON.stringify({ serialNumber, assignedToPhone, assignedToName, customerName, customerPhone, customerAddress })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, "success");
+          closeModal("handoverModal");
+          e.target.reset();
+          loadDashboardStats();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (e) {
+        showToast("अनपेक्षित त्रुटि", "error");
+      }
+    }
+
+    async function handleInstallSubmit(e) {
+      e.preventDefault();
+      const serialNumber = document.getElementById("instSerial").value.trim();
+      const customerName = document.getElementById("instCustName").value.trim();
+      const customerPhone = document.getElementById("instCustPhone").value.trim();
+      const customerAddress = document.getElementById("instCustAddress").value.trim();
+      const compressedPhoto = document.getElementById("instCompressedData").value;
+      const btn = document.getElementById("instSubmitBtn");
+
+      if (!compressedPhoto) {
+        showToast("कृपया लाइव कैमरा से इंस्टॉलेशन की फोटो लें।", "error");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "फोटो अपलोड व सेव हो रहा है...";
+
+      try {
+        // 1. Upload compressed photo to R2
+        const upRes = await fetch("/api/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+          body: JSON.stringify({ image: compressedPhoto, mimeType: "image/webp" })
+        });
+        const upData = await upRes.json();
+        if (!upData.success) throw new Error(upData.error || "फोटो अपलोड विफल");
+
+        // 2. Mark Installed in DB
+        const res = await fetch("/api/products/install", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+          body: JSON.stringify({
+            serialNumber,
+            customerName,
+            customerPhone,
+            customerAddress,
+            gpsLat: lastCapturedGps.lat,
+            gpsLng: lastCapturedGps.lng,
+            photoKey: upData.key
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(data.message, "success");
+          closeModal("installModal");
+          e.target.reset();
+          document.getElementById("instPhotoPreview").classList.add("hidden");
+          document.getElementById("instCompressedData").value = "";
+          loadDashboardStats();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (err) {
+        showToast(err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "इंस्टॉलेशन रिकॉर्ड सेव करें";
+      }
+    }
+
+    async function handleRejectSubmit(e) {
+      e.preventDefault();
+      const serialNumber = document.getElementById("rejSerial").value.trim();
+      const reason = document.getElementById("rejReason").value;
+      const remarks = document.getElementById("rejRemarks").value.trim();
+      const compressedPhoto = document.getElementById("rejCompressedData").value;
+      const btn = document.getElementById("rejSubmitBtn");
+
+      if (!compressedPhoto) {
+        showToast("कृपया खराबी की लाइव फोटो अवश्य अपलोड करें।", "error");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "रिजेक्शन दर्ज हो रहा है...";
+
+      try {
+        // Upload photo to R2
+        const upRes = await fetch("/api/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+          body: JSON.stringify({ image: compressedPhoto, mimeType: "image/webp" })
+        });
+        const upData = await upRes.json();
+        if (!upData.success) throw new Error(upData.error || "फोटो अपलोड विफल");
+
+        const res = await fetch("/api/products/reject", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+          body: JSON.stringify({
+            serialNumber,
+            reason,
+            remarks,
+            photoKey: upData.key
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(data.message, "success");
+          closeModal("rejectModal");
+          e.target.reset();
+          document.getElementById("rejPhotoPreview").classList.add("hidden");
+          document.getElementById("rejCompressedData").value = "";
+          loadDashboardStats();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (err) {
+        showToast(err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "रिजेक्शन दर्ज करें";
+      }
+    }
+
+    async function handlePickupSubmit(e) {
+      e.preventDefault();
+      const serialNumber = document.getElementById("pickupSerial").value.trim();
+      const pickupPersonName = document.getElementById("pickupName").value.trim();
+      const pickupPersonPhone = document.getElementById("pickupPhone").value.trim();
+      const pickupVehicleNo = document.getElementById("pickupVehicle").value.trim();
+      const pickupRemarks = document.getElementById("pickupRemarks").value.trim();
+
+      try {
+        const res = await fetch("/api/products/pickup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+          body: JSON.stringify({ serialNumber, pickupPersonName, pickupPersonPhone, pickupVehicleNo, pickupRemarks })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, "success");
+          closeModal("pickupModal");
+          e.target.reset();
+          loadDashboardStats();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (e) {
+        showToast("अनपेक्षित त्रुटि", "error");
+      }
+    }
+
+    // 7. Client-Side Image Compression using HTML5 Canvas API
+    async function handleImageSelection(event, previewId, dataTargetId) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+
+          // Max dimension 1280px for optimal detail + ultra-small file size
+          const MAX_SIZE = 1280;
+          if (width > height && width > MAX_SIZE) {
+            height = Math.round((height * MAX_SIZE) / width);
+            width = MAX_SIZE;
+          } else if (height > MAX_SIZE) {
+            width = Math.round((width * MAX_SIZE) / height);
+            height = MAX_SIZE;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Compress to WebP / JPEG at 0.72 quality (~120KB - 180KB)
+          let compressedBase64 = canvas.toDataURL("image/webp", 0.72);
+          if (!compressedBase64.startsWith("data:image/webp")) {
+            compressedBase64 = canvas.toDataURL("image/jpeg", 0.75);
+          }
+
+          document.getElementById(dataTargetId).value = compressedBase64;
+          
+          const previewEl = document.getElementById(previewId);
+          previewEl.classList.remove("hidden");
+          previewEl.querySelector("img").src = compressedBase64;
+
+          // Calculate estimated KB
+          const kbSize = Math.round((compressedBase64.length * 3 / 4) / 1024);
+          const sizeTxt = previewEl.querySelector("p:last-child");
+          if (sizeTxt) sizeTxt.innerText = `साइज़: ~${kbSize} KB (अनुकूलित)`;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // 8. Auto GPS Capture
+    function captureCurrentLocation(targetTextId) {
+      const textEl = document.getElementById(targetTextId);
+      if (!navigator.geolocation) {
+        if (textEl) textEl.innerText = "GPS ब्राउज़र द्वारा समर्थित नहीं है।";
+        return;
+      }
+      if (textEl) textEl.innerText = "GPS लोकेशन खोजी जा रही है...";
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          lastCapturedGps = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          };
+          if (textEl) {
+            textEl.innerHTML = `<span class="text-green-700 font-medium">स्थान दर्ज: ${lastCapturedGps.lat.toFixed(5)}, ${lastCapturedGps.lng.toFixed(5)}</span>`;
+          }
+        },
+        (err) => {
+          if (textEl) textEl.innerText = "लोकेशन अनुमति नहीं मिली या सिग्नल कमजोर है।";
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    // 9. Staff Management (Admin)
+    async function loadEmployees() {
+      try {
+        const res = await fetch("/api/employees", {
+          headers: { "Authorization": `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.employees) {
+          allEmployees = data.employees;
+
+          // Populate Handover dropdown
+          const select = document.getElementById("handoverEmployeeSelect");
+          select.innerHTML = `<option value="">कर्मचारी का चयन करें...</option>` +
+            allEmployees.map(emp => `<option value="${emp.phone}">${emp.name} (${emp.phone}) - ${emp.role}</option>`).join("");
+
+          // Render Staff list in Staff tab
+          const listContainer = document.getElementById("staffListContainer");
+          if (listContainer) {
+            listContainer.innerHTML = allEmployees.map(emp => `
+              <div class="flex items-center justify-between p-3 rounded-2xl bg-neutral-50 border border-neutral-100">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+                    ${emp.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p class="text-xs font-semibold text-neutral-800">${emp.name}</p>
+                    <p class="text-[11px] text-neutral-500 font-mono">${emp.phone}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${emp.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-neutral-200 text-neutral-700'}">${emp.role}</span>
+                  ${currentUser?.role === 'admin' && emp.id !== currentUser.id ? `
+                    <button onclick="handleDeleteEmployee(${emp.id}, '${emp.name}')" title="हटाएं" class="p-1.5 text-neutral-400 hover:text-rose-600 rounded-lg">
+                      <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            `).join("");
+            lucide.createIcons();
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function handleAddEmployee(e) {
+      e.preventDefault();
+      const name = document.getElementById("newEmpName").value.trim();
+      const phone = document.getElementById("newEmpPhone").value.trim();
+      const pin = document.getElementById("newEmpPin").value.trim();
+
+      try {
+        const res = await fetch("/api/employees", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+          body: JSON.stringify({ name, phone, pin })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, "success");
+          e.target.reset();
+          loadEmployees();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (e) {
+        showToast("कर्मचारी जोड़ने में त्रुटि।", "error");
+      }
+    }
+
+    async function handleDeleteEmployee(id, name) {
+      if (!confirm(`क्या आप कर्मचारी '${name}' को हटाना चाहते हैं?`)) return;
+      try {
+        const res = await fetch(`/api/employees?id=${id}`, {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, "success");
+          loadEmployees();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (e) {
+        showToast("त्रुटि आई", "error");
+      }
+    }
+
+    // 10. Live Barcode / QR Scanner Modal
+    function openLiveScanner(targetInputId, callback) {
+      activeScannerTargetInputId = targetInputId;
+      document.getElementById("scannerModal").classList.remove("hidden");
+
+      if (currentHtml5QrCode) {
+        currentHtml5QrCode.stop().catch(() => {}).then(startScanning);
+      } else {
+        startScanning();
+      }
+
+      function startScanning() {
+        currentHtml5QrCode = new Html5Qrcode("reader");
+        currentHtml5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 15, qrbox: { width: 250, height: 250 } },
+          (decodedText) => {
+            const cleanText = decodedText.trim();
+            if (activeScannerTargetInputId) {
+              const inputEl = document.getElementById(activeScannerTargetInputId);
+              if (inputEl) inputEl.value = cleanText;
+            }
+            closeScannerModal();
+            showToast(`स्कैन सफल: ${cleanText}`, "info");
+            if (callback) callback(cleanText);
+          },
+          (errorMessage) => {}
+        ).catch(err => {
+          showToast("कैमरा एक्सेस नहीं मिला। कृपया मैन्युअल टाइप करें।", "error");
+          closeScannerModal();
+        });
+      }
+    }
+
+    function closeScannerModal() {
+      if (currentHtml5QrCode) {
+        currentHtml5QrCode.stop().then(() => {
+          currentHtml5QrCode.clear();
+          currentHtml5QrCode = null;
+        }).catch(() => {
+          currentHtml5QrCode = null;
+        });
+      }
+      document.getElementById("scannerModal").classList.add("hidden");
+    }
+
+    // Modal UI Helpers
+    function openModal(id) {
+      document.getElementById(id).classList.remove("hidden");
+      if (id === "installModal") {
+        captureCurrentLocation("instGpsText");
+      }
+      lucide.createIcons();
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+    // Toast UI Helper
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      let bg = "bg-neutral-900 text-white";
+      if (type === "success") bg = "bg-green-600 text-white";
+      if (type === "error") bg = "bg-rose-600 text-white";
+
+      toast.className = `px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold shadow-lg ${bg} transition-all duration-300 pointer-events-auto flex items-center gap-2 transform translate-y-4 opacity-0`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove("translate-y-4", "opacity-0");
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "translate-y-2");
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Utilities
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function formatDateTime(isoString) {
+      if (!isoString) return "";
+      try {
+        const d = new Date(isoString);
+        return d.toLocaleString("hi-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true
+        });
+      } catch (e) {
+        return isoString;
+      }
+    }
+  </script>
+</body>
+</html>

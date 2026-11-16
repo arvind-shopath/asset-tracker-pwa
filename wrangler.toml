@@ -1,0 +1,14 @@
+name = "asset-tracker-pwa"
+compatibility_date = "2024-04-01"
+pages_build_output_dir = "./public"
+
+# Cloudflare D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "asset-tracker-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# Cloudflare R2 Bucket Binding (For Photos)
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "asset-tracker-photos"
