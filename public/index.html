@@ -678,19 +678,19 @@
     <div class="max-w-md mx-auto flex items-end justify-between relative px-1">
       
       <!-- 1. Home (Dashboard) -->
-      <button onclick="switchTab('dashboard')" id="bnavBtn_dashboard" class="flex flex-col items-center justify-center py-1 text-[#009E77] transition active:scale-95 flex-1">
+      <button onclick="switchTab('dashboard')" id="bnavBtn_dashboard" style="order: 1;" class="flex flex-col items-center justify-center py-1 text-[#009E77] transition active:scale-95 flex-1">
         <i data-lucide="home" class="w-5 h-5 mb-0.5"></i>
         <span id="bnavLbl_dashboard" class="text-[10px] font-extrabold tracking-tight">Home</span>
       </button>
 
       <!-- 2. Inventory -->
-      <button onclick="switchTab('inventory')" id="bnavBtn_inventory" class="flex flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition active:scale-95 flex-1">
+      <button onclick="switchTab('inventory')" id="bnavBtn_inventory" style="order: 2;" class="flex flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition active:scale-95 flex-1">
         <i data-lucide="package" class="w-5 h-5 mb-0.5"></i>
         <span id="bnavLbl_inventory" class="text-[10px] font-extrabold tracking-tight">Inventory</span>
       </button>
 
-      <!-- 3. CENTER ELEVATED SCAN BUTTON -->
-      <div class="flex flex-col items-center justify-center relative -top-3.5 flex-1">
+      <!-- 3. SCAN BUTTON (Middle for Admin, End for Employee) -->
+      <div id="bnavScanContainer" style="order: 3;" class="flex flex-col items-center justify-center relative -top-3.5 flex-1">
         <button onclick="openLiveScanner('timelineSerialInput')" id="bnavBtn_scan" 
           class="w-13 h-13 p-3.5 rounded-full bg-gradient-to-tr from-[#009E77] to-[#00C496] text-white flex items-center justify-center shadow-lg shadow-[#00C496]/40 border-2 border-white transform active:scale-90 transition">
           <i data-lucide="scan" class="w-6 h-6"></i>
@@ -699,13 +699,13 @@
       </div>
 
       <!-- 4. Timeline Audit -->
-      <button onclick="switchTab('timeline')" id="bnavBtn_timeline" class="flex flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition active:scale-95 flex-1">
+      <button onclick="switchTab('timeline')" id="bnavBtn_timeline" style="order: 4;" class="flex flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition active:scale-95 flex-1">
         <i data-lucide="history" class="w-5 h-5 mb-0.5"></i>
         <span id="bnavLbl_timeline" class="text-[10px] font-extrabold tracking-tight">Timeline</span>
       </button>
 
       <!-- 5. Staff (Admin Only) -->
-      <button onclick="switchTab('staff')" id="bnavBtn_staff" class="hidden flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition active:scale-95 flex-1">
+      <button onclick="switchTab('staff')" id="bnavBtn_staff" style="order: 5;" class="hidden flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition active:scale-95 flex-1">
         <i data-lucide="users" class="w-5 h-5 mb-0.5"></i>
         <span id="bnavLbl_staff" class="text-[10px] font-extrabold tracking-tight">Staff</span>
       </button>
@@ -1422,7 +1422,11 @@
           currentUser = data.user;
           localStorage.setItem("asset_auth_token", authToken);
           showToast(currentLang === 'en' ? "Signed in successfully" : "लॉगिन सफल!", "success");
-          renderApp();
+          try {
+            renderApp();
+          } catch (renderErr) {
+            console.error("renderApp error:", renderErr);
+          }
         } else {
           showToast(data.error || (currentLang === 'en' ? "Sign in failed" : "लॉगिन विफल"), "error");
         }
@@ -1452,35 +1456,52 @@
     }
 
     function renderApp() {
-      document.getElementById("loginSection").classList.add("hidden");
-      document.getElementById("topNav").classList.remove("hidden");
-      document.getElementById("bottomNavBar")?.classList.remove("hidden");
-      document.getElementById("appSection").classList.remove("hidden");
+      try {
+        document.getElementById("loginSection").classList.add("hidden");
+        document.getElementById("topNav").classList.remove("hidden");
+        document.getElementById("bottomNavBar")?.classList.remove("hidden");
+        document.getElementById("appSection").classList.remove("hidden");
 
-      document.getElementById("userNameBadge").innerText = currentUser.name;
-      document.getElementById("userRoleBadge").innerText = currentUser.role;
+        const nameBadge = document.getElementById("userNameBadge");
+        if (nameBadge) nameBadge.innerText = currentUser.name;
+        const roleBadge = document.getElementById("userRoleBadge");
+        if (roleBadge) roleBadge.innerText = currentUser.role;
 
-      if (currentUser.role === "admin") {
-        document.getElementById("tabBtnStaff")?.classList.remove("hidden");
-        const bStaff = document.getElementById("bnavBtn_staff");
-        if (bStaff) {
-          bStaff.classList.remove("hidden");
-          bStaff.classList.add("flex");
+        const scanContainer = document.getElementById("bnavScanContainer");
+        const timelineBtn = document.getElementById("bnavBtn_timeline");
+        const staffBtn = document.getElementById("bnavBtn_staff");
+
+        if (currentUser.role === "admin") {
+          // Admin Mode: 5 items with Scan in the middle
+          // 1: Home, 2: Inventory, 3: Scan (Center), 4: Timeline, 5: Staff
+          document.getElementById("tabBtnStaff")?.classList.remove("hidden");
+          if (staffBtn) {
+            staffBtn.classList.remove("hidden");
+            staffBtn.classList.add("flex");
+            staffBtn.style.order = "5";
+          }
+          if (scanContainer) scanContainer.style.order = "3";
+          if (timelineBtn) timelineBtn.style.order = "4";
+        } else {
+          // Employee Mode: 4 items with Timeline first, Scan at the end
+          // 1: Home, 2: Inventory, 3: Timeline, 4: Scan (End)
+          document.getElementById("tabBtnStaff")?.classList.add("hidden");
+          if (staffBtn) {
+            staffBtn.classList.add("hidden");
+            staffBtn.classList.remove("flex");
+          }
+          if (timelineBtn) timelineBtn.style.order = "3";
+          if (scanContainer) scanContainer.style.order = "4";
         }
-      } else {
-        document.getElementById("tabBtnStaff")?.classList.add("hidden");
-        const bStaff = document.getElementById("bnavBtn_staff");
-        if (bStaff) {
-          bStaff.classList.add("hidden");
-          bStaff.classList.remove("flex");
-        }
+
+        applyTranslations();
+        loadDashboardStats();
+        loadEmployees();
+        switchTab("dashboard");
+        lucide.createIcons();
+      } catch (err) {
+        console.error("renderApp error:", err);
       }
-
-      applyTranslations();
-      loadDashboardStats();
-      loadEmployees();
-      switchTab("dashboard");
-      lucide.createIcons();
     }
 
     function switchTab(tab) {
