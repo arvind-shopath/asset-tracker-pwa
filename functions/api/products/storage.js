@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, verifyAuth, recordAudit } from "../_utils.js";
+import { jsonResponse, errorResponse, verifyAuth, recordAudit, findProduct, saveProduct } from "../_utils.js";
 
 export async function onRequestPost({ request, env }) {
   const user = await verifyAuth(request);
@@ -14,19 +14,7 @@ export async function onRequestPost({ request, env }) {
     const cleanSerial = String(serialNumber).trim();
     const cleanLocation = String(storageLocation).trim();
 
-    let product = null;
-
-    if (env.KV) {
-      product = await env.KV.get(`product:${cleanSerial}`, "json");
-    }
-
-    if (!product && env.DB) {
-      try {
-        product = await env.DB.prepare(
-          "SELECT * FROM products WHERE serial_number = ?"
-        ).bind(cleanSerial).first();
-      } catch (e) {}
-    }
+    let product = await findProduct(env, cleanSerial);
 
     if (!product) {
       return errorResponse(`Serial number (${cleanSerial}) not found. Please receive it first.`, 404);
@@ -36,18 +24,7 @@ export async function onRequestPost({ request, env }) {
     product.storage_location = cleanLocation;
     product.updated_at = new Date().toISOString();
 
-    if (env.KV) {
-      await env.KV.put(`product:${cleanSerial}`, JSON.stringify(product));
-      let list = (await env.KV.get("products_list", "json")) || [];
-      list = list.map((p) => (p.serial_number === cleanSerial ? product : p));
-      await env.KV.put("products_list", JSON.stringify(list));
-    }
-
-    if (env.DB) {
-      try {
-        await env.DB.prepare(
-          "UPDATE products SET current_status = 'in_storage', storage_location = ?, updated_at = CURRENT_TIMESTAMP WHERE serial_number = ?"
-        ).bind(cleanLocation, cleanSerial).run();
+    await saveProduct(env, product);
       } catch (e) {}
     }
 

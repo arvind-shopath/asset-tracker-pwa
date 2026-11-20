@@ -213,6 +213,9 @@ export async function onRequest({ request, env }) {
 
       // 2. Products
       await env.KV.put("products_list", JSON.stringify(products));
+      for (const p of products) {
+        await env.KV.put(`product:${p.serial_number}`, JSON.stringify(p));
+      }
 
       // 3. Timelines
       await env.KV.put("timeline:SN-INST-2026-01", JSON.stringify(timeline1));

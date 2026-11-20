@@ -181,3 +181,121 @@ export async function recordAudit(env, { productId, serialNumber, action, actor,
 
   return record;
 }
+
+// Universal Product Lookup (KV individual key -> KV products_list -> D1 -> Demo seed fallback)
+export async function findProduct(env, serialNumber) {
+  if (!serialNumber) return null;
+  const cleanSerial = String(serialNumber).trim();
+
+  // 1. Try KV individual key
+  if (env.KV) {
+    try {
+      const p = await env.KV.get(`product:${cleanSerial}`, "json");
+      if (p) return p;
+    } catch (e) {}
+  }
+
+  // 2. Try KV products_list (case-insensitive)
+  if (env.KV) {
+    try {
+      const list = (await env.KV.get("products_list", "json")) || [];
+      const p = list.find((item) => String(item.serial_number || "").trim().toUpperCase() === cleanSerial.toUpperCase());
+      if (p) return p;
+    } catch (e) {}
+  }
+
+  // 3. Try D1
+  if (env.DB) {
+    try {
+      const p = await env.DB.prepare("SELECT * FROM products WHERE UPPER(serial_number) = UPPER(?)").bind(cleanSerial).first();
+      if (p) return p;
+    } catch (e) {}
+  }
+
+  // 4. In-memory demo products fallback
+  if (cleanSerial.toUpperCase() === "SN-INST-2026-01") {
+    return {
+      id: 1,
+      serial_number: "SN-INST-2026-01",
+      name: "Commercial Water Purification RO Unit",
+      model: "AquaPro-50X",
+      supplier: "Ion Exchange Tech",
+      current_status: "installed",
+      storage_location: "Rack A-04, Shelf 2",
+      assigned_to_name: "Dinesh Verma",
+      assigned_to_phone: "9876543212",
+      customer_name: "Arvind Shukla",
+      customer_phone: "9876543210",
+      customer_address: "56, Rajajipuram, Lucknow, UP",
+      gps_lat: 26.80976,
+      gps_lng: 80.89140,
+      installed_photo_key: "inst_sn_inst_2026_01.webp",
+      updated_at: "2026-11-20T11:45:00.000Z",
+      created_at: "2026-11-20T09:30:00.000Z",
+    };
+  }
+  if (cleanSerial.toUpperCase() === "SN-RET-2026-02") {
+    return {
+      id: 2,
+      serial_number: "SN-RET-2026-02",
+      name: "Industrial Digital Flow Sensor Meter",
+      model: "FlowSense-V2",
+      supplier: "Sensotech Precision",
+      current_status: "rejected",
+      storage_location: "Rack B-01, Shelf 3",
+      assigned_to_name: "Manoj Singh",
+      assigned_to_phone: "9876543213",
+      customer_name: "Rajesh Patel",
+      customer_phone: "9811223344",
+      rejected_reason: "Packaging Damaged during transit / Outer casing dent",
+      pickup_person_name: "Vinay Kumar",
+      pickup_person_phone: "9876543214",
+      pickup_remarks: "BlueDart Waybill #BD-98273619-IN returned safely to Hub",
+      updated_at: "2026-11-20T12:15:00.000Z",
+      created_at: "2026-11-20T09:15:00.000Z",
+    };
+  }
+
+  return null;
+}
+
+export async function saveProduct(env, product) {
+  const serial = product.serial_number;
+  if (env.KV) {
+    try {
+      await env.KV.put(`product:${serial}`, JSON.stringify(product));
+      let list = (await env.KV.get("products_list", "json")) || [];
+      const idx = list.findIndex((p) => p.serial_number === serial);
+      if (idx >= 0) {
+        list[idx] = product;
+      } else {
+        list.unshift(product);
+      }
+      await env.KV.put("products_list", JSON.stringify(list));
+    } catch (e) {}
+  }
+
+  if (env.DB) {
+    try {
+      await env.DB.prepare(
+        `INSERT OR REPLACE INTO products 
+         (serial_number, name, model, supplier, current_status, storage_location, assigned_to_name, assigned_to_phone, customer_name, customer_phone, customer_address, gps_lat, gps_lng, updated_at) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`
+      ).bind(
+        product.serial_number,
+        product.name || "",
+        product.model || "",
+        product.supplier || "",
+        product.current_status,
+        product.storage_location || null,
+        product.assigned_to_name || null,
+        product.assigned_to_phone || null,
+        product.customer_name || null,
+        product.customer_phone || null,
+        product.customer_address || null,
+        product.gps_lat || null,
+        product.gps_lng || null
+      ).run();
+    } catch (e) {}
+  }
+}
