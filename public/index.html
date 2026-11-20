@@ -318,9 +318,9 @@
         </button>
 
         <!-- User Profile Pill -->
-        <div id="userProfilePill" class="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-white border border-black/[0.06] shadow-sm">
-          <span id="userNameBadge" class="text-xs font-bold text-[#2D2926]">User</span>
-          <span id="userRoleBadge" class="text-[10px] uppercase font-extrabold tracking-wider px-2.5 py-0.5 rounded-xl bg-[#00C496]/15 text-[#008765]">Admin</span>
+        <div id="userProfilePill" class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-2xl bg-white border border-black/[0.06] shadow-sm">
+          <span id="userNameBadge" class="text-xs font-bold text-[#2D2926] hidden sm:inline">User</span>
+          <span id="userRoleBadge" class="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-xl bg-[#00C496]/15 text-[#008765]">Admin</span>
         </div>
 
         <!-- Logout Button -->
@@ -661,7 +661,7 @@
   <!-- ================= MODALS SECTION (Porcelain & Clay 3D Aesthetic) ================= -->
 
   <!-- 1. LIVE BARCODE / QR SCANNER MODAL -->
-  <div id="scannerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+  <div id="scannerModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop" style="z-index: 9999;">
     <div class="porcelain-plate w-full max-w-sm p-6 space-y-4">
       <div class="flex items-center justify-between">
         <h3 id="modalScannerTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
@@ -2098,6 +2098,24 @@
           { fps: 15, qrbox: { width: 250, height: 250 } },
           (decodedText) => {
             const cleanText = decodedText.trim();
+            // Tactile vibration and audio beep feedback for physical scanning
+            if (navigator.vibrate) {
+              try { navigator.vibrate(100); } catch(e){}
+            }
+            try {
+              const ctx = new (window.AudioContext || window.webkitAudioContext)();
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = "sine";
+              osc.frequency.value = 880;
+              gain.gain.setValueAtTime(0.15, ctx.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start();
+              osc.stop(ctx.currentTime + 0.15);
+            } catch(e){}
+
             if (activeScannerTargetInputId) {
               const inputEl = document.getElementById(activeScannerTargetInputId);
               if (inputEl) inputEl.value = cleanText;
