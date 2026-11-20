@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8" />
@@ -785,11 +785,33 @@
           </div>
         </div>
 
-        <div>
+        <!-- Smart Searchable Employee Picker -->
+        <div class="relative" id="handoverEmpPickerContainer">
           <label id="lblHandAssignee" class="block text-[11px] font-bold text-[#7A726C] mb-1">Assigned Employee *</label>
-          <select id="handoverEmployeeSelect" required class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none">
-            <option value="">Select Employee...</option>
-          </select>
+          <div class="relative">
+            <input type="text" id="handoverEmployeeSearchInput" autocomplete="off"
+              onfocus="showEmployeeDropdown()"
+              oninput="filterEmployeeDropdown(this.value)"
+              placeholder="Search by name or phone (e.g. Rahul, 9876...)" 
+              required
+              class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none pr-9 text-[#2D2926]" />
+            <button type="button" id="btnClearEmpSearch" onclick="clearSelectedEmployee()" class="hidden absolute inset-y-0 right-0 flex items-center pr-3 text-[#7A726C] hover:text-[#2D2926]">
+              <i data-lucide="x-circle" class="w-4 h-4 text-[#8C827A]"></i>
+            </button>
+            <span id="empSearchIcon" class="absolute inset-y-0 right-0 flex items-center pr-3 text-[#7A726C] pointer-events-none">
+              <i data-lucide="search" class="w-4 h-4 text-[#8C827A]"></i>
+            </span>
+          </div>
+
+          <!-- Hidden inputs for form submission -->
+          <input type="hidden" id="handoverAssignedPhone" />
+          <input type="hidden" id="handoverAssignedName" />
+          <select id="handoverEmployeeSelect" class="hidden"></select>
+
+          <!-- Search Results Dropdown List -->
+          <div id="handoverEmployeeDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 max-h-52 overflow-y-auto rounded-2xl bg-white border border-[#EAE3DE] shadow-2xl z-40 p-2 space-y-1 no-scrollbar">
+            <!-- Populated dynamically -->
+          </div>
         </div>
 
         <div class="pt-3 border-t border-[#EAE3DE] space-y-3">
@@ -1827,9 +1849,23 @@
     async function handleHandoverSubmit(e) {
       e.preventDefault();
       const serialNumber = document.getElementById("handoverSerial").value.trim();
-      const select = document.getElementById("handoverEmployeeSelect");
-      const assignedToPhone = select.value;
-      const assignedToName = select.options[select.selectedIndex]?.text.split(" (")[0] || "";
+      let assignedToPhone = document.getElementById("handoverAssignedPhone")?.value;
+      let assignedToName = document.getElementById("handoverAssignedName")?.value;
+
+      if (!assignedToPhone) {
+        const select = document.getElementById("handoverEmployeeSelect");
+        if (select && select.value) {
+          assignedToPhone = select.value;
+          assignedToName = select.options[select.selectedIndex]?.text.split(" (")[0] || "";
+        }
+      }
+
+      if (!assignedToPhone) {
+        showToast(currentLang === 'en' ? "Please search and select an employee" : "कृपया कर्मचारी को सर्च करके चुनें", "error");
+        document.getElementById("handoverEmployeeSearchInput").focus();
+        return;
+      }
+
       const customerName = document.getElementById("handoverCustName").value.trim();
       const customerPhone = document.getElementById("handoverCustPhone").value.trim();
       const customerAddress = document.getElementById("handoverCustAddress").value.trim();
@@ -1845,6 +1881,7 @@
           showToast(data.message, "success");
           closeModal("handoverModal");
           e.target.reset();
+          clearSelectedEmployee();
           loadDashboardStats();
         } else {
           showToast(data.error, "error");
@@ -2190,9 +2227,114 @@
       }
     }
 
+    // Smart Searchable Employee Picker Functions
+    function showEmployeeDropdown() {
+      const dropdown = document.getElementById("handoverEmployeeDropdown");
+      if (dropdown) dropdown.classList.remove("hidden");
+      const currentVal = document.getElementById("handoverEmployeeSearchInput")?.value || "";
+      filterEmployeeDropdown(currentVal);
+    }
+
+    function filterEmployeeDropdown(query = "") {
+      const dropdown = document.getElementById("handoverEmployeeDropdown");
+      if (!dropdown) return;
+      dropdown.classList.remove("hidden");
+      const q = (query || "").trim().toLowerCase();
+
+      let matches = allEmployees || [];
+      if (q) {
+        matches = matches.filter(emp => 
+          (emp.name && emp.name.toLowerCase().includes(q)) || 
+          (emp.phone && emp.phone.includes(q)) ||
+          (emp.role && emp.role.toLowerCase().includes(q))
+        );
+      }
+
+      if (matches.length === 0) {
+        dropdown.innerHTML = `<p class="text-xs text-[#8C827A] p-3 text-center">${currentLang === 'en' ? 'No staff found matching search.' : 'कोई कर्मचारी नहीं मिला।'}</p>`;
+        return;
+      }
+
+      dropdown.innerHTML = matches.map(emp => `
+        <div onclick="selectEmployee('${emp.phone}', '${emp.name.replace(/'/g, "\\'")}', '${emp.role}')" 
+          class="flex items-center justify-between p-2.5 rounded-xl hover:bg-[#F2ECE8] cursor-pointer transition">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-[#00C496]/20 text-[#008765] flex items-center justify-center font-bold text-xs border border-[#00C496]/30">
+              ${emp.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p class="text-xs font-bold text-[#2D2926]">${emp.name}</p>
+              <p class="text-[10px] text-[#7A726C] font-mono">${emp.phone}</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-lg bg-[#FAF6F3] text-[#5C534D] border border-[#EAE3DE]">
+            ${emp.role}
+          </span>
+        </div>
+      `).join("");
+      lucide.createIcons();
+    }
+
+    function selectEmployee(phone, name, role) {
+      document.getElementById("handoverAssignedPhone").value = phone;
+      document.getElementById("handoverAssignedName").value = name;
+      const searchInput = document.getElementById("handoverEmployeeSearchInput");
+      if (searchInput) searchInput.value = `${name} (${phone})`;
+      
+      const select = document.getElementById("handoverEmployeeSelect");
+      if (select) select.value = phone;
+
+      const clearBtn = document.getElementById("btnClearEmpSearch");
+      if (clearBtn) clearBtn.classList.remove("hidden");
+      const icon = document.getElementById("empSearchIcon");
+      if (icon) icon.classList.add("hidden");
+      const dropdown = document.getElementById("handoverEmployeeDropdown");
+      if (dropdown) dropdown.classList.add("hidden");
+    }
+
+    function clearSelectedEmployee() {
+      document.getElementById("handoverAssignedPhone").value = "";
+      document.getElementById("handoverAssignedName").value = "";
+      const searchInput = document.getElementById("handoverEmployeeSearchInput");
+      if (searchInput) {
+        searchInput.value = "";
+        searchInput.focus();
+      }
+      
+      const select = document.getElementById("handoverEmployeeSelect");
+      if (select) select.value = "";
+
+      const clearBtn = document.getElementById("btnClearEmpSearch");
+      if (clearBtn) clearBtn.classList.add("hidden");
+      const icon = document.getElementById("empSearchIcon");
+      if (icon) icon.classList.remove("hidden");
+      showEmployeeDropdown();
+    }
+
+    // Close dropdown on outside click
+    document.addEventListener("click", (e) => {
+      const container = document.getElementById("handoverEmpPickerContainer");
+      if (container && !container.contains(e.target)) {
+        const dropdown = document.getElementById("handoverEmployeeDropdown");
+        if (dropdown) dropdown.classList.add("hidden");
+      }
+    });
+
+    let activeParentModalId = null;
+
     // Barcode & QR Scanner Modal
     function openLiveScanner(targetInputId, callback) {
       activeScannerTargetInputId = targetInputId;
+
+      // Find if an active form modal is currently open and temporarily hide it
+      const openModalEl = document.querySelector(".modal-backdrop:not(.hidden):not(#scannerModal)");
+      if (openModalEl) {
+        activeParentModalId = openModalEl.id;
+        openModalEl.classList.add("hidden");
+      } else {
+        activeParentModalId = null;
+      }
+
       document.getElementById("scannerModal").classList.remove("hidden");
 
       if (currentHtml5QrCode) {
@@ -2228,7 +2370,10 @@
 
             if (activeScannerTargetInputId) {
               const inputEl = document.getElementById(activeScannerTargetInputId);
-              if (inputEl) inputEl.value = cleanText;
+              if (inputEl) {
+                inputEl.value = cleanText;
+                inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+              }
             }
             closeScannerModal();
             showToast(`${currentLang === 'en' ? 'Scanned' : 'स्कैन हुआ'}: ${cleanText}`, "info");
@@ -2252,6 +2397,12 @@
         });
       }
       document.getElementById("scannerModal").classList.add("hidden");
+
+      // Seamlessly restore the parent modal
+      if (activeParentModalId) {
+        document.getElementById(activeParentModalId).classList.remove("hidden");
+        activeParentModalId = null;
+      }
     }
 
     function openModal(id) {
