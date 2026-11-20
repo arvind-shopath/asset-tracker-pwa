@@ -5,7 +5,7 @@ export async function onRequestPost({ request, env }) {
   if (!user) return errorResponse("Authentication required.", 401);
 
   try {
-    const { serialNumber, pickupPersonName, pickupPersonPhone, pickupVehicleNo, pickupRemarks } = await request.json();
+    const { serialNumber, pickupPersonName, pickupPersonPhone, pickupVehicleNo, pickupRemarks, photoKey } = await request.json();
 
     if (!serialNumber || !pickupPersonName || !pickupPersonPhone) {
       return errorResponse("Serial number, pickup person name, and phone number are required.", 400);
@@ -35,6 +35,7 @@ export async function onRequestPost({ request, env }) {
     product.pickup_person_phone = pickupPersonPhone;
     product.pickup_vehicle_no = pickupVehicleNo || "";
     product.pickup_remarks = pickupRemarks || "";
+    product.pickup_photo_key = photoKey || "";
     product.updated_at = new Date().toISOString();
 
     if (env.KV) {
@@ -66,6 +67,7 @@ export async function onRequestPost({ request, env }) {
         pickupRemarks,
         message: `Handed over rejected product to ${pickupPersonName} (${pickupPersonPhone}).`,
       },
+      photoKey: photoKey || null,
     });
 
     return jsonResponse({

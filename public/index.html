@@ -500,14 +500,14 @@
               </div>
             </button>
 
-            <!-- 4. Installed (Porcelain Card with Emerald accents) -->
-            <button onclick="openModal('installModal')" class="clay-card-white p-4 text-left flex flex-col justify-between h-36 border-green-100">
+            <!-- 4. Record Installation Form (Porcelain Card with Emerald accents) -->
+            <button onclick="openModal('installModal')" class="clay-card-white p-4 text-left flex flex-col justify-between h-36 border-green-100 hover:border-[#00C496]">
               <div class="w-11 h-11 rounded-2xl bg-[#D9F7EE] text-[#008765] flex items-center justify-center shadow-sm border border-[#00C496]/20">
                 <i data-lucide="check-circle" class="w-5 h-5"></i>
               </div>
               <div>
-                <p id="actInstTitle" class="font-extrabold text-sm text-[#2D2926] leading-snug">4. Installed</p>
-                <p id="actInstSub" class="text-[11px] text-[#7A726C] font-medium">GPS & Photo</p>
+                <p id="actInstTitle" class="font-extrabold text-sm text-[#2D2926] leading-snug">4. Record Install</p>
+                <p id="actInstSub" class="text-[11px] text-[#7A726C] font-medium">GPS & Photo Form</p>
               </div>
             </button>
 
@@ -538,12 +538,24 @@
 
         <!-- Recent Activity Feed (Porcelain Plate) -->
         <div class="clay-card-white p-6 sm:p-7">
-          <div class="flex items-center justify-between mb-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <h3 id="headingRecentActivity" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
               <i data-lucide="history" class="w-4 h-4 text-[#00C496]"></i>
               <span>Recent Activity</span>
             </h3>
-            <button onclick="loadDashboardStats()" id="btnRefreshActivity" class="text-xs font-bold text-[#009E77] hover:underline">Refresh</button>
+            
+            <!-- Date Filter for Recent Activity -->
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#EAE3DE] shadow-sm">
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#7A726C]"></i>
+                <input type="date" id="recentActivityDateInput" onchange="filterRecentActivityByDate(this.value)" 
+                  class="bg-transparent text-xs font-semibold text-[#4A433E] outline-none cursor-pointer" />
+              </div>
+              <button onclick="clearActivityDateFilter()" id="btnClearActivityDate" class="px-3 py-1.5 rounded-xl bg-[#F0EAE5] hover:bg-[#EAE3DE] text-xs font-bold text-[#5C534D] transition shadow-sm">
+                All
+              </button>
+              <button onclick="loadDashboardStats()" id="btnRefreshActivity" class="text-xs font-bold text-[#009E77] hover:underline ml-1">Refresh</button>
+            </div>
           </div>
           <div id="recentActivityList" class="space-y-3">
             <p class="text-xs text-[#8C827A] py-3 text-center">Loading activity log...</p>
@@ -660,29 +672,7 @@
 
   <!-- ================= MODALS SECTION (Porcelain & Clay 3D Aesthetic) ================= -->
 
-  <!-- 1. LIVE BARCODE / QR SCANNER MODAL -->
-  <div id="scannerModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop" style="z-index: 9999;">
-    <div class="porcelain-plate w-full max-w-sm p-6 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 id="modalScannerTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
-          <i data-lucide="scan" class="w-4 h-4 text-[#00C496]"></i>
-          <span>Scan Barcode or QR Code</span>
-        </h3>
-        <button onclick="closeScannerModal()" class="p-1.5 rounded-full text-[#7A726C] hover:text-[#2D2926]">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div id="reader" class="w-full rounded-3xl overflow-hidden bg-black aspect-square shadow-inner"></div>
-      <p id="modalScannerHint" class="text-[11px] text-[#7A726C] text-center font-medium">Position the barcode or QR code inside the frame.</p>
-      
-      <button onclick="closeScannerModal()" id="btnCancelScan" class="w-full py-3 rounded-2xl bg-white border border-[#EAE3DE] text-[#5C534D] font-bold text-xs hover:bg-[#F2ECE8] shadow-sm">
-        Cancel
-      </button>
-    </div>
-  </div>
-
-  <!-- 2. RECEIVE PRODUCT MODAL -->
+  <!-- 1. RECEIVE PRODUCT MODAL -->
   <div id="receiveModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
     <div class="porcelain-plate w-full max-w-md p-7 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between">
@@ -1014,10 +1004,51 @@
           <textarea id="pickupRemarks" rows="2" placeholder="Additional notes..." class="w-full px-4 py-3 clay-input text-xs font-semibold outline-none"></textarea>
         </div>
 
+        <!-- Return / Courier Photo Upload (Proof) -->
+        <div>
+          <label id="lblPickPhoto" class="block text-[11px] font-bold text-[#7A726C] mb-1">Return / Courier Receipt Photo (Proof)</label>
+          <input id="pickupPhotoInput" type="file" accept="image/*" capture="environment" onchange="handleImageSelection(event, 'pickupPhotoPreview', 'pickupCompressedData')" class="hidden" />
+          <button type="button" onclick="document.getElementById('pickupPhotoInput').click()" class="w-full py-4 border-2 border-dashed border-[#4A5568]/40 bg-[#4A5568]/5 rounded-3xl flex flex-col items-center justify-center gap-1 hover:bg-[#4A5568]/10 transition">
+            <i data-lucide="camera" class="w-6 h-6 text-[#4A5568]"></i>
+            <span id="btnTakePickPhoto" class="text-xs font-bold text-[#4A5568]">Capture Return Photo / Receipt</span>
+            <span id="hintPickPhotoCompress" class="text-[10px] text-[#7A726C]">Auto-compressed under 150KB</span>
+          </button>
+          <div id="pickupPhotoPreview" class="hidden mt-3 p-3 rounded-2xl bg-white border border-[#EAE3DE] flex items-center gap-3 shadow-sm">
+            <img id="pickupPhotoPreviewImg" src="" class="w-14 h-14 object-cover rounded-xl border border-black/[0.08]" />
+            <div class="text-[11px] text-[#2D2926]">
+              <p id="txtPickPhotoReady" class="font-bold text-[#4A5568]">Photo compressed and ready</p>
+              <p id="pickupPhotoSizeText" class="text-[10px] text-[#7A726C] font-mono"></p>
+            </div>
+          </div>
+          <input type="hidden" id="pickupCompressedData" />
+        </div>
+
         <button type="submit" id="btnSubmitPick" class="w-full py-4 clay-btn-slate font-bold text-xs sm:text-sm transition mt-2">
           Confirm Return Pickup
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- 7. LIVE BARCODE / QR SCANNER MODAL (Placed at End of Body with Highest Z-Index) -->
+  <div id="scannerModal" class="hidden fixed inset-0 flex items-center justify-center p-4 modal-backdrop" style="position: fixed; inset: 0; z-index: 99999 !important; background: rgba(20, 16, 14, 0.75);">
+    <div class="porcelain-plate w-full max-w-sm p-6 space-y-4 shadow-2xl relative" style="z-index: 100000 !important;">
+      <div class="flex items-center justify-between">
+        <h3 id="modalScannerTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
+          <i data-lucide="scan" class="w-4 h-4 text-[#00C496]"></i>
+          <span>Scan Barcode or QR Code</span>
+        </h3>
+        <button onclick="closeScannerModal()" class="p-1.5 rounded-full text-[#7A726C] hover:text-[#2D2926]">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="reader" class="w-full rounded-3xl overflow-hidden bg-black aspect-square shadow-inner"></div>
+      <p id="modalScannerHint" class="text-[11px] text-[#7A726C] text-center font-medium">Position the barcode or QR code inside the frame.</p>
+      
+      <button onclick="closeScannerModal()" id="btnCancelScan" class="w-full py-3 rounded-2xl bg-white border border-[#EAE3DE] text-[#5C534D] font-bold text-xs hover:bg-[#F2ECE8] shadow-sm">
+        Cancel
+      </button>
     </div>
   </div>
 
@@ -1035,6 +1066,8 @@
     let allEmployees = [];
     let activeInventoryStatus = "all";
     let lastCapturedGps = { lat: null, lng: null };
+    let rawRecentActivities = [];
+    let currentActivityDateFilter = "";
 
     const i18n = {
       en: {
@@ -1066,14 +1099,19 @@
         actStoreSub: "Rack / Shelf",
         actHand: "3. Handover",
         actHandSub: "To Installer",
-        actInst: "4. Installed",
-        actInstSub: "GPS & Photo",
+        actInst: "4. Record Installation",
+        actInstSub: "GPS & Photo Form",
         actRej: "5. Reject",
         actRejSub: "With Evidence",
         actPick: "6. Pickup",
         actPickSub: "Return Handover",
         headingRecent: "Recent Activity",
         btnRefresh: "Refresh",
+        dateFilterAll: "All",
+        lblPickPhoto: "Return / Courier Proof Photo",
+        btnTakePickPhoto: "Capture Return Photo / Receipt",
+        hintPickPhotoCompress: "Auto-compressed under 150KB",
+        txtPickPhotoReady: "Photo compressed and ready",
         searchPlaceholder: "Search by serial, name, or phone...",
         filterAll: "All",
         timelineSearchLabel: "Search Product Serial Number",
@@ -1125,14 +1163,19 @@
         actStoreSub: "रैक / शेल्फ",
         actHand: "3. इंस्टॉलेशन को दें",
         actHandSub: "हैंडओवर",
-        actInst: "4. इंस्टॉलेशन पूरा",
-        actInstSub: "GPS व फोटो",
+        actInst: "4. नया इंस्टॉलेशन दर्ज करें",
+        actInstSub: "जीपीएस व फोटो फॉर्म",
         actRej: "5. माल रिजेक्ट करें",
         actRejSub: "कारण व फोटो",
         actPick: "6. वापसी पिकअप",
         actPickSub: "सप्लायर वापसी",
         headingRecent: "हालिया गतिविधियां",
         btnRefresh: "रिफ्रेश",
+        dateFilterAll: "सभी",
+        lblPickPhoto: "वापसी / कोरियर रसीद फोटो (सबूत)",
+        btnTakePickPhoto: "वापसी / रसीद की फोटो खींचें",
+        hintPickPhotoCompress: "150KB के अंदर ऑटो-कंप्रेस",
+        txtPickPhotoReady: "फोटो तैयार है",
         searchPlaceholder: "सीरियल नंबर, नाम या फोन से खोजें...",
         filterAll: "सभी",
         timelineSearchLabel: "सीरियल नंबर दर्ज या स्कैन करें",
@@ -1216,6 +1259,11 @@
 
       document.getElementById("headingRecentActivity").querySelector("span").innerText = t("headingRecent");
       document.getElementById("btnRefreshActivity").innerText = t("btnRefresh");
+      if (document.getElementById("btnClearActivityDate")) document.getElementById("btnClearActivityDate").innerText = t("dateFilterAll");
+      if (document.getElementById("lblPickPhoto")) document.getElementById("lblPickPhoto").innerText = t("lblPickPhoto");
+      if (document.getElementById("btnTakePickPhoto")) document.getElementById("btnTakePickPhoto").innerText = t("btnTakePickPhoto");
+      if (document.getElementById("hintPickPhotoCompress")) document.getElementById("hintPickPhotoCompress").innerText = t("hintPickPhotoCompress");
+      if (document.getElementById("txtPickPhotoReady")) document.getElementById("txtPickPhotoReady").innerText = t("txtPickPhotoReady");
       document.getElementById("inventorySearchInput").placeholder = t("searchPlaceholder");
       document.getElementById("filterBtn_all").innerText = t("filterAll");
 
@@ -1386,43 +1434,78 @@
           document.getElementById("statInstalled").innerText = s.installed || 0;
           document.getElementById("statRejected").innerText = s.rejected || 0;
 
-          const container = document.getElementById("recentActivityList");
-          if (!data.recentActivity || data.recentActivity.length === 0) {
-            container.innerHTML = `<p class="text-xs text-[#8C827A] py-3 text-center">${currentLang === 'en' ? 'No recent activity yet.' : 'अभी तक कोई गतिविधि नहीं हुई है।'}</p>`;
-            return;
-          }
-
-          container.innerHTML = data.recentActivity.map(act => {
-            const timeStr = formatDateTime(act.timestamp);
-            let badgeClass = "badge-received";
-            if (act.action === "PUT_IN_STORAGE") badgeClass = "badge-storage";
-            if (act.action === "HANDOVER_FOR_INSTALL") badgeClass = "badge-handover";
-            if (act.action === "MARK_INSTALLED") badgeClass = "badge-installed";
-            if (act.action === "REJECT_PRODUCT") badgeClass = "badge-rejected";
-            if (act.action === "REJECTED_PICKUP") badgeClass = "badge-pickup";
-
-            return `
-              <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-[#EAE3DE] shadow-sm hover:border-[#00C496]/50 transition">
-                <div class="flex items-center gap-3">
-                  <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-xl ${badgeClass}">${act.action}</span>
-                  <div>
-                    <p class="text-xs font-bold text-[#2D2926]">
-                      SN: <span class="font-mono text-[#008765]">${act.serial_number || act.serialNumber}</span>
-                    </p>
-                    <p class="text-[11px] text-[#7A726C]">${act.actor_name || act.actorName} (${act.actor_phone || act.actorPhone})</p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <span class="text-[10px] text-[#9C9289] font-mono">${timeStr}</span>
-                </div>
-              </div>
-            `;
-          }).join("");
-          lucide.createIcons();
+          rawRecentActivities = data.recentActivity || [];
+          renderRecentActivitiesList();
         }
       } catch (e) {
         console.error(e);
       }
+    }
+
+    function filterRecentActivityByDate(dateStr) {
+      currentActivityDateFilter = dateStr;
+      renderRecentActivitiesList();
+    }
+
+    function clearActivityDateFilter() {
+      currentActivityDateFilter = "";
+      const dateInput = document.getElementById("recentActivityDateInput");
+      if (dateInput) dateInput.value = "";
+      renderRecentActivitiesList();
+    }
+
+    function renderRecentActivitiesList() {
+      const container = document.getElementById("recentActivityList");
+      if (!rawRecentActivities || rawRecentActivities.length === 0) {
+        container.innerHTML = `<p class="text-xs text-[#8C827A] py-3 text-center">${currentLang === 'en' ? 'No recent activity yet.' : 'अभी तक कोई गतिविधि नहीं हुई है।'}</p>`;
+        return;
+      }
+
+      let list = rawRecentActivities;
+      if (currentActivityDateFilter) {
+        list = list.filter(act => {
+          if (!act.timestamp) return false;
+          try {
+            const actDate = new Date(act.timestamp).toISOString().split("T")[0];
+            return actDate === currentActivityDateFilter;
+          } catch(e) {
+            return false;
+          }
+        });
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = `<p class="text-xs text-[#8C827A] py-4 text-center font-medium">${currentLang === 'en' ? 'No activities recorded on selected date.' : 'चुनी गई तारीख पर कोई गतिविधि दर्ज नहीं है।'}</p>`;
+        return;
+      }
+
+      container.innerHTML = list.map(act => {
+        const timeStr = formatDateTime(act.timestamp);
+        let badgeClass = "badge-received";
+        if (act.action === "PUT_IN_STORAGE") badgeClass = "badge-storage";
+        if (act.action === "HANDOVER_FOR_INSTALL") badgeClass = "badge-handover";
+        if (act.action === "MARK_INSTALLED") badgeClass = "badge-installed";
+        if (act.action === "REJECT_PRODUCT") badgeClass = "badge-rejected";
+        if (act.action === "REJECTED_PICKUP") badgeClass = "badge-pickup";
+
+        return `
+          <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-[#EAE3DE] shadow-sm hover:border-[#00C496]/50 transition">
+            <div class="flex items-center gap-3">
+              <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-xl ${badgeClass}">${act.action}</span>
+              <div>
+                <p class="text-xs font-bold text-[#2D2926]">
+                  SN: <span class="font-mono text-[#008765]">${act.serial_number || act.serialNumber}</span>
+                </p>
+                <p class="text-[11px] text-[#7A726C]">${act.actor_name || act.actorName} (${act.actor_phone || act.actorPhone})</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-[#9C9289] font-mono">${timeStr}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+      lucide.createIcons();
     }
 
     async function loadInventory(search = "") {
@@ -1892,24 +1975,51 @@
       const pickupPersonPhone = document.getElementById("pickupPhone").value.trim();
       const pickupVehicleNo = document.getElementById("pickupVehicle").value.trim();
       const pickupRemarks = document.getElementById("pickupRemarks").value.trim();
+      const submitBtn = document.getElementById("btnSubmitPick");
+      submitBtn.disabled = true;
 
       try {
+        let photoKey = null;
+        const compressedPhoto = document.getElementById("pickupCompressedData") ? document.getElementById("pickupCompressedData").value : null;
+        if (compressedPhoto) {
+          showToast(currentLang === 'en' ? "Uploading proof photo..." : "फोटो अपलोड हो रही है...", "info");
+          try {
+            const uploadRes = await fetch("/api/upload", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+              body: JSON.stringify({ imageBase64: compressedPhoto, serialNumber })
+            });
+            const uploadData = await uploadRes.json();
+            if (uploadData.success) {
+              photoKey = uploadData.key;
+            }
+          } catch (err) {}
+        }
+
         const res = await fetch("/api/products/pickup", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
-          body: JSON.stringify({ serialNumber, pickupPersonName, pickupPersonPhone, pickupVehicleNo, pickupRemarks })
+          body: JSON.stringify({ serialNumber, pickupPersonName, pickupPersonPhone, pickupVehicleNo, pickupRemarks, photoKey })
         });
         const data = await res.json();
         if (data.success) {
           showToast(data.message, "success");
           closeModal("pickupModal");
           e.target.reset();
+          if (document.getElementById("pickupPhotoPreview")) {
+            document.getElementById("pickupPhotoPreview").classList.add("hidden");
+          }
+          if (document.getElementById("pickupCompressedData")) {
+            document.getElementById("pickupCompressedData").value = "";
+          }
           loadDashboardStats();
         } else {
           showToast(data.error, "error");
         }
       } catch (e) {
         showToast("Error processing request", "error");
+      } finally {
+        submitBtn.disabled = false;
       }
     }
 
