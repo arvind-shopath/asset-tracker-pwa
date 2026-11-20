@@ -25,8 +25,6 @@ export async function onRequestPost({ request, env }) {
     product.updated_at = new Date().toISOString();
 
     await saveProduct(env, product);
-      } catch (e) {}
-    }
 
     await recordAudit(env, {
       productId: product.id,
