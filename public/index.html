@@ -389,14 +389,26 @@
         <!-- Quick Test Accounts -->
         <div class="mt-8 pt-6 border-t border-[#EAE3DE] space-y-2.5">
           <p id="quickTestLabel" class="text-xs font-bold text-[#7A726C] text-center">Test Accounts (Click to Fill):</p>
-          <div class="grid grid-cols-2 gap-2.5">
-            <button onclick="fillLogin('9876543210', '1234')" class="p-3 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#00C496] shadow-sm text-left transition transform hover:-translate-y-0.5">
-              <p class="text-xs font-bold text-[#009E77]">Admin</p>
-              <p class="text-[11px] text-[#7A726C] font-mono mt-0.5">9876543210 / 1234</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="fillLogin('9876543210', '1234')" class="p-2.5 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#00C496] shadow-sm text-left transition transform hover:-translate-y-0.5 col-span-2">
+              <p class="text-xs font-bold text-[#009E77]">Administrator (Admin)</p>
+              <p class="text-[11px] text-[#7A726C] font-mono">9876543210 / PIN: 1234</p>
             </button>
-            <button onclick="fillLogin('9876543211', '1234')" class="p-3 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#FF9500] shadow-sm text-left transition transform hover:-translate-y-0.5">
-              <p class="text-xs font-bold text-[#FF8A00]">Employee</p>
-              <p class="text-[11px] text-[#7A726C] font-mono mt-0.5">9876543211 / 1234</p>
+            <button onclick="fillLogin('9876543211', '1234')" class="p-2.5 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#FF9500] shadow-sm text-left transition transform hover:-translate-y-0.5">
+              <p class="text-xs font-bold text-[#FF8A00]">राहुल शर्मा (Rahul)</p>
+              <p class="text-[10px] text-[#7A726C] font-mono">9876543211 / 1234</p>
+            </button>
+            <button onclick="fillLogin('9876543212', '1234')" class="p-2.5 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#FF9500] shadow-sm text-left transition transform hover:-translate-y-0.5">
+              <p class="text-xs font-bold text-[#FF8A00]">दिनेश वर्मा (Dinesh)</p>
+              <p class="text-[10px] text-[#7A726C] font-mono">9876543212 / 1234</p>
+            </button>
+            <button onclick="fillLogin('9876543213', '1234')" class="p-2.5 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#FF9500] shadow-sm text-left transition transform hover:-translate-y-0.5">
+              <p class="text-xs font-bold text-[#FF8A00]">मनोज सिंह (Manoj)</p>
+              <p class="text-[10px] text-[#7A726C] font-mono">9876543213 / 1234</p>
+            </button>
+            <button onclick="fillLogin('9876543214', '1234')" class="p-2.5 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#FF9500] shadow-sm text-left transition transform hover:-translate-y-0.5">
+              <p class="text-xs font-bold text-[#FF8A00]">विनय कुमार (Vinay)</p>
+              <p class="text-[10px] text-[#7A726C] font-mono">9876543214 / 1234</p>
             </button>
           </div>
         </div>
@@ -923,21 +935,36 @@
           </button>
         </div>
 
-        <!-- Live Camera Photo Upload -->
+        <!-- Live Camera Photo OR Gallery Photo Upload -->
         <div>
-          <label id="lblInstPhoto" class="block text-[11px] font-bold text-[#7A726C] mb-1">Installation Photo *</label>
-          <input id="instPhotoInput" type="file" accept="image/*" capture="environment" required onchange="handleImageSelection(event, 'instPhotoPreview', 'instCompressedData')" class="hidden" />
-          <button type="button" onclick="document.getElementById('instPhotoInput').click()" class="w-full py-5 border-2 border-dashed border-[#00C496]/50 bg-[#00C496]/5 rounded-3xl flex flex-col items-center justify-center gap-1.5 hover:bg-[#00C496]/10 transition">
-            <i data-lucide="camera" class="w-7 h-7 text-[#008765]"></i>
-            <span id="btnTakeInstPhoto" class="text-xs font-bold text-[#008765]">Capture Live Camera Photo</span>
-            <span id="hintInstPhotoCompress" class="text-[10px] text-[#7A726C]">Auto-compressed under 150KB</span>
-          </button>
-          <div id="instPhotoPreview" class="hidden mt-3 p-3 rounded-2xl bg-white border border-[#EAE3DE] flex items-center gap-3 shadow-sm">
-            <img id="instPhotoPreviewImg" src="" class="w-14 h-14 object-cover rounded-xl border border-black/[0.08]" />
-            <div class="text-[11px] text-[#2D2926]">
-              <p id="txtInstPhotoReady" class="font-bold text-[#008765]">Photo compressed and ready</p>
-              <p id="instPhotoSizeText" class="text-[10px] text-[#7A726C] font-mono"></p>
+          <label id="lblInstPhoto" class="block text-[11px] font-bold text-[#7A726C] mb-1.5">Installation Photo Proof *</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="document.getElementById('instPhotoCamera').click()" class="py-3 px-2 rounded-2xl border-2 border-dashed border-[#00C496]/50 bg-[#00C496]/5 hover:bg-[#00C496]/10 flex flex-col items-center justify-center gap-1 transition active:scale-95 text-[#008765]">
+              <i data-lucide="camera" class="w-5 h-5 text-[#008765]"></i>
+              <span class="text-xs font-bold leading-tight">📷 क्लिक लाइव फोटो</span>
+              <span class="text-[9px] text-[#7A726C]">Click Live Camera</span>
+            </button>
+            <button type="button" onclick="document.getElementById('instPhotoGallery').click()" class="py-3 px-2 rounded-2xl border-2 border-dashed border-[#7A726C]/30 bg-white hover:bg-[#FAF7F5] flex flex-col items-center justify-center gap-1 transition active:scale-95 text-[#2D2926]">
+              <i data-lucide="image" class="w-5 h-5 text-[#7A726C]"></i>
+              <span class="text-xs font-bold leading-tight">🖼️ ओपेन गैलरी</span>
+              <span class="text-[9px] text-[#7A726C]">Choose from Gallery</span>
+            </button>
+          </div>
+          <input id="instPhotoCamera" type="file" accept="image/*" capture="environment" onchange="handleImageSelection(event, 'instPhotoPreview', 'instCompressedData')" class="hidden" />
+          <input id="instPhotoGallery" type="file" accept="image/*" onchange="handleImageSelection(event, 'instPhotoPreview', 'instCompressedData')" class="hidden" />
+
+          <div id="instPhotoPreview" class="hidden mt-2 p-2.5 rounded-2xl bg-white border border-[#EAE3DE] flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2.5">
+              <img id="instPhotoPreviewImg" src="" class="w-12 h-12 object-cover rounded-xl border border-black/[0.08]" />
+              <div class="text-[11px] text-[#2D2926]">
+                <p id="txtInstPhotoReady" class="font-bold text-[#008765]">फोटो सेलेक्ट व कंप्रेस हो गई</p>
+                <p id="instPhotoSizeText" class="text-[10px] text-[#7A726C] font-mono"></p>
+              </div>
             </div>
+            <button type="button" onclick="clearSelectedPhoto('instPhotoPreview', 'instCompressedData', ['instPhotoCamera', 'instPhotoGallery'])" class="px-2 py-1 text-xs text-[#E8365B] hover:bg-[#FFE8ED] rounded-xl font-bold flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              <span>हटाएं</span>
+            </button>
           </div>
           <input type="hidden" id="instCompressedData" />
         </div>
@@ -994,19 +1021,34 @@
         </div>
 
         <div>
-          <label id="lblRejPhoto" class="block text-[11px] font-bold text-[#7A726C] mb-1">Defect Evidence Photo *</label>
-          <input id="rejPhotoInput" type="file" accept="image/*" capture="environment" required onchange="handleImageSelection(event, 'rejPhotoPreview', 'rejCompressedData')" class="hidden" />
-          <button type="button" onclick="document.getElementById('rejPhotoInput').click()" class="w-full py-5 border-2 border-dashed border-[#B588F8]/50 bg-[#B588F8]/5 rounded-3xl flex flex-col items-center justify-center gap-1.5 hover:bg-[#B588F8]/10 transition">
-            <i data-lucide="camera" class="w-7 h-7 text-[#9055E8]"></i>
-            <span id="btnTakeRejPhoto" class="text-xs font-bold text-[#9055E8]">Capture Defect Photo</span>
-            <span id="hintRejPhotoCompress" class="text-[10px] text-[#7A726C]">Auto-compressed and securely archived</span>
-          </button>
-          <div id="rejPhotoPreview" class="hidden mt-3 p-3 rounded-2xl bg-white border border-[#EAE3DE] flex items-center gap-3 shadow-sm">
-            <img id="rejPhotoPreviewImg" src="" class="w-14 h-14 object-cover rounded-xl border border-black/[0.08]" />
-            <div class="text-[11px] text-[#2D2926]">
-              <p id="txtRejPhotoReady" class="font-bold text-[#9055E8]">Photo compressed and ready</p>
-              <p id="rejPhotoSizeText" class="text-[10px] text-[#7A726C] font-mono"></p>
+          <label id="lblRejPhoto" class="block text-[11px] font-bold text-[#7A726C] mb-1.5">Defect Evidence Photo *</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="document.getElementById('rejPhotoCamera').click()" class="py-3 px-2 rounded-2xl border-2 border-dashed border-[#B588F8]/50 bg-[#B588F8]/5 hover:bg-[#B588F8]/10 flex flex-col items-center justify-center gap-1 transition active:scale-95 text-[#9055E8]">
+              <i data-lucide="camera" class="w-5 h-5 text-[#9055E8]"></i>
+              <span class="text-xs font-bold leading-tight">📷 क्लिक लाइव फोटो</span>
+              <span class="text-[9px] text-[#7A726C]">Click Live Camera</span>
+            </button>
+            <button type="button" onclick="document.getElementById('rejPhotoGallery').click()" class="py-3 px-2 rounded-2xl border-2 border-dashed border-[#7A726C]/30 bg-white hover:bg-[#FAF7F5] flex flex-col items-center justify-center gap-1 transition active:scale-95 text-[#2D2926]">
+              <i data-lucide="image" class="w-5 h-5 text-[#7A726C]"></i>
+              <span class="text-xs font-bold leading-tight">🖼️ ओपेन गैलरी</span>
+              <span class="text-[9px] text-[#7A726C]">Choose from Gallery</span>
+            </button>
+          </div>
+          <input id="rejPhotoCamera" type="file" accept="image/*" capture="environment" onchange="handleImageSelection(event, 'rejPhotoPreview', 'rejCompressedData')" class="hidden" />
+          <input id="rejPhotoGallery" type="file" accept="image/*" onchange="handleImageSelection(event, 'rejPhotoPreview', 'rejCompressedData')" class="hidden" />
+
+          <div id="rejPhotoPreview" class="hidden mt-2 p-2.5 rounded-2xl bg-white border border-[#EAE3DE] flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2.5">
+              <img id="rejPhotoPreviewImg" src="" class="w-12 h-12 object-cover rounded-xl border border-black/[0.08]" />
+              <div class="text-[11px] text-[#2D2926]">
+                <p id="txtRejPhotoReady" class="font-bold text-[#9055E8]">फोटो सेलेक्ट व कंप्रेस हो गई</p>
+                <p id="rejPhotoSizeText" class="text-[10px] text-[#7A726C] font-mono"></p>
+              </div>
             </div>
+            <button type="button" onclick="clearSelectedPhoto('rejPhotoPreview', 'rejCompressedData', ['rejPhotoCamera', 'rejPhotoGallery'])" class="px-2 py-1 text-xs text-[#E8365B] hover:bg-[#FFE8ED] rounded-xl font-bold flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              <span>हटाएं</span>
+            </button>
           </div>
           <input type="hidden" id="rejCompressedData" />
         </div>
@@ -1067,19 +1109,34 @@
 
         <!-- Return / Courier Photo Upload (Proof) -->
         <div>
-          <label id="lblPickPhoto" class="block text-[11px] font-bold text-[#7A726C] mb-1">Return / Courier Receipt Photo (Proof)</label>
-          <input id="pickupPhotoInput" type="file" accept="image/*" capture="environment" onchange="handleImageSelection(event, 'pickupPhotoPreview', 'pickupCompressedData')" class="hidden" />
-          <button type="button" onclick="document.getElementById('pickupPhotoInput').click()" class="w-full py-4 border-2 border-dashed border-[#4A5568]/40 bg-[#4A5568]/5 rounded-3xl flex flex-col items-center justify-center gap-1 hover:bg-[#4A5568]/10 transition">
-            <i data-lucide="camera" class="w-6 h-6 text-[#4A5568]"></i>
-            <span id="btnTakePickPhoto" class="text-xs font-bold text-[#4A5568]">Capture Return Photo / Receipt</span>
-            <span id="hintPickPhotoCompress" class="text-[10px] text-[#7A726C]">Auto-compressed under 150KB</span>
-          </button>
-          <div id="pickupPhotoPreview" class="hidden mt-3 p-3 rounded-2xl bg-white border border-[#EAE3DE] flex items-center gap-3 shadow-sm">
-            <img id="pickupPhotoPreviewImg" src="" class="w-14 h-14 object-cover rounded-xl border border-black/[0.08]" />
-            <div class="text-[11px] text-[#2D2926]">
-              <p id="txtPickPhotoReady" class="font-bold text-[#4A5568]">Photo compressed and ready</p>
-              <p id="pickupPhotoSizeText" class="text-[10px] text-[#7A726C] font-mono"></p>
+          <label id="lblPickPhoto" class="block text-[11px] font-bold text-[#7A726C] mb-1.5">Return / Courier Receipt Photo (Proof)</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="document.getElementById('pickupPhotoCamera').click()" class="py-3 px-2 rounded-2xl border-2 border-dashed border-[#4A5568]/40 bg-[#4A5568]/5 hover:bg-[#4A5568]/10 flex flex-col items-center justify-center gap-1 transition active:scale-95 text-[#4A5568]">
+              <i data-lucide="camera" class="w-5 h-5 text-[#4A5568]"></i>
+              <span class="text-xs font-bold leading-tight">📷 क्लिक लाइव फोटो</span>
+              <span class="text-[9px] text-[#7A726C]">Click Live Camera</span>
+            </button>
+            <button type="button" onclick="document.getElementById('pickupPhotoGallery').click()" class="py-3 px-2 rounded-2xl border-2 border-dashed border-[#7A726C]/30 bg-white hover:bg-[#FAF7F5] flex flex-col items-center justify-center gap-1 transition active:scale-95 text-[#2D2926]">
+              <i data-lucide="image" class="w-5 h-5 text-[#7A726C]"></i>
+              <span class="text-xs font-bold leading-tight">🖼️ ओपेन गैलरी</span>
+              <span class="text-[9px] text-[#7A726C]">Choose from Gallery</span>
+            </button>
+          </div>
+          <input id="pickupPhotoCamera" type="file" accept="image/*" capture="environment" onchange="handleImageSelection(event, 'pickupPhotoPreview', 'pickupCompressedData')" class="hidden" />
+          <input id="pickupPhotoGallery" type="file" accept="image/*" onchange="handleImageSelection(event, 'pickupPhotoPreview', 'pickupCompressedData')" class="hidden" />
+
+          <div id="pickupPhotoPreview" class="hidden mt-2 p-2.5 rounded-2xl bg-white border border-[#EAE3DE] flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2.5">
+              <img id="pickupPhotoPreviewImg" src="" class="w-12 h-12 object-cover rounded-xl border border-black/[0.08]" />
+              <div class="text-[11px] text-[#2D2926]">
+                <p id="txtPickPhotoReady" class="font-bold text-[#4A5568]">फोटो सेलेक्ट व कंप्रेस हो गई</p>
+                <p id="pickupPhotoSizeText" class="text-[10px] text-[#7A726C] font-mono"></p>
+              </div>
             </div>
+            <button type="button" onclick="clearSelectedPhoto('pickupPhotoPreview', 'pickupCompressedData', ['pickupPhotoCamera', 'pickupPhotoGallery'])" class="px-2 py-1 text-xs text-[#E8365B] hover:bg-[#FFE8ED] rounded-xl font-bold flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              <span>हटाएं</span>
+            </button>
           </div>
           <input type="hidden" id="pickupCompressedData" />
         </div>
@@ -1087,6 +1144,57 @@
         <button type="submit" id="btnSubmitPick" class="w-full py-4 clay-btn-slate font-bold text-xs sm:text-sm transition mt-2">
           Confirm Return Pickup
         </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT STAFF MEMBER MODAL (Admin Only) -->
+  <div id="editStaffModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="porcelain-plate w-full max-w-sm p-6 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div class="flex items-center justify-between">
+        <h3 class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-[#00C496]/20 text-[#008765] flex items-center justify-center">
+            <i data-lucide="user-cog" class="w-4 h-4"></i>
+          </div>
+          <span>कर्मचारी विवरण बदलें (Edit Staff)</span>
+        </h3>
+        <button onclick="closeModal('editStaffModal')" class="p-1.5 text-[#7A726C] hover:text-[#2D2926]">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleEditEmployeeSubmit(event)" class="space-y-3.5">
+        <input type="hidden" id="editStaffPhone" />
+        
+        <div>
+          <label class="block text-[11px] font-bold text-[#7A726C] mb-1">फ़ोन नंबर (Login Phone - Fixed)</label>
+          <input id="editStaffPhoneDisplay" type="text" disabled class="w-full px-4 py-2.5 rounded-xl bg-slate-100 text-slate-500 font-mono text-xs font-bold outline-none border border-slate-200" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-[#7A726C] mb-1">पूरा नाम (Full Name) *</label>
+          <input id="editStaffName" type="text" required placeholder="Employee Name" class="w-full px-4 py-2.5 clay-input text-xs font-semibold outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-[#7A726C] mb-1">नया 4-अंकीय पिन / पासवर्ड (New 4-Digit PIN) *</label>
+          <div class="relative">
+            <input id="editStaffPin" type="password" required maxlength="4" placeholder="••••" class="w-full px-4 py-2.5 clay-input text-xs font-semibold outline-none tracking-widest" />
+            <button type="button" onclick="togglePinVisibility('editStaffPin')" class="absolute right-3 top-2.5 text-xs text-[#7A726C] hover:text-[#2D2926]">
+              👁️
+            </button>
+          </div>
+          <span class="text-[10px] text-[#7A726C] mt-0.5 block">एडमिन कर्मचारी का नाम व लॉगिन पिन यहाँ से बदल सकता है।</span>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeModal('editStaffModal')" class="flex-1 py-3 bg-[#EAE3DE] text-[#5C534D] font-bold text-xs rounded-2xl hover:bg-[#DFD8D3] transition">
+            रद्द करें (Cancel)
+          </button>
+          <button type="submit" id="btnSaveStaffEdit" class="flex-1 py-3 clay-btn-teal font-bold text-xs rounded-2xl transition">
+            सेव करें (Save)
+          </button>
+        </div>
       </form>
     </div>
   </div>
@@ -2281,10 +2389,15 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <span class="text-[10px] font-extrabold px-3 py-1 rounded-xl ${emp.role === 'admin' ? 'bg-[#B588F8]/20 text-[#9055E8]' : 'bg-[#EAE3DE] text-[#5C534D]'}">${emp.role}</span>
-                  ${currentUser?.role === 'admin' && String(emp.phone) !== String(currentUser.phone) ? `
-                    <button onclick="handleDeleteEmployee(${emp.id}, '${emp.phone}', '${emp.name}')" title="Delete" class="p-2 text-[#9C9289] hover:text-[#E8365B] rounded-xl hover:bg-[#FFE8ED] transition">
-                      <i data-lucide="trash" class="w-4 h-4"></i>
+                  ${currentUser?.role === 'admin' ? `
+                    <button onclick="openEditEmployeeModal(${emp.id || 0}, '${emp.phone}', '${(emp.name || '').replace(/'/g, "\\'")}')" title="Edit Staff Name & PIN" class="p-2 text-[#7A726C] hover:text-[#009E77] rounded-xl hover:bg-[#E8F8F5] transition">
+                      <i data-lucide="edit-3" class="w-4 h-4"></i>
                     </button>
+                    ${String(emp.phone) !== String(currentUser.phone) ? `
+                      <button onclick="handleDeleteEmployee(${emp.id || 0}, '${emp.phone}', '${(emp.name || '').replace(/'/g, "\\'")}')" title="Delete" class="p-2 text-[#9C9289] hover:text-[#E8365B] rounded-xl hover:bg-[#FFE8ED] transition">
+                        <i data-lucide="trash" class="w-4 h-4"></i>
+                      </button>
+                    ` : ''}
                   ` : ''}
                 </div>
               </div>
@@ -2342,6 +2455,76 @@
         }
       } catch (e) {
         showToast("Error", "error");
+      }
+    }
+
+    function clearSelectedPhoto(previewId, dataTargetId, inputIds = []) {
+      const dataEl = document.getElementById(dataTargetId);
+      if (dataEl) dataEl.value = "";
+      const previewEl = document.getElementById(previewId);
+      if (previewEl) {
+        previewEl.classList.add("hidden");
+        const img = previewEl.querySelector("img");
+        if (img) img.src = "";
+      }
+      inputIds.forEach(id => {
+        const inp = document.getElementById(id);
+        if (inp) inp.value = "";
+      });
+    }
+
+    function openEditEmployeeModal(id, phone, name) {
+      document.getElementById("editStaffPhone").value = phone;
+      document.getElementById("editStaffPhoneDisplay").value = phone;
+      document.getElementById("editStaffName").value = name;
+      document.getElementById("editStaffPin").value = "";
+      openModal("editStaffModal");
+    }
+
+    function togglePinVisibility(inputId) {
+      const el = document.getElementById(inputId);
+      if (el) {
+        el.type = el.type === "password" ? "text" : "password";
+      }
+    }
+
+    async function handleEditEmployeeSubmit(e) {
+      e.preventDefault();
+      const phone = document.getElementById("editStaffPhone").value.trim();
+      const name = document.getElementById("editStaffName").value.trim();
+      const pin = document.getElementById("editStaffPin").value.trim();
+      const btn = document.getElementById("btnSaveStaffEdit");
+
+      if (!phone || !name || !pin) {
+        showToast("Please enter all required fields", "error");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "Saving...";
+
+      try {
+        const res = await fetch("/api/employees", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ phone, name, pin })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(currentLang === 'en' ? "Staff member updated successfully" : "कर्मचारी का विवरण सफलतापूर्वक अपडेट किया गया", "success");
+          closeModal("editStaffModal");
+          loadEmployees();
+        } else {
+          showToast(data.error || "Update failed", "error");
+        }
+      } catch (err) {
+        showToast("Connection error", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "सेव करें (Save)";
       }
     }
 

@@ -105,11 +105,17 @@ export async function findUser(env, phone, pin = null) {
   }
 
   // Built-in hardcoded fallback for seed testing
-  if (cleanPhone === "9876543210" && (pin === null || String(pin) === "1234")) {
-    return { id: 1, name: "Administrator", phone: "9876543210", role: "admin", pin: "1234", is_active: 1 };
-  }
-  if (cleanPhone === "9876543211" && (pin === null || String(pin) === "1234")) {
-    return { id: 2, name: "Rahul Sharma", phone: "9876543211", role: "employee", pin: "1234", is_active: 1 };
+  const fallbackUsers = [
+    { id: 1, name: "Administrator", phone: "9876543210", role: "admin", pin: "1234", is_active: 1 },
+    { id: 2, name: "Rahul Sharma", phone: "9876543211", role: "employee", pin: "1234", is_active: 1 },
+    { id: 3, name: "Dinesh Verma", phone: "9876543212", role: "employee", pin: "1234", is_active: 1 },
+    { id: 4, name: "Manoj Singh", phone: "9876543213", role: "employee", pin: "1234", is_active: 1 },
+    { id: 5, name: "Vinay Kumar", phone: "9876543214", role: "employee", pin: "1234", is_active: 1 },
+  ];
+
+  const matched = fallbackUsers.find((u) => u.phone === cleanPhone);
+  if (matched && (pin === null || String(pin).trim() === matched.pin)) {
+    return matched;
   }
 
   return null;

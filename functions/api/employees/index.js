@@ -29,6 +29,9 @@ export async function onRequestGet({ request, env }) {
       employees = [
         { id: 1, name: "Administrator", phone: "9876543210", role: "admin" },
         { id: 2, name: "Rahul Sharma", phone: "9876543211", role: "employee" },
+        { id: 3, name: "Dinesh Verma", phone: "9876543212", role: "employee" },
+        { id: 4, name: "Manoj Singh", phone: "9876543213", role: "employee" },
+        { id: 5, name: "Vinay Kumar", phone: "9876543214", role: "employee" },
       ];
     }
 
@@ -124,6 +127,83 @@ export async function onRequestDelete({ request, env }) {
     }
 
     return jsonResponse({ success: true, message: "Employee removed successfully." });
+  } catch (err) {
+    return errorResponse(err.message, 500);
+  }
+}
+
+// PUT: Update Employee Name & PIN (Admin Only)
+export async function onRequestPut({ request, env }) {
+  const user = await verifyAuth(request);
+  if (!user) return errorResponse("Authentication required.", 401);
+  if (user.role !== "admin") return errorResponse("Only administrators can update employee details.", 403);
+
+  try {
+    const { phone, name, pin } = await request.json();
+    if (!phone || (!name && !pin)) {
+      return errorResponse("Phone number and either updated name or PIN are required.", 400);
+    }
+
+    const cleanPhone = String(phone).trim();
+    const cleanName = name ? String(name).trim() : null;
+    const cleanPin = pin ? String(pin).trim() : null;
+
+    // Update in KV
+    if (env.KV) {
+      let existingUser = (await env.KV.get(`user:${cleanPhone}`, "json")) || {
+        phone: cleanPhone,
+        role: "employee",
+        is_active: 1,
+      };
+      if (cleanName) existingUser.name = cleanName;
+      if (cleanPin) existingUser.pin = cleanPin;
+      await env.KV.put(`user:${cleanPhone}`, JSON.stringify(existingUser));
+
+      let list = (await env.KV.get("users_list", "json")) || [];
+      let found = false;
+      list = list.map((emp) => {
+        if (String(emp.phone).trim() === cleanPhone) {
+          found = true;
+          return {
+            ...emp,
+            name: cleanName || emp.name,
+            pin: cleanPin || emp.pin,
+          };
+        }
+        return emp;
+      });
+      if (!found && cleanName) {
+        list.push({
+          id: Date.now(),
+          name: cleanName,
+          phone: cleanPhone,
+          pin: cleanPin || "1234",
+          role: "employee",
+          is_active: 1,
+        });
+      }
+      await env.KV.put("users_list", JSON.stringify(list));
+    }
+
+    // Update in D1
+    if (env.DB) {
+      try {
+        if (cleanName && cleanPin) {
+          await env.DB.prepare("UPDATE users SET name = ?, pin = ? WHERE phone = ?").bind(cleanName, cleanPin, cleanPhone).run();
+        } else if (cleanName) {
+          await env.DB.prepare("UPDATE users SET name = ? WHERE phone = ?").bind(cleanName, cleanPhone).run();
+        } else if (cleanPin) {
+          await env.DB.prepare("UPDATE users SET pin = ? WHERE phone = ?").bind(cleanPin, cleanPhone).run();
+        }
+      } catch (d1Err) {
+        console.warn("D1 update employee warning:", d1Err);
+      }
+    }
+
+    return jsonResponse({
+      success: true,
+      message: "Employee details updated successfully.",
+    });
   } catch (err) {
     return errorResponse(err.message, 500);
   }
