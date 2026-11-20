@@ -6,7 +6,7 @@ export async function onRequestGet({ request, env }) {
 
   try {
     const url = new URL(request.url);
-    const serial = url.searchParams.get("serial");
+    const serial = url.searchParams.get("serial") || url.searchParams.get("serialNumber");
 
     if (!serial) {
       return errorResponse("Serial number is required.", 400);
