@@ -673,41 +673,41 @@
 
   </main>
 
-  <!-- ================= FIXED BOTTOM APP NAVIGATION BAR (Mobile Menu) ================= -->
-  <nav id="bottomNavBar" class="hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF7F5]/95 backdrop-blur-xl border-t border-black/[0.08] px-2 py-1.5 shadow-2xl md:hidden">
-    <div class="max-w-md mx-auto flex items-end justify-between relative px-1">
+  <!-- ================= FIXED BOTTOM APP NAVIGATION BAR (iOS Floating Glass Dock) ================= -->
+  <nav id="bottomNavBar" class="hidden fixed bottom-3 inset-x-3.5 z-40 max-w-sm mx-auto md:hidden pointer-events-none">
+    <div id="bnavContainer" class="pointer-events-auto bg-white/92 backdrop-blur-2xl border border-white/95 rounded-full px-3 py-1.5 shadow-[0_12px_36px_-6px_rgba(45,38,35,0.22),0_1px_2px_rgba(0,0,0,0.06)] flex items-center justify-between relative transition-all duration-300">
       
       <!-- 1. Home (Dashboard) -->
-      <button onclick="switchTab('dashboard')" id="bnavBtn_dashboard" style="order: 1;" class="flex flex-col items-center justify-center py-1 text-[#009E77] transition active:scale-95 flex-1">
-        <i data-lucide="home" class="w-5 h-5 mb-0.5"></i>
-        <span id="bnavLbl_dashboard" class="text-[10px] font-extrabold tracking-tight">Home</span>
+      <button onclick="switchTab('dashboard')" id="bnavBtn_dashboard" style="order: 1;" class="flex flex-col items-center justify-center py-1 text-[#009E77] transition-all active:scale-90 flex-1">
+        <i data-lucide="home" class="w-6 h-6 stroke-[2.2]"></i>
+        <span id="bnavLbl_dashboard" class="text-[10px] font-extrabold tracking-tight mt-0.5">Home</span>
       </button>
 
       <!-- 2. Inventory -->
-      <button onclick="switchTab('inventory')" id="bnavBtn_inventory" style="order: 2;" class="flex flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition active:scale-95 flex-1">
-        <i data-lucide="package" class="w-5 h-5 mb-0.5"></i>
-        <span id="bnavLbl_inventory" class="text-[10px] font-extrabold tracking-tight">Inventory</span>
+      <button onclick="switchTab('inventory')" id="bnavBtn_inventory" style="order: 2;" class="flex flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition-all active:scale-90 flex-1">
+        <i data-lucide="package" class="w-6 h-6 stroke-[2.2]"></i>
+        <span id="bnavLbl_inventory" class="text-[10px] font-extrabold tracking-tight mt-0.5">Inventory</span>
       </button>
 
       <!-- 3. SCAN BUTTON (Middle for Admin, End for Employee) -->
-      <div id="bnavScanContainer" style="order: 3;" class="flex flex-col items-center justify-center relative -top-3.5 flex-1">
+      <div id="bnavScanContainer" style="order: 3;" class="flex flex-col items-center justify-center relative -top-3 flex-1 transition-all">
         <button onclick="openLiveScanner('timelineSerialInput')" id="bnavBtn_scan" 
-          class="w-13 h-13 p-3.5 rounded-full bg-gradient-to-tr from-[#009E77] to-[#00C496] text-white flex items-center justify-center shadow-lg shadow-[#00C496]/40 border-2 border-white transform active:scale-90 transition">
-          <i data-lucide="scan" class="w-6 h-6"></i>
+          class="w-11 h-11 rounded-full bg-gradient-to-tr from-[#009E77] to-[#00C496] text-white flex items-center justify-center shadow-lg shadow-[#00C496]/45 border-2 border-white transform active:scale-90 transition">
+          <i data-lucide="scan" class="w-5 h-5 stroke-[2.5]"></i>
         </button>
         <span id="bnavLbl_scan" class="text-[10px] font-extrabold text-[#008765] tracking-tight mt-0.5">Scan</span>
       </div>
 
       <!-- 4. Timeline Audit -->
-      <button onclick="switchTab('timeline')" id="bnavBtn_timeline" style="order: 4;" class="flex flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition active:scale-95 flex-1">
-        <i data-lucide="history" class="w-5 h-5 mb-0.5"></i>
-        <span id="bnavLbl_timeline" class="text-[10px] font-extrabold tracking-tight">Timeline</span>
+      <button onclick="switchTab('timeline')" id="bnavBtn_timeline" style="order: 4;" class="flex flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition-all active:scale-90 flex-1">
+        <i data-lucide="history" class="w-6 h-6 stroke-[2.2]"></i>
+        <span id="bnavLbl_timeline" class="text-[10px] font-extrabold tracking-tight mt-0.5">Timeline</span>
       </button>
 
       <!-- 5. Staff (Admin Only) -->
-      <button onclick="switchTab('staff')" id="bnavBtn_staff" style="order: 5;" class="hidden flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition active:scale-95 flex-1">
-        <i data-lucide="users" class="w-5 h-5 mb-0.5"></i>
-        <span id="bnavLbl_staff" class="text-[10px] font-extrabold tracking-tight">Staff</span>
+      <button onclick="switchTab('staff')" id="bnavBtn_staff" style="order: 5;" class="hidden flex-col items-center justify-center py-1 text-[#7A726C] hover:text-[#2D2926] transition-all active:scale-90 flex-1">
+        <i data-lucide="users" class="w-6 h-6 stroke-[2.2]"></i>
+        <span id="bnavLbl_staff" class="text-[10px] font-extrabold tracking-tight mt-0.5">Staff</span>
       </button>
 
     </div>
@@ -1480,7 +1480,10 @@
             staffBtn.classList.add("flex");
             staffBtn.style.order = "5";
           }
-          if (scanContainer) scanContainer.style.order = "3";
+          if (scanContainer) {
+            scanContainer.style.order = "3";
+            scanContainer.classList.add("-top-3");
+          }
           if (timelineBtn) timelineBtn.style.order = "4";
         } else {
           // Employee Mode: 4 items with Timeline first, Scan at the end
@@ -1491,7 +1494,10 @@
             staffBtn.classList.remove("flex");
           }
           if (timelineBtn) timelineBtn.style.order = "3";
-          if (scanContainer) scanContainer.style.order = "4";
+          if (scanContainer) {
+            scanContainer.style.order = "4";
+            scanContainer.classList.remove("-top-3");
+          }
         }
 
         applyTranslations();
