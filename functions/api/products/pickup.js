@@ -27,12 +27,6 @@ export async function onRequestPost({ request, env }) {
     product.updated_at = new Date().toISOString();
 
     await saveProduct(env, product);
-          `UPDATE products 
-           SET current_status = 'picked_up', pickup_person_name = ?, pickup_person_phone = ?, pickup_vehicle_no = ?, pickup_remarks = ?, updated_at = CURRENT_TIMESTAMP 
-           WHERE serial_number = ?`
-        ).bind(pickupPersonName, pickupPersonPhone, pickupVehicleNo || "", pickupRemarks || "", cleanSerial).run();
-      } catch (e) {}
-    }
 
     await recordAudit(env, {
       productId: product.id,
