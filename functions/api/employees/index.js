@@ -1,5 +1,25 @@
 import { jsonResponse, errorResponse, verifyAuth } from "../_utils.js";
 
+// Strong Password Policy Validator (Enterprise Security)
+export function validateStrongPassword(password) {
+  if (!password || password.length < 8) {
+    return "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए। (Password must be at least 8 characters)";
+  }
+  if (!/[A-Z]/.test(password)) {
+    return "पासवर्ड में कम से कम एक बड़ा अक्षर (A-Z) होना अनिवार्य है। (Must contain at least 1 uppercase letter)";
+  }
+  if (!/[a-z]/.test(password)) {
+    return "पासवर्ड में कम से कम एक छोटा अक्षर (a-z) होना अनिवार्य है। (Must contain at least 1 lowercase letter)";
+  }
+  if (!/\d/.test(password)) {
+    return "पासवर्ड में कम से कम एक नंबर (0-9) होना अनिवार्य है। (Must contain at least 1 number)";
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    return "पासवर्ड में कम से कम एक स्पेशल कैरेक्टर (@, #, $, %, !, &, * आदि) होना अनिवार्य है। (Must contain at least 1 special character)";
+  }
+  return null;
+}
+
 // GET: List employees
 export async function onRequestGet({ request, env }) {
   const user = await verifyAuth(request);
@@ -56,6 +76,11 @@ export async function onRequestPost({ request, env }) {
     const cleanPhone = String(phone).trim();
     const cleanPin = String(pin).trim();
     const cleanName = String(name).trim();
+
+    const pwdErr = validateStrongPassword(cleanPin);
+    if (pwdErr) {
+      return errorResponse(pwdErr, 400);
+    }
 
     const newEmp = {
       id: Date.now(),
@@ -147,6 +172,13 @@ export async function onRequestPut({ request, env }) {
     const cleanPhone = String(phone).trim();
     const cleanName = name ? String(name).trim() : null;
     const cleanPin = pin ? String(pin).trim() : null;
+
+    if (cleanPin) {
+      const pwdErr = validateStrongPassword(cleanPin);
+      if (pwdErr) {
+        return errorResponse(pwdErr, 400);
+      }
+    }
 
     // Update in KV
     if (env.KV) {

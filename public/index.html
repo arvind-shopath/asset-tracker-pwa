@@ -370,14 +370,25 @@
           </div>
 
           <div>
-            <label id="lblLoginPin" class="block text-xs font-bold uppercase tracking-wider text-[#7A726C] mb-1.5">PIN / Password</label>
+            <label id="lblLoginPin" class="block text-xs font-bold uppercase tracking-wider text-[#7A726C] mb-1.5">Password / पासवर्ड</label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-[#9C9289]">
                 <i data-lucide="lock" class="w-4 h-4"></i>
               </span>
-              <input id="loginPin" type="password" required placeholder="••••" maxlength="20"
-                class="w-full pl-11 pr-4 py-3.5 clay-input outline-none text-sm font-semibold text-[#2D2926]" />
+              <input id="loginPin" type="password" required placeholder="Enter password..." maxlength="40"
+                class="w-full pl-11 pr-11 py-3.5 clay-input outline-none text-sm font-semibold text-[#2D2926]" />
+              <button type="button" onclick="togglePinVisibility('loginPin')" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#9C9289] hover:text-[#2D2926]">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
             </div>
+          </div>
+
+          <!-- Keep me signed in (Remember Me) -->
+          <div class="flex items-center justify-between text-xs pt-0.5">
+            <label class="flex items-center gap-2 cursor-pointer select-none text-[#5C534D] hover:text-[#2D2926]">
+              <input type="checkbox" id="rememberMeCheck" checked class="w-4 h-4 rounded text-[#009E77] border-[#EAE3DE] focus:ring-[#00C496] cursor-pointer" />
+              <span id="lblRememberMe" class="font-bold text-[11px] text-[#7A726C]">Keep me signed in (मुझे लॉगइन रखें)</span>
+            </label>
           </div>
 
           <button type="submit" id="loginBtn" class="w-full py-4 px-4 clay-btn-teal font-bold text-sm transition flex items-center justify-center gap-2 mt-2">
@@ -658,8 +669,16 @@
               <input id="newEmpPhone" type="tel" required maxlength="10" placeholder="10 digits" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
             </div>
             <div>
-              <label id="lblStaffPin" class="block text-[11px] font-bold text-[#7A726C] mb-1">4-Digit Login PIN</label>
-              <input id="newEmpPin" type="password" required maxlength="4" placeholder="••••" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
+              <label id="lblStaffPin" class="block text-[11px] font-bold text-[#7A726C] mb-1">सुरक्षित पासवर्ड (Strong Password) *</label>
+              <div class="relative">
+                <input id="newEmpPin" type="password" required maxlength="40" placeholder="e.g. Staff@2026" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
+                <button type="button" onclick="togglePinVisibility('newEmpPin')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-[#9C9289] hover:text-[#2D2926]">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+            <div class="sm:col-span-3 text-[10px] text-[#7A726C] bg-white/70 p-2.5 rounded-xl border border-[#EAE3DE] space-y-0.5">
+              <span class="font-bold text-[#2D2926]">पासवर्ड नियम:</span> कम से कम 8 अक्षर, 1 बड़ा अक्षर (A-Z), 1 छोटा अक्षर (a-z), 1 नंबर (0-9) और 1 स्पेशल कैरेक्टर (@, #, $, आदि)।
             </div>
             <div class="sm:col-span-3 flex justify-end mt-1">
               <button type="submit" id="btnSaveStaff" class="px-6 py-3 clay-btn-teal font-bold text-xs sm:text-sm transition">
@@ -1177,14 +1196,14 @@
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-[#7A726C] mb-1">नया 4-अंकीय पिन / पासवर्ड (New 4-Digit PIN) *</label>
+          <label class="block text-[11px] font-bold text-[#7A726C] mb-1">नया सुरक्षित पासवर्ड (New Strong Password) *</label>
           <div class="relative">
-            <input id="editStaffPin" type="password" required maxlength="4" placeholder="••••" class="w-full px-4 py-2.5 clay-input text-xs font-semibold outline-none tracking-widest" />
-            <button type="button" onclick="togglePinVisibility('editStaffPin')" class="absolute right-3 top-2.5 text-xs text-[#7A726C] hover:text-[#2D2926]">
-              👁️
+            <input id="editStaffPin" type="password" required maxlength="40" placeholder="e.g. Ait@600379" class="w-full pl-3 pr-10 py-2.5 clay-input text-xs font-semibold outline-none" />
+            <button type="button" onclick="togglePinVisibility('editStaffPin')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-[#7A726C] hover:text-[#2D2926]">
+              <i data-lucide="eye" class="w-4 h-4"></i>
             </button>
           </div>
-          <span class="text-[10px] text-[#7A726C] mt-0.5 block">एडमिन कर्मचारी का नाम व लॉगिन पिन यहाँ से बदल सकता है।</span>
+          <span class="text-[9px] text-[#7A726C] mt-1 block">नियम: कम से कम 8 अक्षर, 1 बड़ा अक्षर (A-Z), 1 छोटा अक्षर (a-z), 1 नंबर (0-9) व 1 स्पेशल कैरेक्टर।</span>
         </div>
 
         <div class="flex gap-2 pt-2">
@@ -1229,7 +1248,7 @@
     // State & Internationalization
     let currentLang = localStorage.getItem("app_lang") || "en";
     let currentUser = null;
-    let authToken = localStorage.getItem("asset_auth_token");
+    let authToken = localStorage.getItem("asset_auth_token") || sessionStorage.getItem("asset_auth_token");
     let currentHtml5QrCode = null;
     let activeScannerTargetInputId = null;
     let allEmployees = [];
@@ -1524,7 +1543,14 @@
         if (data.success) {
           authToken = data.token;
           currentUser = data.user;
-          localStorage.setItem("asset_auth_token", authToken);
+          const rememberMe = document.getElementById("rememberMeCheck")?.checked ?? true;
+          if (rememberMe) {
+            localStorage.setItem("asset_auth_token", authToken);
+            sessionStorage.removeItem("asset_auth_token");
+          } else {
+            sessionStorage.setItem("asset_auth_token", authToken);
+            localStorage.removeItem("asset_auth_token");
+          }
           showToast(currentLang === 'en' ? "Signed in successfully" : "लॉगिन सफल!", "success");
           try {
             renderApp();
@@ -1546,6 +1572,7 @@
       authToken = null;
       currentUser = null;
       localStorage.removeItem("asset_auth_token");
+      sessionStorage.removeItem("asset_auth_token");
       showLogin();
       showToast(currentLang === 'en' ? "Signed out" : "आप लॉगआउट हो चुके हैं", "info");
     }
@@ -2410,11 +2437,36 @@
       }
     }
 
+    function validateStrongPasswordClient(password) {
+      if (!password || password.length < 8) {
+        return currentLang === 'en' ? "Password must be at least 8 characters" : "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए।";
+      }
+      if (!/[A-Z]/.test(password)) {
+        return currentLang === 'en' ? "Must contain at least 1 uppercase letter (A-Z)" : "कम से कम एक बड़ा अक्षर (A-Z) अनिवार्य है।";
+      }
+      if (!/[a-z]/.test(password)) {
+        return currentLang === 'en' ? "Must contain at least 1 lowercase letter (a-z)" : "कम से कम एक छोटा अक्षर (a-z) अनिवार्य है।";
+      }
+      if (!/\d/.test(password)) {
+        return currentLang === 'en' ? "Must contain at least 1 number (0-9)" : "कम से कम एक नंबर (0-9) अनिवार्य है।";
+      }
+      if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        return currentLang === 'en' ? "Must contain at least 1 special character (@, #, $, etc.)" : "कम से कम एक स्पेशल कैरेक्टर (@, #, $, आदि) अनिवार्य है।";
+      }
+      return null;
+    }
+
     async function handleAddEmployee(e) {
       e.preventDefault();
       const name = document.getElementById("newEmpName").value.trim();
       const phone = document.getElementById("newEmpPhone").value.trim();
       const pin = document.getElementById("newEmpPin").value.trim();
+
+      const pwdError = validateStrongPasswordClient(pin);
+      if (pwdError) {
+        showToast(pwdError, "error");
+        return;
+      }
 
       try {
         const res = await fetch("/api/employees", {
@@ -2497,6 +2549,12 @@
 
       if (!phone || !name || !pin) {
         showToast("Please enter all required fields", "error");
+        return;
+      }
+
+      const pwdError = validateStrongPasswordClient(pin);
+      if (pwdError) {
+        showToast(pwdError, "error");
         return;
       }
 
