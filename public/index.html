@@ -604,32 +604,7 @@
 
       </div>
 
-        <!-- Recent Activity Feed -->
-        <div class="clay-card-white p-6 sm:p-7">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-            <h3 id="headingRecentActivity" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
-              <i data-lucide="history" class="w-4 h-4 text-[#00C496]"></i>
-              <span>Recent Activity & Audit Trail</span>
-            </h3>
-            
-            <div class="flex items-center gap-2">
-              <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#EAE3DE] shadow-sm">
-                <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#7A726C]"></i>
-                <input type="date" id="recentActivityDateInput" onchange="filterActivityByDate(this.value)" 
-                  class="bg-transparent text-xs font-semibold text-[#4A433E] outline-none cursor-pointer" />
-              </div>
-              <button onclick="clearActivityDateFilter()" id="btnClearActivityDate" class="px-3 py-1.5 rounded-xl bg-[#F0EAE5] hover:bg-[#EAE3DE] text-xs font-bold text-[#5C534D] transition shadow-sm">
-                All
-              </button>
-              <button onclick="loadDashboardData()" id="btnRefreshActivity" class="text-xs font-bold text-[#009E77] hover:underline ml-1">Refresh</button>
-            </div>
-          </div>
-          <div id="recentActivityList" class="space-y-3">
-            <p class="text-xs text-[#8C827A] py-3 text-center">Loading audit log...</p>
-          </div>
-        </div>
-
-      </div>
+        
 
       <!-- ================= VIEW 2: INVENTORY MANAGEMENT ================= -->
       <div id="viewInventory" class="hidden space-y-5">
@@ -2730,7 +2705,7 @@
     }
 
     function renderRecentActivity(activities) {
-      const container = document.getElementById("recentActivityList");
+      const container = document.getElementById("activityFeedList") || document.getElementById("recentActivityList");
       if (!container) return;
       if (!activities || activities.length === 0) {
         container.innerHTML = `<p class="text-xs text-[#8C827A] py-3 text-center">${currentLang === 'hi' ? 'अभी तक कोई गतिविधि दर्ज नहीं है।' : 'No recent activity yet.'}</p>`;
@@ -2744,10 +2719,16 @@
         let subLine = `${a.actor_name || 'Staff'} ${a.actor_phone ? '(' + a.actor_phone + ')' : ''}`;
         let clickHandler = "";
 
+        const fullText = `${a.action_description_en || ''} ${a.action_description_hi || ''}`;
+        const snMatch = fullText.match(/SN-[A-Z0-9-]+/i) || (a.serial_number ? [a.serial_number] : null);
+        const cmpMatch = fullText.match(/CMP-[0-9-]+/i) || (a.complaint_number ? [a.complaint_number] : null);
+
         if (a.entity_type === "call") {
           actionLabel = "CALL";
           badgeClass = "bg-purple-100 text-[#6B21A8] border border-purple-200";
-          if (a.assigned_to_user_id) {
+          if (cmpMatch) {
+            clickHandler = `openPartTimelineModal('${cmpMatch[0]}')`;
+          } else if (a.assigned_to_user_id) {
             clickHandler = `jumpToTechCalls(${a.assigned_to_user_id})`;
           } else {
             clickHandler = `switchView('calls')`;
@@ -2782,7 +2763,11 @@
             actionLabel = "RECEIVE";
             badgeClass = "badge-received";
           }
-          clickHandler = `switchView('inventory')`;
+          if (snMatch) {
+            clickHandler = `openPartTimelineModal('${snMatch[0]}')`;
+          } else {
+            clickHandler = `switchView('inventory')`;
+          }
         }
 
         const dateObj = new Date(a.created_at || a.timestamp || Date.now());
@@ -3067,19 +3052,19 @@
 
         if (item.status === "received") {
           actionBtnHtml = `
-            <button onclick="openStorageBucketForPart('${item.serial_number}')" class="px-3 py-1.5 rounded-xl bg-[#E8F9ED] text-[#167A3C] font-bold text-xs hover:bg-[#D4F4DC] transition">
+            <button onclick="event.stopPropagation(); openStorageBucketForPart('${item.serial_number}')" class="px-3 py-1.5 rounded-xl bg-[#E8F9ED] text-[#167A3C] font-bold text-xs hover:bg-[#D4F4DC] transition">
               + Move to Bucket
             </button>
           `;
         } else if (item.status === "in_storage") {
           actionBtnHtml = `
-            <button onclick="openHandoverForPart('${item.serial_number}')" class="px-3 py-1.5 rounded-xl bg-[#FFF1DE] text-[#C05800] font-bold text-xs hover:bg-[#FFE3BF] transition">
+            <button onclick="event.stopPropagation(); openHandoverForPart('${item.serial_number}')" class="px-3 py-1.5 rounded-xl bg-[#FFF1DE] text-[#C05800] font-bold text-xs hover:bg-[#FFE3BF] transition">
               Handover to Tech
             </button>
           `;
         } else if (item.status === "rejected_defective") {
           actionBtnHtml = `
-            <button onclick="openReturnCompanyModal('${item.id}', '${item.serial_number}')" class="px-3 py-1.5 rounded-xl bg-[#F3E8FF] text-[#6B21A8] font-bold text-xs hover:bg-[#E9D5FF] transition flex items-center gap-1 shadow-sm">
+            <button onclick="event.stopPropagation(); openReturnCompanyModal('${item.id}', '${item.serial_number}')" class="px-3 py-1.5 rounded-xl bg-[#F3E8FF] text-[#6B21A8] font-bold text-xs hover:bg-[#E9D5FF] transition flex items-center gap-1 shadow-sm">
               <i data-lucide="truck" class="w-3.5 h-3.5"></i>
               <span>${currentLang === 'hi' ? 'कंपनी वापसी चालान' : 'Return to Company'}</span>
             </button>
@@ -3090,7 +3075,7 @@
           const safeTrack = (item.courier_tracking_no || '').replace(/'/g, "\\'");
           actionBtnHtml = `
             <div class="flex items-center gap-1.5 flex-wrap">
-              <button onclick="shareItemChallanWhatsApp('${safeName}', '${item.serial_number}', '${item.challan_number || ''}', '${item.return_slip_url || ''}', '${item.challan_image_url || ''}', '${safeCourier}', '${safeTrack}')" class="px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-black text-xs flex items-center gap-1.5 shadow-md transition active:scale-95">
+              <button onclick="event.stopPropagation(); shareItemChallanWhatsApp('${safeName}', '${item.serial_number}', '${item.challan_number || ''}', '${item.return_slip_url || ''}', '${item.challan_image_url || ''}', '${safeCourier}', '${safeTrack}')" class="px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-black text-xs flex items-center gap-1.5 shadow-md transition active:scale-95">
                 <i data-lucide="message-circle" class="w-4 h-4"></i>
                 <span>${currentLang === 'hi' ? 'व्हाट्सएप चालान' : 'Share Challan'}</span>
               </button>
@@ -3115,19 +3100,19 @@
             <!-- Both Challan Document & Courier Slip Photos -->
             <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-purple-200/60">
               ${item.challan_image_url ? `
-                <a href="${item.challan_image_url}" target="_blank" class="px-2.5 py-1 rounded-lg bg-white border border-purple-200 text-[11px] text-[#6B21A8] font-bold hover:underline flex items-center gap-1 shadow-xs">
+                <a href="${item.challan_image_url}" target="_blank" onclick="event.stopPropagation()" class="px-2.5 py-1 rounded-lg bg-white border border-purple-200 text-[11px] text-[#6B21A8] font-bold hover:underline flex items-center gap-1 shadow-xs">
                   <i data-lucide="file-check" class="w-3.5 h-3.5 text-[#7C3AED]"></i>
                   <span>${currentLang === 'hi' ? '📄 चालान फोटो' : '📄 Challan Doc'}</span>
                 </a>
               ` : `
-                <button onclick="openUploadSlipModal('${item.id}', '${item.serial_number}')" class="px-2 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-[#6B21A8] font-bold text-[10px] flex items-center gap-1">
+                <button onclick="event.stopPropagation(); event.stopPropagation(); openUploadSlipModal('${item.id}', '${item.serial_number}')" class="px-2 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-[#6B21A8] font-bold text-[10px] flex items-center gap-1">
                   <i data-lucide="upload" class="w-3 h-3"></i>
                   <span>${currentLang === 'hi' ? '+ चालान फोटो' : '+ Attach Challan'}</span>
                 </button>
               `}
 
               ${item.return_slip_url ? `
-                <a href="${item.return_slip_url}" target="_blank" class="px-2.5 py-1 rounded-lg bg-white border border-purple-200 text-[11px] text-[#6B21A8] font-bold hover:underline flex items-center gap-1 shadow-xs">
+                <a href="${item.return_slip_url}" target="_blank" onclick="event.stopPropagation()" class="px-2.5 py-1 rounded-lg bg-white border border-purple-200 text-[11px] text-[#6B21A8] font-bold hover:underline flex items-center gap-1 shadow-xs">
                   <i data-lucide="truck" class="w-3.5 h-3.5 text-[#7C3AED]"></i>
                   <span>${currentLang === 'hi' ? '🚚 कूरियर स्लिप' : '🚚 Courier Slip'}</span>
                 </a>
@@ -3144,7 +3129,7 @@
         ` : '';
 
         return `
-          <div class="clay-card-white p-5 flex flex-col justify-between space-y-3">
+          <div onclick="openPartTimelineModal('${item.serial_number}')" class="clay-card-white p-4 sm:p-5 flex flex-col justify-between space-y-3 cursor-pointer hover:border-[#009E77] hover:shadow-md transition active:scale-[0.99] group">
             <div>
               <div class="flex items-start justify-between gap-2">
                 <div>
@@ -3163,7 +3148,7 @@
               ${challanBoxHtml}
             </div>
             <div class="pt-2 border-t border-[#EAE3DE] flex items-center justify-between">
-              <button onclick="openPartTimelineModal('${item.serial_number}')" class="px-3 py-1.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#009E77] text-xs font-bold text-[#009E77] flex items-center gap-1 shadow-2xs transition">
+              <button onclick="event.stopPropagation(); openPartTimelineModal('${item.serial_number}')" class="px-3 py-1.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#009E77] text-xs font-bold text-[#009E77] flex items-center gap-1 shadow-2xs transition">
                 <i data-lucide="history" class="w-3.5 h-3.5"></i>
                 <span>Timeline</span>
               </button>
@@ -3242,33 +3227,126 @@
       const subEl = document.getElementById("timelineModalSubtitle");
       const contentEl = document.getElementById("timelineModalContent");
 
-      titleEl.textContent = `${currentLang === 'hi' ? 'टाइमलाइन ऑडिट' : 'Timeline Audit'}: ${serialOrComplaint}`;
-      subEl.textContent = currentLang === 'hi' ? 'लाइफसाइकिल ऑडिट हिस्ट्री' : 'Complete Lifecycle Step-by-Step History';
+      titleEl.textContent = `${currentLang === 'hi' ? 'आइटम व टाइमलाइन ऑडिट' : 'Part & Timeline Audit'}: ${serialOrComplaint}`;
+      subEl.textContent = currentLang === 'hi' ? 'लाइफसाइकिल, लोकेशन, ग्राहक व संपूर्ण विवरण' : 'Lifecycle, Location, Customer & Complete Audit';
       contentEl.innerHTML = `<div class="py-10 text-center text-xs text-[#7A726C] animate-pulse">${currentLang === 'hi' ? 'ऑडिट ट्रेल लोड हो रही है...' : 'Fetching audit trail...'}</div>`;
 
       try {
         const res = await authFetch(`/api/dashboard/search?q=${encodeURIComponent(serialOrComplaint)}`);
         const data = await res.json();
         const timeline = data.timeline || [];
-        const item = (data.items && data.items[0]) || null;
+        let item = (data.items && data.items[0]) || null;
+        if (!item && appInventory && appInventory.length > 0) {
+          item = appInventory.find(i => String(i.serial_number || '').toUpperCase() === String(serialOrComplaint).toUpperCase()) || null;
+        }
         const call = (data.calls && data.calls[0]) || null;
 
         let headerHtml = "";
         if (item) {
-          headerHtml = `
-            <div class="p-3.5 rounded-2xl bg-[#F8F5F2] border border-[#EAE3DE] flex items-center justify-between">
-              <div>
-                <h4 class="font-black text-sm text-[#2D2926]">${item.part_name}</h4>
-                <p class="text-xs font-mono font-bold text-[#009E77]">SN: ${item.serial_number} | Model: ${item.model_number || 'Universal'}</p>
+          const catName = currentLang === 'hi' ? (item.category_name_hi || item.category_name_en || 'बकेट') : (item.category_name_en || item.category_name_hi || 'Bucket');
+          
+          // 1. Who received
+          const recEvent = (timeline || []).find(e => e.action_type === 'received');
+          const receivedBy = recEvent 
+            ? `${recEvent.actor_name || 'Store Staff'} (${new Date(recEvent.created_at).toLocaleDateString([], {month:'short', day:'numeric', year:'numeric'})})` 
+            : (currentLang === 'hi' ? 'स्टोर वेयरहाउस स्टाफ (इनबाउंड)' : 'Store Warehouse Staff (Inbound)');
+          
+          // 2. Customer & Call
+          const instEvent = (timeline || []).find(e => e.action_type === 'install_recorded');
+          let customerBoxHtml = "";
+          if (call) {
+            customerBoxHtml = `
+              <div class="p-3 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs space-y-1">
+                <span class="text-[10px] font-black text-[#007AFF] uppercase tracking-wider block">
+                  👤 ${currentLang === 'hi' ? 'कस्टमर व कंप्लेंट (Installed)' : 'Customer & Complaint'}
+                </span>
+                <p class="font-bold text-[#1C1C1E] text-sm">${call.customer_name} <span class="text-xs font-mono text-[#007AFF]">(${call.customer_mobile})</span></p>
+                <p class="text-[#7A726C] text-[11px]">${call.customer_address || ''}</p>
+                <p class="text-[11px] font-semibold text-[#008765]">#${call.complaint_number} | Tech: ${call.tech_name}</p>
               </div>
-              <span class="px-2.5 py-1 rounded-xl text-[10px] font-extrabold uppercase badge-${item.status}">
-                ${item.status.replace(/_/g, ' ')}
-              </span>
+            `;
+          } else if (instEvent) {
+            customerBoxHtml = `
+              <div class="p-3 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs space-y-1">
+                <span class="text-[10px] font-black text-[#007AFF] uppercase tracking-wider block">
+                  👤 ${currentLang === 'hi' ? 'कस्टमर (Installed)' : 'Customer Installed'}
+                </span>
+                <p class="font-bold text-[#1C1C1E]">${instEvent.action_description_hi || instEvent.action_description_en}</p>
+              </div>
+            `;
+          }
+
+          // 3. Return to company challan
+          let returnBoxHtml = "";
+          if (item.challan_number) {
+            returnBoxHtml = `
+              <div class="p-3 rounded-2xl bg-purple-50/80 border border-purple-200 text-xs space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-black text-[#6B21A8] uppercase tracking-wider">
+                    🚚 ${currentLang === 'hi' ? 'कंपनी वापसी चालान' : 'Return Challan'}
+                  </span>
+                  <span class="font-mono font-bold text-xs text-[#581C87]">#${item.challan_number}</span>
+                </div>
+                ${(item.courier_name || item.courier_tracking_no) ? `
+                  <p class="text-[11px] text-[#6B21A8] font-semibold">
+                    ${item.courier_name || 'Courier'}: <span class="font-mono">${item.courier_tracking_no || ''}</span>
+                  </p>
+                ` : ''}
+                <div class="flex items-center gap-2 pt-1 border-t border-purple-200/60">
+                  ${item.challan_image_url ? `
+                    <a href="${item.challan_image_url}" target="_blank" class="px-2.5 py-1 rounded-lg bg-white border border-purple-200 text-[11px] font-bold text-[#6B21A8] hover:underline flex items-center gap-1 shadow-2xs">
+                      <i data-lucide="file-check" class="w-3.5 h-3.5"></i>
+                      <span>${currentLang === 'hi' ? '📄 चालान रसीद' : '📄 Challan Slip'}</span>
+                    </a>
+                  ` : ''}
+                  ${item.return_slip_url ? `
+                    <a href="${item.return_slip_url}" target="_blank" class="px-2.5 py-1 rounded-lg bg-white border border-purple-200 text-[11px] font-bold text-[#6B21A8] hover:underline flex items-center gap-1 shadow-2xs">
+                      <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                      <span>${currentLang === 'hi' ? '🚚 कूरियर स्लिप' : '🚚 Courier Doc'}</span>
+                    </a>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }
+
+          headerHtml = `
+            <div class="clay-card-white p-4 space-y-3 rounded-2xl border border-[#EAE3DE]">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <h4 class="font-black text-sm sm:text-base text-[#1C1C1E]">${item.part_name}</h4>
+                  <p class="text-xs font-mono font-bold text-[#009E77] mt-0.5">SN: ${item.serial_number} | Model: ${item.model_number || 'Universal'}</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-xl text-[10px] font-extrabold uppercase badge-${item.status}">
+                  ${item.status.replace(/_/g, ' ')}
+                </span>
+              </div>
+
+              <!-- 4-Card Quick Information Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-2 border-t border-[#EAE3DE]">
+                <div class="p-2.5 rounded-xl bg-[#F8F5F2] border border-[#EAE3DE]">
+                  <span class="text-[10px] font-bold text-[#7A726C] uppercase block mb-0.5">
+                    📥 ${currentLang === 'hi' ? 'रिसीव किया (Received By)' : 'Received By'}
+                  </span>
+                  <span class="font-bold text-[#1C1C1E] text-xs">${receivedBy}</span>
+                </div>
+
+                <div class="p-2.5 rounded-xl bg-[#F8F5F2] border border-[#EAE3DE]">
+                  <span class="text-[10px] font-bold text-[#7A726C] uppercase block mb-0.5">
+                    📍 ${currentLang === 'hi' ? 'वर्तमान धारक / स्थान' : 'Current Holder / Rack'}
+                  </span>
+                  <span class="font-bold text-[#1C1C1E] text-xs">${item.holder_name || 'Store'}</span>
+                  <span class="text-[10px] text-[#7A726C] block">(${catName})</span>
+                </div>
+              </div>
+
+              ${customerBoxHtml}
+              ${returnBoxHtml}
             </div>
           `;
         } else if (call) {
           headerHtml = `
-            <div class="p-3.5 rounded-2xl bg-[#F8F5F2] border border-[#EAE3DE] flex items-center justify-between">
+            <div class="p-4 rounded-2xl bg-[#F8F5F2] border border-[#EAE3DE] flex items-center justify-between">
               <div>
                 <h4 class="font-black text-sm text-[#2D2926]">${call.customer_name} (${call.customer_mobile})</h4>
                 <p class="text-xs text-[#7A726C]">${call.service_title_en} | Tech: ${call.tech_name}</p>
@@ -3283,10 +3361,11 @@
         if (!timeline || timeline.length === 0) {
           contentEl.innerHTML = `
             ${headerHtml}
-            <div class="py-8 text-center text-xs text-[#7A726C]">
+            <div class="py-6 text-center text-xs text-[#7A726C]">
               ${currentLang === 'hi' ? 'इस आइटम के लिए कोई विस्तृत टाइमलाइन रिकॉर्ड नहीं मिला।' : 'No timeline events found for this record.'}
             </div>
           `;
+          lucide.createIcons();
           return;
         }
 
@@ -3305,7 +3384,7 @@
           else if (ev.action_type === "return_to_company") { icon = "truck"; color = "#6B21A8"; }
 
           return `
-            <div class="flex items-start gap-3 relative pb-4 last:pb-0">
+            <div class="flex items-start gap-3 relative pb-3.5 last:pb-0">
               <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-white shadow-xs" style="background: ${color};">
                 <i data-lucide="${icon}" class="w-4 h-4"></i>
               </div>
@@ -3322,8 +3401,14 @@
 
         contentEl.innerHTML = `
           ${headerHtml}
-          <div class="space-y-3 pt-2">
-            ${eventsHtml}
+          <div class="pt-2">
+            <h5 class="text-xs font-black uppercase tracking-wider text-[#7A726C] mb-2.5 flex items-center gap-1.5">
+              <i data-lucide="history" class="w-3.5 h-3.5 text-[#009E77]"></i>
+              <span>${currentLang === 'hi' ? 'कदम-दर-कदम ऑडिट हिस्ट्री' : 'Step-by-Step Audit History'}</span>
+            </h5>
+            <div class="space-y-2">
+              ${eventsHtml}
+            </div>
           </div>
         `;
         lucide.createIcons();
@@ -4126,23 +4211,24 @@
           ? u.assigned_assets.map(a => `<span class="px-2.5 py-1 rounded-xl bg-white border border-[#EAE3DE] text-[10px] font-bold text-[#5C534D] shadow-sm">🧰 ${a.asset_name} (${a.asset_code})</span>`).join(" ")
           : `<span class="text-[10px] text-[#8C827A] italic">${currentLang === 'hi' ? 'कोई एसेट नहीं सौंपा गया' : 'No assets assigned'}</span>`;
 
+        const isTech = u.role === "third_party_tech";
         let actionButtonsHtml = "";
-        if (u.role === "third_party_tech") {
+        if (isTech) {
           actionButtonsHtml = `
             <div class="flex flex-wrap items-center gap-2 pt-2.5 border-t border-[#EAE3DE]">
-              <button onclick="jumpToTechLedger(${u.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#009E77] hover:bg-[#008765] text-white text-[11px] font-extrabold shadow-sm transition active:scale-95">
+              <button onclick="event.stopPropagation(); jumpToTechLedger(${u.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#009E77] hover:bg-[#008765] text-white text-[11px] font-extrabold shadow-sm transition active:scale-95">
                 <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
                 <span>${currentLang === 'hi' ? 'लेजर व पेआउट देखें' : 'View Ledger & Payouts'}</span>
               </button>
-              <button onclick="jumpToTechCalls(${u.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#009E77] text-[#2D2926] text-[11px] font-bold shadow-sm transition active:scale-95">
+              <button onclick="event.stopPropagation(); jumpToTechCalls(${u.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#009E77] text-[#2D2926] text-[11px] font-bold shadow-sm transition active:scale-95">
                 <i data-lucide="phone-call" class="w-3.5 h-3.5 text-[#009E77]"></i>
                 <span>${currentLang === 'hi' ? 'कॉल सूची देखें' : 'View Calls'}</span>
               </button>
-              <button onclick="jumpToTechStock(${u.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#FF9500] text-[#2D2926] text-[11px] font-bold shadow-sm transition active:scale-95">
+              <button onclick="event.stopPropagation(); jumpToTechStock(${u.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#FF9500] text-[#2D2926] text-[11px] font-bold shadow-sm transition active:scale-95">
                 <i data-lucide="package" class="w-3.5 h-3.5 text-[#FF9500]"></i>
                 <span>${currentLang === 'hi' ? 'पास मौजूद सामान' : 'Stock in Hand'}</span>
               </button>
-              <button onclick="openAssignAssetModalForUser(${u.id}, '${u.name}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#F0EAE5] hover:bg-[#EAE3DE] text-[#5C534D] text-[10px] font-bold transition">
+              <button onclick="event.stopPropagation(); openAssignAssetModalForUser(${u.id}, '${u.name}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#F0EAE5] hover:bg-[#EAE3DE] text-[#5C534D] text-[10px] font-bold transition">
                 <i data-lucide="plus" class="w-3 h-3"></i>
                 <span>${currentLang === 'hi' ? 'औजार सौंपें' : '+ Assign Tool'}</span>
               </button>
@@ -4151,11 +4237,11 @@
         } else if (u.role === "in_house_staff") {
           actionButtonsHtml = `
             <div class="flex flex-wrap items-center gap-2 pt-2.5 border-t border-[#EAE3DE]">
-              <button onclick="jumpToTechStock(${u.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#009E77] text-[#2D2926] text-[11px] font-bold shadow-sm transition active:scale-95">
+              <button onclick="event.stopPropagation(); jumpToTechStock(${u.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#009E77] text-[#2D2926] text-[11px] font-bold shadow-sm transition active:scale-95">
                 <i data-lucide="package" class="w-3.5 h-3.5 text-[#009E77]"></i>
                 <span>${currentLang === 'hi' ? 'स्टॉक देखें' : 'View Stock'}</span>
               </button>
-              <button onclick="openAssignAssetModalForUser(${u.id}, '${u.name}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#F0EAE5] hover:bg-[#EAE3DE] text-[#5C534D] text-[10px] font-bold transition">
+              <button onclick="event.stopPropagation(); openAssignAssetModalForUser(${u.id}, '${u.name}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#F0EAE5] hover:bg-[#EAE3DE] text-[#5C534D] text-[10px] font-bold transition">
                 <i data-lucide="plus" class="w-3 h-3"></i>
                 <span>${currentLang === 'hi' ? 'औजार सौंपें' : '+ Assign Tool'}</span>
               </button>
@@ -4163,11 +4249,17 @@
           `;
         }
 
+        const cardClick = isTech ? `onclick="jumpToTechLedger(${u.id})"` : '';
+        const cardPointer = isTech ? 'cursor-pointer hover:border-[#009E77] hover:shadow-md' : '';
+
         return `
-          <div class="p-4 rounded-2xl bg-white border border-[#EAE3DE] shadow-sm space-y-3 hover:border-[#00C496]/50 transition">
+          <div ${cardClick} class="p-4 rounded-2xl bg-white border border-[#EAE3DE] shadow-sm space-y-3 transition ${cardPointer}">
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="font-extrabold text-sm text-[#2D2926]">${u.name}</h4>
+                <h4 class="font-extrabold text-sm text-[#2D2926] flex items-center gap-2">
+                  <span>${u.name}</span>
+                  ${isTech ? `<span class="text-[10px] text-[#009E77] font-semibold flex items-center gap-0.5"><i data-lucide="external-link" class="w-3 h-3"></i> ${currentLang === 'hi' ? 'लेजर खोलें' : 'Open Ledger'}</span>` : ''}
+                </h4>
                 <p class="text-xs font-mono text-[#7A726C] mt-0.5">${u.mobile || u.phone}</p>
               </div>
               <span class="px-2.5 py-1 rounded-xl text-[10px] font-extrabold uppercase bg-[#FAF7F5] border border-[#EAE3DE] text-[#009E77]">

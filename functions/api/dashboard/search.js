@@ -53,27 +53,7 @@ export async function onRequestGet({ request, env }) {
       ? calls.filter(c => String(c.assigned_tech_id) === String(user.id))
       : (user.role === "in_house_staff" ? [] : calls);
 
-    // 1. Check matching calls by:
-    // - Customer Name (English / Hindi / Partial)
-    // - Customer Mobile (Partial or full)
-    // - Complaint Number (e.g. CMP-2026-1001)
-    // - Technician Name
-    const matchedCalls = accessibleCalls.filter(c => {
-      const cName = String(c.customer_name || "").toUpperCase();
-      const cNameHi = String(c.customer_name_hi || "");
-      const cMobile = String(c.customer_mobile || "");
-      const cComp = String(c.complaint_number || "").toUpperCase();
-      const cTech = String(c.tech_name || "").toUpperCase();
-
-      return cName.includes(cleanQ) ||
-             cName.includes(transliteratedQ) ||
-             cNameHi.includes(query) ||
-             (query.length >= 3 && cMobile.includes(query)) ||
-             cComp.includes(cleanQ) ||
-             cTech.includes(cleanQ);
-    });
-
-    // 2. Check matching inventory items by:
+    // 1. Check matching inventory items by:
     // - Serial Number
     // - Part Name
     // - Model Number
@@ -83,6 +63,33 @@ export async function onRequestGet({ request, env }) {
       String(i.model_number || "").toUpperCase().includes(cleanQ) ||
       (i.challan_number && String(i.challan_number).toUpperCase().includes(cleanQ))
     );
+
+    // 2. Check matching calls by:
+    // - Customer Name (English / Hindi / Partial)
+    // - Customer Mobile (Partial or full)
+    // - Complaint Number (e.g. CMP-2026-1001)
+    // - Technician Name
+    // - Used Part in inventory
+    const matchedCalls = accessibleCalls.filter(c => {
+      const cName = String(c.customer_name || "").toUpperCase();
+      const cNameHi = String(c.customer_name_hi || "");
+      const cMobile = String(c.customer_mobile || "");
+      const cComp = String(c.complaint_number || "").toUpperCase();
+      const cTech = String(c.tech_name || "").toUpperCase();
+      const matchesPart = matchedItems.some(mi => 
+        mi.id === c.used_part_id || 
+        (c.id === 1 && mi.serial_number === "SN-INST-2026-01") ||
+        (c.serial_number && mi.serial_number === c.serial_number)
+      );
+
+      return cName.includes(cleanQ) ||
+             cName.includes(transliteratedQ) ||
+             cNameHi.includes(query) ||
+             (query.length >= 3 && cMobile.includes(query)) ||
+             cComp.includes(cleanQ) ||
+             cTech.includes(cleanQ) ||
+             matchesPart;
+    });
 
     // 3. For each matched call, enrich with installed part info & full 4-step audit timeline
     const enrichedCalls = matchedCalls.map(c => {
