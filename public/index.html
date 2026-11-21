@@ -765,90 +765,112 @@
       </div>
 
       <!-- ================= VIEW 6: ADMIN LEDGER & PAYOUTS ================= -->
-      <div id="viewLedger" class="hidden space-y-6">
+      <div id="viewLedger" class="hidden space-y-5">
         
-        <!-- Ledger Summary Header -->
-        <div class="clay-card-white p-6 rounded-[32px]">
-          <h3 id="headingAdminLedger" class="font-extrabold text-[#2D2926] text-base mb-1">Technician Ledger & Bulk Settlement</h3>
-          <p id="subAdminLedger" class="text-xs text-[#7A726C] mb-4">Select unpaid calls for any technician to settle via UPI batch</p>
+        <!-- SCREEN 1: ALL TECHNICIANS LIST (DEFAULT SCREEN) -->
+        <div id="ledgerTechListScreen" class="space-y-4">
+          <div class="clay-card-white p-5 sm:p-6 rounded-[32px]">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-[#EAE3DE]">
+              <div>
+                <h3 id="headingAdminLedger" class="font-extrabold text-[#2D2926] text-base">कर्मचारी एवं टेक्नीशियन लेजर</h3>
+                <p id="subAdminLedger" class="text-xs text-[#7A726C] mt-0.5">हिसाब देखने, नकद/एडवांस देने या कैश जमा लेने के लिए कर्मचारी कार्ड पर टैप करें</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-[#E6F7F3] text-[#008765] border border-[#A7E8D8] shrink-0">
+                लेजर व पेआउट
+              </span>
+            </div>
 
-          <!-- Technician Selector Grid -->
-          <div id="ledgerTechSelectorGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <!-- Populated dynamically -->
+            <!-- Technician Selector Grid -->
+            <div id="ledgerTechSelectorGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              <!-- Populated dynamically -->
+            </div>
           </div>
         </div>
 
-        <!-- Selected Tech Settlement Workspace -->
-        <div id="techSettlementWorkspace" class="hidden clay-card-white p-6 rounded-[32px] space-y-5">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#EAE3DE]">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-[#7A726C]">Technician:</span>
-                <span id="settleTechName" class="text-sm font-extrabold text-[#2D2926]">Vishal Kumar</span>
-                <span id="settleTechMobile" class="text-xs font-mono text-[#7A726C]">(9876543213)</span>
-              </div>
-              <!-- Comprehensive 4-Metric Grid (Including Customer Cash Collection) -->
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3">
-                <div class="p-3 rounded-2xl bg-amber-50/80 border border-amber-200">
-                  <span id="lblSettleCustCash" class="text-[10px] font-bold text-[#B45309] block uppercase tracking-wider">Customer Cash Collected</span>
-                  <span id="settleTechCustCollected" class="text-base font-extrabold text-[#B45309] mt-0.5 block">₹0</span>
-                </div>
-                <div class="p-3 rounded-2xl bg-[#F0EAE5] border border-white">
-                  <span id="lblSettleEarned" class="text-[10px] font-bold text-[#7A726C] block uppercase tracking-wider">Total Tech Earned</span>
-                  <span id="settleTechEarned" class="text-base font-extrabold text-[#2D2926] mt-0.5 block">₹0</span>
-                </div>
-                <div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200">
-                  <span id="lblSettlePaid" class="text-[10px] font-bold text-[#065F46] block uppercase tracking-wider">Total Paid by Admin</span>
-                  <span id="settleTechPaid" class="text-base font-extrabold text-[#008765] mt-0.5 block">₹0</span>
-                </div>
-                <div class="p-3 rounded-2xl bg-orange-50 border border-orange-200">
-                  <span id="lblSettlePending" class="text-[10px] font-bold text-[#C05800] block uppercase tracking-wider">Pending Balance Due</span>
-                  <span id="settleTechPending" class="text-base font-extrabold text-[#FF8A00] mt-0.5 block">₹0</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Settle Selected Button -->
-            <button onclick="openBulkPayModal()" id="btnOpenBulkPay" class="px-5 py-3 clay-btn-teal font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm disabled:opacity-40 cursor-pointer" disabled>
-              <i data-lucide="check-check" class="w-4 h-4"></i>
-              <span id="lblSettleSelectedBtn">Mark Selected as Paid (₹0)</span>
+        <!-- SCREEN 2: DEDICATED FULL-PAGE WORKSPACE FOR SELECTED TECHNICIAN -->
+        <div id="techSettlementWorkspace" class="hidden space-y-5">
+          
+          <!-- Dedicated Top Back Navigation Bar -->
+          <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-[#EAE3DE] shadow-xs">
+            <button onclick="backToTechList()" class="px-4 py-2 rounded-xl bg-[#FAF7F5] border border-[#EAE3DE] hover:border-[#00C496] text-xs font-extrabold text-[#2D2926] flex items-center gap-2 cursor-pointer transition shadow-2xs">
+              <span class="text-base font-black">←</span>
+              <span>वापस कर्मचारी सूची (All Staff)</span>
             </button>
-          </div>
-
-          <!-- SMART NET SETTLEMENT HERO FOR SELECTED TECH -->
-          <div id="adminNetSettlementHero" class="clay-card-white p-4 sm:p-5 rounded-[28px] border border-[#EAE3DE] shadow-xs">
-            <!-- Populated dynamically -->
-          </div>
-
-          <!-- DATE FILTER PILLS FOR ADMIN -->
-          <div class="flex items-center justify-between gap-2 flex-wrap pt-1">
-            <span class="text-xs font-bold text-[#7A726C]">समय सीमा (Date Filter):</span>
-            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="adminLedgerDateFilterPills">
-              <button onclick="setAdminLedgerDateFilter('all')" data-period="all" class="admin-filter-pill px-3 py-1 rounded-full text-xs font-bold transition bg-[#009E77] text-white shadow-xs cursor-pointer">सभी (All Time)</button>
-              <button onclick="setAdminLedgerDateFilter('today')" data-period="today" class="admin-filter-pill px-3 py-1 rounded-full text-xs font-bold transition bg-white border border-[#EAE3DE] text-[#7A726C] hover:border-[#00C496] cursor-pointer">📅 आज (Today)</button>
-              <button onclick="setAdminLedgerDateFilter('week')" data-period="week" class="admin-filter-pill px-3 py-1 rounded-full text-xs font-bold transition bg-white border border-[#EAE3DE] text-[#7A726C] hover:border-[#00C496] cursor-pointer">📅 इस हफ्ते (This Week)</button>
-              <button onclick="setAdminLedgerDateFilter('month')" data-period="month" class="admin-filter-pill px-3 py-1 rounded-full text-xs font-bold transition bg-white border border-[#EAE3DE] text-[#7A726C] hover:border-[#00C496] cursor-pointer">📅 इस महीने (This Month)</button>
+            <div class="text-right">
+              <span class="text-[10px] font-bold text-[#7A726C] uppercase block">खाता</span>
+              <span id="settleTechNameHeader" class="text-xs sm:text-sm font-extrabold text-[#009E77]">Vishal Kumar</span>
             </div>
           </div>
 
-          <!-- Unpaid Calls with Checkboxes -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <h4 id="headingUnpaidChecklist" class="text-xs font-extrabold uppercase tracking-wider text-[#7A726C]">Unpaid Completed Calls (Select to Pay)</h4>
-              <button onclick="toggleSelectAllUnpaid()" id="btnToggleSelectAll" class="text-xs font-bold text-[#009E77] hover:underline cursor-pointer">Select All</button>
+          <!-- Technician Info & Fast Action Bar -->
+          <div class="clay-card-white p-5 sm:p-6 rounded-[32px] space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#EAE3DE]">
+              <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-[#009E77]/10 flex items-center justify-center text-lg font-black text-[#009E77] shrink-0">
+                  👨‍🔧
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span id="settleTechName" class="text-base font-extrabold text-[#2D2926]">Vishal Kumar</span>
+                    <span id="settleTechMobile" class="text-xs font-mono text-[#7A726C]">(9876543213)</span>
+                  </div>
+                  <p class="text-[11px] text-[#7A726C]">थर्ड-पार्टी फील्ड टेक्नीशियन</p>
+                </div>
+              </div>
+
+              <!-- Direct Action Buttons: Pay Cash / Advance & Receive Customer Cash -->
+              <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="openDirectPaymentModal()" class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition">
+                  <span>💵 नकद / एडवांस दें</span>
+                </button>
+                <button onclick="openCustomerCashDepositModal()" class="px-3.5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition">
+                  <span>📥 काउंटर कैश जमा लें</span>
+                </button>
+              </div>
             </div>
-            <div id="unpaidCallsCheckboxList" class="space-y-2.5 max-h-80 overflow-y-auto no-scrollbar">
+
+            <!-- SMART NET SETTLEMENT HERO FOR SELECTED TECH -->
+            <div id="adminNetSettlementHero" class="clay-card-white p-4 sm:p-5 rounded-[28px] border border-[#EAE3DE] shadow-xs">
               <!-- Populated dynamically -->
             </div>
           </div>
 
-          <!-- Historical Batches for this Tech -->
-          <div class="pt-4 border-t border-[#EAE3DE]">
-            <h4 id="headingBatchHistory" class="text-xs font-extrabold uppercase tracking-wider text-[#7A726C] mb-2.5">Past Payment Settlements (Batches)</h4>
+          <!-- DATE FILTER PILLS FOR ADMIN -->
+          <div class="flex items-center justify-between gap-2 flex-wrap px-1">
+            <span class="text-xs font-bold text-[#7A726C]">समय सीमा (Date Filter):</span>
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="adminLedgerDateFilterPills">
+              <button onclick="setAdminLedgerDateFilter('all')" data-period="all" class="admin-filter-pill px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-[#009E77] text-white shadow-xs cursor-pointer">सभी (All Time)</button>
+              <button onclick="setAdminLedgerDateFilter('today')" data-period="today" class="admin-filter-pill px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-white border border-[#EAE3DE] text-[#7A726C] hover:border-[#00C496] cursor-pointer">📅 आज (Today)</button>
+              <button onclick="setAdminLedgerDateFilter('week')" data-period="week" class="admin-filter-pill px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-white border border-[#EAE3DE] text-[#7A726C] hover:border-[#00C496] cursor-pointer">📅 इस हफ्ते (This Week)</button>
+              <button onclick="setAdminLedgerDateFilter('month')" data-period="month" class="admin-filter-pill px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-white border border-[#EAE3DE] text-[#7A726C] hover:border-[#00C496] cursor-pointer">📅 इस महीने (This Month)</button>
+            </div>
+          </div>
+
+          <!-- Unpaid Calls with Checkboxes & Bulk Settle -->
+          <div class="clay-card-white p-5 sm:p-6 rounded-[32px] space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#EAE3DE]">
+              <div class="flex items-center gap-2">
+                <h4 id="headingUnpaidChecklist" class="text-xs font-extrabold uppercase tracking-wider text-[#2D2926]">बकाया पूर्ण कॉल्स (भुगतान हेतु चुनें)</h4>
+                <button onclick="toggleSelectAllUnpaid()" id="btnToggleSelectAll" class="text-xs font-bold text-[#009E77] hover:underline cursor-pointer">(सब चुनें)</button>
+              </div>
+              <button onclick="openBulkPayModal()" id="btnOpenBulkPay" class="px-4 py-2 clay-btn-teal font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-40 cursor-pointer" disabled>
+                <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+                <span id="lblSettleSelectedBtn">चुनी कॉल्स पेड मार्क करें (₹0)</span>
+              </button>
+            </div>
+            <div id="unpaidCallsCheckboxList" class="space-y-2.5 max-h-96 overflow-y-auto no-scrollbar">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Historical Batches & Payments for this Tech -->
+          <div class="clay-card-white p-5 sm:p-6 rounded-[32px] space-y-3">
+            <h4 id="headingBatchHistory" class="text-xs font-extrabold uppercase tracking-wider text-[#7A726C]">भुगतान व कैश जमा इतिहास (Payment & Deposit Receipts)</h4>
             <div id="techPastBatchesList" class="space-y-2">
               <!-- Populated dynamically -->
             </div>
           </div>
+
         </div>
 
       </div>
@@ -3994,531 +4016,260 @@
       } catch (e) {}
     }
 
+    function getBatchMode(b) {
+      if (b.payment_mode) return b.payment_mode;
+      const rem = String(b.remarks || "").toUpperCase();
+      if (rem.includes("[CASH_DEPOSIT]") || rem.includes("COUNTER CASH") || rem.includes("CASH DEPOSIT") || rem.includes("कस्टमर कैश काउंटर")) return "customer_cash_deposit";
+      if (rem.includes("[ADVANCE]") || rem.includes("ADVANCE") || rem.includes("एडवांस")) return "advance";
+      if (rem.includes("[CASH]") || rem.includes("CASH") || rem.includes("नकद")) return "cash";
+      return "upi";
+    }
+
     function renderLedgerTechSelectors(techs) {
       const container = document.getElementById("ledgerTechSelectorGrid");
       if (!container) return;
       if (!techs || techs.length === 0) {
-        container.innerHTML = `<p class="text-xs text-[#8C827A] py-3 text-center">${currentLang === 'hi' ? 'कोई टेक्नीशियन नहीं मिला।' : 'No technicians found.'}</p>`;
+        container.innerHTML = `<p class="text-xs text-[#8C827A] py-6 text-center col-span-full">${currentLang === 'hi' ? 'कोई टेक्नीशियन पंजीकृत नहीं मिला।' : 'No technicians found.'}</p>`;
         return;
       }
 
       container.innerHTML = techs.map(t => {
-        const custCollected = t.totalCustomerCollected || 0;
+        const custCash = Number(t.totalCustomerCollected) || 0;
+        const pendingWages = Number(t.pendingBalance) || 0;
+        const net = custCash - pendingWages;
+
+        let netText = "";
+        let netClass = "";
+        if (net > 0) {
+          netText = currentLang === 'hi' ? `🔴 टेक ₹${net} कंपनी में जमा करेगा` : `🔴 Tech owes Co. ₹${net}`;
+          netClass = "bg-rose-50 text-rose-800 border border-rose-200";
+        } else if (net < 0) {
+          const diff = Math.abs(net);
+          netText = currentLang === 'hi' ? `🟢 कंपनी टेक को ₹${diff} देगी` : `🟢 Co. owes Tech ₹${diff}`;
+          netClass = "bg-emerald-50 text-emerald-800 border border-emerald-200";
+        } else {
+          netText = currentLang === 'hi' ? '🔵 हिसाब एकदम बराबर (₹0)' : '🔵 All Settled (₹0)';
+          netClass = "bg-sky-50 text-sky-800 border border-sky-200";
+        }
+
         return `
-          <div onclick="selectTechForLedger(${t.tech_id})" id="techLedgerCard_${t.tech_id}" class="p-4 rounded-2xl bg-white border ${currentLedgerTechId === t.tech_id ? 'border-[#009E77] ring-2 ring-[#00C496]/20' : 'border-[#EAE3DE]'} hover:border-[#00C496] cursor-pointer shadow-sm transition transform hover:-translate-y-0.5 space-y-1.5">
+          <div onclick="selectTechForLedger(${t.tech_id})" class="p-4 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#009E77] hover:shadow-md cursor-pointer transition transform hover:-translate-y-0.5 space-y-2.5 shadow-2xs">
             <div class="flex items-center justify-between">
-              <h4 class="font-extrabold text-sm text-[#2D2926]">${t.name}</h4>
-              <span class="px-2 py-0.5 rounded-xl font-bold text-[10px] ${t.pendingBalance > 0 ? 'bg-[#FFF1DE] text-[#C05800]' : 'bg-[#D1FAE5] text-[#065F46]'}">
-                ${t.unpaidCallsCount} ${currentLang === 'hi' ? 'बकाया' : 'Unpaid'}
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">
+                  👨‍🔧
+                </div>
+                <div>
+                  <h4 class="font-extrabold text-sm text-[#2D2926]">${t.name}</h4>
+                  <p class="text-[11px] font-mono text-[#7A726C]">${t.mobile}</p>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded-full font-bold text-[10px] ${t.unpaidCallsCount > 0 ? 'bg-[#FFF1DE] text-[#C05800]' : 'bg-[#D1FAE5] text-[#065F46]'}">
+                ${t.unpaidCallsCount} ${currentLang === 'hi' ? 'बकाया कॉल' : 'Unpaid'}
               </span>
             </div>
-            <p class="text-xs font-mono text-[#7A726C]">${t.mobile}</p>
-            
-            <div class="pt-2 border-t border-[#EAE3DE] grid grid-cols-2 gap-2 text-[11px]">
+
+            <!-- 2 Key Metrics -->
+            <div class="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-[#FAF7F5] border border-[#EAE3DE] text-xs">
               <div>
-                <span class="text-[#B45309] block text-[10px] font-bold">${currentLang === 'hi' ? 'कस्टमर कैश:' : 'Cust Cash:'}</span>
-                <span class="font-extrabold text-[#B45309]">₹${custCollected}</span>
+                <span class="text-[10px] font-bold text-[#B45309] block uppercase">${currentLang === 'hi' ? 'ग्राहक कैश:' : 'Cust Cash:'}</span>
+                <span class="font-extrabold text-sm text-[#B45309]">₹${custCash}</span>
               </div>
               <div class="text-right">
-                <span class="text-[#7A726C] block text-[10px] font-bold">${currentLang === 'hi' ? 'बकाया पेआउट:' : 'Pending Due:'}</span>
-                <span class="font-extrabold text-sm text-[#FF8A00]">₹${t.pendingBalance}</span>
+                <span class="text-[10px] font-bold text-[#065F46] block uppercase">${currentLang === 'hi' ? 'बकाया मजदूरी:' : 'Wages Due:'}</span>
+                <span class="font-extrabold text-sm text-[#008765]">₹${pendingWages}</span>
               </div>
+            </div>
+
+            <!-- Net Settlement Highlight Pill -->
+            <div class="p-2 rounded-xl text-center text-xs font-black ${netClass}">
+              ${netText}
+            </div>
+
+            <div class="text-right pt-0.5">
+              <span class="text-[11px] font-extrabold text-[#009E77] hover:underline flex items-center justify-end gap-1">
+                <span>${currentLang === 'hi' ? 'खाता व भुगतान खोलें' : 'Open Account'}</span>
+                <span>→</span>
+              </span>
             </div>
           </div>
         `;
       }).join("");
 
-      if (!currentLedgerTechId && techs.length > 0) {
-        selectTechForLedger(techs[0].tech_id);
-      }
+      // DO NOT auto-open tech 0 below! Keep the clean staff list open.
     }
 
-    // =============================================================
-    // SMART NET SETTLEMENT & DATE FILTERING CORE
-    // =============================================================
-
-    let myLedgerRawData = null;
-    let myLedgerCurrentFilter = 'all';
-
-    let adminLedgerRawData = null;
-    let adminLedgerCurrentFilter = 'all';
-
-    function isDateInPeriod(dateStr, period) {
-      if (!dateStr || period === 'all') return true;
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return true;
-      const now = new Date();
-
-      if (period === 'today') {
-        return d.getFullYear() === now.getFullYear() &&
-               d.getMonth() === now.getMonth() &&
-               d.getDate() === now.getDate();
-      } else if (period === 'week') {
-        const diffMs = now - d;
-        const diffDays = diffMs / (1000 * 60 * 60 * 24);
-        return diffDays >= -0.5 && diffDays <= 7.5;
-      } else if (period === 'month') {
-        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-      }
-      return true;
-    }
-
-    function getPeriodLabel(period) {
-      if (period === 'today') return currentLang === 'hi' ? '📅 आज (Today)' : '📅 Today';
-      if (period === 'week') return currentLang === 'hi' ? '📅 इस हफ्ते (This Week)' : '📅 This Week';
-      if (period === 'month') return currentLang === 'hi' ? '📅 इस महीने (This Month)' : '📅 This Month';
-      return currentLang === 'hi' ? '🔘 सभी समय (All Time)' : '🔘 All Time';
-    }
-
-    function renderNetSettlementBanner({ containerId, custCash, pendingWages, periodLabel }) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-
-      const cash = Number(custCash) || 0;
-      const wages = Number(pendingWages) || 0;
-      const net = cash - wages;
-
-      let resultHtml = "";
-      if (net > 0) {
-        // Tech owes company cash
-        resultHtml = `
-          <div class="p-3.5 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-900 flex items-center justify-between gap-3 shadow-xs">
-            <div class="flex items-center gap-2.5">
-              <span class="text-2xl shrink-0">🔴</span>
-              <div>
-                <p class="font-extrabold text-xs sm:text-sm tracking-tight text-rose-900">
-                  ${currentLang === 'hi' ? `टेक्नीशियन सर्विस सेंटर में जमा करेगा: ₹${net}` : `Tech to Deposit to Service Center: ₹${net}`}
-                </p>
-                <p class="text-[10px] text-rose-700 mt-0.5">
-                  ${currentLang === 'hi' ? `(कस्टमर कैश ₹${cash} - बकाया मजदूरी ₹${wages} = ₹${net} कंपनी को देय)` : `(Customer Cash ₹${cash} - Wages ₹${wages} = ₹${net} due to Co.)`}
-                </p>
-              </div>
-            </div>
-            <span class="px-2.5 py-1 rounded-xl bg-rose-200 text-rose-800 text-[10px] font-black uppercase shrink-0">
-              ${currentLang === 'hi' ? 'टेक देगा' : 'Tech to Pay'}
-            </span>
-          </div>
-        `;
-      } else if (net < 0) {
-        // Company owes tech
-        const diff = Math.abs(net);
-        resultHtml = `
-          <div class="p-3.5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 flex items-center justify-between gap-3 shadow-xs">
-            <div class="flex items-center gap-2.5">
-              <span class="text-2xl shrink-0">🟢</span>
-              <div>
-                <p class="font-extrabold text-xs sm:text-sm tracking-tight text-emerald-900">
-                  ${currentLang === 'hi' ? `सर्विस सेंटर टेक्नीशियन को देगा: ₹${diff}` : `Service Center to Pay Technician: ₹${diff}`}
-                </p>
-                <p class="text-[10px] text-emerald-700 mt-0.5">
-                  ${currentLang === 'hi' ? `(बकाया मजदूरी ₹${wages} - कस्टमर कैश ₹${cash} = ₹${diff} नेट पेआउट)` : `(Wages ₹${wages} - Customer Cash ₹${cash} = ₹${diff} net payout)`}
-                </p>
-              </div>
-            </div>
-            <span class="px-2.5 py-1 rounded-xl bg-emerald-200 text-emerald-800 text-[10px] font-black uppercase shrink-0">
-              ${currentLang === 'hi' ? 'कंपनी देगी' : 'Company to Pay'}
-            </span>
-          </div>
-        `;
-      } else {
-        // Exactly settled
-        resultHtml = `
-          <div class="p-3.5 rounded-2xl bg-sky-50 border-2 border-sky-300 text-sky-900 flex items-center justify-between gap-3 shadow-xs">
-            <div class="flex items-center gap-2.5">
-              <span class="text-2xl shrink-0">🔵</span>
-              <div>
-                <p class="font-extrabold text-xs sm:text-sm tracking-tight text-sky-900">
-                  ${currentLang === 'hi' ? 'हिसाब एकदम बराबर (All Settled ₹0)' : 'Accounts Fully Settled (₹0 Balance)'}
-                </p>
-                <p class="text-[10px] text-sky-700 mt-0.5">
-                  ${currentLang === 'hi' ? 'कंपनी और टेक्नीशियन का कोई बकाया नहीं है।' : 'No outstanding amount due between parties.'}
-                </p>
-              </div>
-            </div>
-            <span class="px-2.5 py-1 rounded-xl bg-sky-200 text-sky-800 text-[10px] font-black uppercase shrink-0">
-              ${currentLang === 'hi' ? 'बराबर' : 'Settled'}
-            </span>
-          </div>
-        `;
-      }
-
-      container.innerHTML = `
-        <div class="flex items-center justify-between pb-3 border-b border-[#EAE3DE]">
-          <div class="flex items-center gap-2">
-            <span class="w-8 h-8 rounded-2xl bg-emerald-100/80 flex items-center justify-center text-base">⚖️</span>
-            <div>
-              <h4 class="font-extrabold text-sm text-[#2D2926]">${currentLang === 'hi' ? 'स्मार्ट नेट सेटलमेंट (ऑटो हिसाब)' : 'Smart Net Settlement'}</h4>
-              <p class="text-[11px] text-[#7A726C]">${currentLang === 'hi' ? 'कंपनी और टेक्नीशियन का कुल लेना-देना' : 'Auto-calculated balance between Co. and Tech'}</p>
-            </div>
-          </div>
-          <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-[#FAF7F5] border border-[#EAE3DE] text-[#009E77]">
-            ${periodLabel || (currentLang === 'hi' ? 'सभी समय' : 'All Time')}
-          </span>
-        </div>
-
-        <!-- 2 Balance Pillars -->
-        <div class="grid grid-cols-2 gap-3 pt-3">
-          <!-- Pillar A: Customer Cash Held by Tech -->
-          <div class="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200 shadow-2xs">
-            <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold text-[#B45309] uppercase tracking-wider">${currentLang === 'hi' ? 'कस्टमर कैश (टेक के पास)' : 'Cust Cash (with Tech)'}</span>
-              <span class="text-sm">💵</span>
-            </div>
-            <div class="text-xl font-black text-[#B45309] mt-1">₹${cash}</div>
-            <p class="text-[10px] text-[#92400E] mt-0.5 font-medium">${currentLang === 'hi' ? 'कंपनी के गल्ले में जमा करना है' : 'To deposit to Company'}</p>
-          </div>
-
-          <!-- Pillar B: Pending Wages from Company -->
-          <div class="p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200 shadow-2xs">
-            <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold text-[#065F46] uppercase tracking-wider">${currentLang === 'hi' ? 'बकाया मजदूरी (कंपनी से)' : 'Pending Wages (from Co.)'}</span>
-              <span class="text-sm">🛠️</span>
-            </div>
-            <div class="text-xl font-black text-[#008765] mt-1">₹${wages}</div>
-            <p class="text-[10px] text-[#065F46] mt-0.5 font-medium">${currentLang === 'hi' ? 'कंपनी से पेआउट पाना है' : 'To receive from Company'}</p>
-          </div>
-        </div>
-
-        <!-- Final Result Box -->
-        <div class="pt-3">
-          ${resultHtml}
-        </div>
-      `;
-    }
-
-    // -------------------------------------------------------------
-    // ADMIN LEDGER ACTIONS & FILTERING
-    // -------------------------------------------------------------
-
+    // TRANSITION: OPEN DEDICATED FULL SCREEN WORKSPACE FOR SELECTED TECH
     async function selectTechForLedger(techId) {
       currentLedgerTechId = techId;
       selectedUnpaidCallIds.clear();
       updateSettleButtonState();
+
+      // Switch views: Hide tech list, show workspace
+      const listScreen = document.getElementById("ledgerTechListScreen");
+      const workspace = document.getElementById("techSettlementWorkspace");
+      if (listScreen) listScreen.classList.add("hidden");
+      if (workspace) workspace.classList.remove("hidden");
+
+      // Scroll smoothly to top of dedicated screen
+      window.scrollTo({ top: 0, behavior: "smooth" });
 
       try {
         const res = await authFetch(`/api/ledger?tech_id=${techId}`);
         const data = await res.json();
         if (data.success) {
           adminLedgerRawData = data;
-          document.getElementById("techSettlementWorkspace").classList.remove("hidden");
+          document.getElementById("settleTechNameHeader").textContent = data.tech.name;
           document.getElementById("settleTechName").textContent = data.tech.name;
           document.getElementById("settleTechMobile").textContent = `(${data.tech.mobile})`;
           
-          const custCashEl = document.getElementById("settleTechCustCollected");
-          if (custCashEl) custCashEl.textContent = `₹${data.summary.totalCustomerCollected || 0}`;
-          document.getElementById("settleTechEarned").textContent = `₹${data.summary.totalEarned}`;
-          document.getElementById("settleTechPaid").textContent = `₹${data.summary.totalPaid}`;
-          document.getElementById("settleTechPending").textContent = `₹${data.summary.pendingBalance}`;
-
           applyAdminLedgerFilter();
         }
       } catch (e) {}
     }
 
-    function setAdminLedgerDateFilter(period) {
-      adminLedgerCurrentFilter = period;
-      document.querySelectorAll("#adminLedgerDateFilterPills button").forEach(btn => {
-        const p = btn.getAttribute("data-period");
-        if (p === period) {
-          btn.className = "admin-filter-pill px-3 py-1 rounded-full text-xs font-bold transition bg-[#009E77] text-white shadow-xs cursor-pointer";
-        } else {
-          btn.className = "admin-filter-pill px-3 py-1 rounded-full text-xs font-bold transition bg-white border border-[#EAE3DE] text-[#7A726C] hover:border-[#00C496] cursor-pointer";
-        }
-      });
-      applyAdminLedgerFilter();
+    // TRANSITION: GO BACK TO STAFF LIST SCREEN
+    function backToTechList() {
+      const listScreen = document.getElementById("ledgerTechListScreen");
+      const workspace = document.getElementById("techSettlementWorkspace");
+      if (workspace) workspace.classList.add("hidden");
+      if (listScreen) listScreen.classList.remove("hidden");
+      currentLedgerTechId = null;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      loadLedgerData();
     }
 
-    function applyAdminLedgerFilter() {
-      if (!adminLedgerRawData) return;
-      const unpaid = adminLedgerRawData.unpaidCalls || [];
-      const filteredUnpaid = unpaid.filter(c => isDateInPeriod(c.completed_at || c.created_at, adminLedgerCurrentFilter));
+    // -------------------------------------------------------------
+    // DIRECT PAYMENT & CASH DEPOSIT MODALS HANDLERS
+    // -------------------------------------------------------------
 
-      const filteredUnpaidWages = filteredUnpaid.reduce((s, c) => {
-        const amt = c.admin_edited_amount !== null && c.admin_edited_amount !== undefined ? c.admin_edited_amount : c.tech_payout_amount;
-        return s + (Number(amt) || 0);
-      }, 0);
-
-      const filteredUnpaidCustCash = filteredUnpaid.reduce((s, c) => s + (Number(c.customer_extra_collected) || 0), 0);
-
-      renderNetSettlementBanner({
-        containerId: "adminNetSettlementHero",
-        custCash: filteredUnpaidCustCash,
-        pendingWages: filteredUnpaidWages,
-        periodLabel: getPeriodLabel(adminLedgerCurrentFilter)
-      });
-
-      renderUnpaidChecklist(filteredUnpaid);
-
-      const batches = (adminLedgerRawData.batches || []).filter(b => isDateInPeriod(b.paid_at, adminLedgerCurrentFilter));
-      renderTechPastBatches(batches);
+    function openDirectPaymentModal() {
+      if (!adminLedgerRawData || !adminLedgerRawData.tech) return;
+      document.getElementById("directPayTechName").textContent = adminLedgerRawData.tech.name;
+      document.getElementById("directPaymentAmountInput").value = "";
+      document.getElementById("directPaymentRemarksInput").value = "";
+      openModal("directPaymentModal");
     }
 
-    function renderUnpaidChecklist(unpaidCalls) {
-      const container = document.getElementById("unpaidCallsCheckboxList");
-      if (!unpaidCalls || unpaidCalls.length === 0) {
-        container.innerHTML = `<p class="text-xs text-[#008765] font-bold py-3 text-center bg-emerald-50/50 rounded-2xl border border-dashed border-emerald-200">${currentLang === "hi" ? "इस समय सीमा में कोई बकाया कॉल नहीं है!" : "No unpaid calls found for this period!"}</p>`;
+    async function submitDirectPayment() {
+      if (!currentLedgerTechId) return;
+      const amount = Number(document.getElementById("directPaymentAmountInput").value);
+      if (!amount || amount <= 0) {
+        showToast(currentLang === 'hi' ? 'कृपया मान्य राशि दर्ज करें।' : 'Please enter a valid amount.');
         return;
       }
 
-      container.innerHTML = unpaidCalls.map(c => {
-        const isEdited = c.admin_edited_amount !== null && c.admin_edited_amount !== undefined;
-        const amount = isEdited ? c.admin_edited_amount : c.tech_payout_amount;
-        const custCash = Number(c.customer_extra_collected) || 0;
-        const net = custCash - amount;
+      const mode = document.getElementById("directPaymentTypeInput").value;
+      const remarks = document.getElementById("directPaymentRemarksInput").value;
+      const btn = document.getElementById("btnSubmitDirectPayment");
+      btn.disabled = true;
 
-        let netBadge = "";
-        if (net > 0) {
-          netBadge = `<span class="text-[10px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">🔴 ${currentLang === 'hi' ? `टेक ₹${net} देगा` : `Tech pays ₹${net}`}</span>`;
-        } else if (net < 0) {
-          netBadge = `<span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">🟢 ${currentLang === 'hi' ? `कंपनी ₹${Math.abs(net)} देगी` : `Co. pays ₹${Math.abs(net)}`}</span>`;
+      try {
+        const res = await authFetch("/api/ledger", {
+          method: "POST",
+          body: JSON.stringify({
+            tech_id: currentLedgerTechId,
+            amount_paid: amount,
+            payment_mode: mode,
+            remarks: remarks
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeModal("directPaymentModal");
+          showToast(currentLang === 'hi' ? `₹${amount} का भुगतान सफलतापूर्वक दर्ज हुआ!` : `Payment of ₹${amount} recorded!`);
+          selectTechForLedger(currentLedgerTechId);
         } else {
-          netBadge = `<span class="text-[10px] font-extrabold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">🔵 ${currentLang === 'hi' ? '₹0 बराबर' : '₹0 Settled'}</span>`;
+          showToast(data.error || 'Payment failed');
         }
-
-        return `
-          <label class="p-3.5 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#00C496] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 cursor-pointer text-xs transition shadow-xs">
-            <div class="flex items-start gap-3">
-              <input type="checkbox" value="${c.id}" data-amount="${amount}" onchange="handleCallCheckboxChange(this)" class="mt-1 w-4 h-4 rounded text-[#009E77] border-[#EAE3DE] focus:ring-[#00C496] cursor-pointer shrink-0" />
-              <div>
-                <div class="flex items-center gap-2">
-                  <p class="font-extrabold text-sm text-[#2D2926]">${c.complaint_number}</p>
-                  <span class="text-xs font-semibold text-[#7A726C]">• ${c.customer_name}</span>
-                </div>
-                <p class="text-[11px] text-[#7A726C] mt-0.5">📅 ${new Date(c.completed_at || c.created_at).toLocaleDateString()} | ${c.customer_mobile || ''}</p>
-                ${c.customer_extra_remark ? `<p class="text-[10px] text-[#B45309] font-medium mt-1">🏷️ ${c.customer_extra_remark}</p>` : ''}
-                ${c.admin_edit_remark ? `<p class="text-[10px] text-[#FF8A00] font-semibold mt-0.5">${c.admin_edit_remark}</p>` : ''}
-              </div>
-            </div>
-            
-            <div class="flex items-center sm:flex-col sm:items-end justify-between gap-1.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#EAE3DE]/60 shrink-0">
-              <div class="flex items-center gap-2">
-                <span class="text-[10px] font-bold text-[#065F46] bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">${currentLang === 'hi' ? 'मजदूरी:' : 'Wage:'} +₹${amount}</span>
-                <span class="text-[10px] font-bold text-[#B45309] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">${currentLang === 'hi' ? 'कैश:' : 'Cash:'} ₹${custCash}</span>
-              </div>
-              <div class="mt-1">
-                ${netBadge}
-              </div>
-            </div>
-          </label>
-        `;
-      }).join("");
-    }
-
-    function handleCallCheckboxChange(cb) {
-      const id = Number(cb.value);
-      if (cb.checked) {
-        selectedUnpaidCallIds.add(id);
-      } else {
-        selectedUnpaidCallIds.delete(id);
+      } catch (e) {
+        showToast('Error recording payment');
+      } finally {
+        btn.disabled = false;
       }
-      updateSettleButtonState();
     }
 
-    function toggleSelectAllUnpaid() {
-      const checkboxes = document.querySelectorAll("#unpaidCallsCheckboxList input[type='checkbox']");
-      const shouldCheck = selectedUnpaidCallIds.size < checkboxes.length;
-      checkboxes.forEach(cb => {
-        cb.checked = shouldCheck;
-        const id = Number(cb.value);
-        if (shouldCheck) selectedUnpaidCallIds.add(id);
-        else selectedUnpaidCallIds.delete(id);
-      });
-      updateSettleButtonState();
+    function openCustomerCashDepositModal() {
+      if (!adminLedgerRawData || !adminLedgerRawData.tech) return;
+      document.getElementById("cashDepositTechName").textContent = adminLedgerRawData.tech.name;
+      document.getElementById("cashDepositAmountInput").value = "";
+      document.getElementById("cashDepositRemarksInput").value = "";
+      openModal("customerCashDepositModal");
     }
 
-    function updateSettleButtonState() {
-      const btn = document.getElementById("btnOpenBulkPay");
-      const lbl = document.getElementById("lblSettleSelectedBtn");
+    async function submitCustomerCashDeposit() {
+      if (!currentLedgerTechId) return;
+      const amount = Number(document.getElementById("cashDepositAmountInput").value);
+      if (!amount || amount <= 0) {
+        showToast(currentLang === 'hi' ? 'कृपया मान्य राशि दर्ज करें।' : 'Please enter a valid amount.');
+        return;
+      }
 
-      let totalSelected = 0;
-      document.querySelectorAll("#unpaidCallsCheckboxList input[type='checkbox']:checked").forEach(cb => {
-        totalSelected += Number(cb.dataset.amount || 0);
-      });
+      const remarks = document.getElementById("cashDepositRemarksInput").value;
+      const btn = document.getElementById("btnSubmitCashDeposit");
+      btn.disabled = true;
 
-      lbl.textContent = currentLang === 'hi' ? `चुनी हुई कॉल्स का भुगतान करें (₹${totalSelected})` : `Mark Selected as Paid (₹${totalSelected})`;
-      btn.disabled = totalSelected === 0;
-    }
-
-    function openBulkPayModal() {
-      let totalSelected = 0;
-      document.querySelectorAll("#unpaidCallsCheckboxList input[type='checkbox']:checked").forEach(cb => {
-        totalSelected += Number(cb.dataset.amount || 0);
-      });
-
-      document.getElementById("bulkPayAmountInput").value = totalSelected;
-      document.getElementById("bulkPayRemarksInput").value = `UPI settlement for ${selectedUnpaidCallIds.size} calls`;
-      openModal("bulkPayModal");
+      try {
+        const res = await authFetch("/api/ledger", {
+          method: "POST",
+          body: JSON.stringify({
+            tech_id: currentLedgerTechId,
+            amount_paid: amount,
+            payment_mode: "customer_cash_deposit",
+            remarks: remarks || "काउंटर पर कस्टमर कैश जमा"
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeModal("customerCashDepositModal");
+          showToast(currentLang === 'hi' ? `₹${amount} कस्टमर कैश काउंटर पर जमा दर्ज हुआ!` : `Customer cash of ₹${amount} deposited at counter!`);
+          selectTechForLedger(currentLedgerTechId);
+        } else {
+          showToast(data.error || 'Deposit recording failed');
+        }
+      } catch (e) {
+        showToast('Error recording deposit');
+      } finally {
+        btn.disabled = false;
+      }
     }
 
     function renderTechPastBatches(batches) {
       const container = document.getElementById("techPastBatchesList");
       if (!batches || batches.length === 0) {
-        container.innerHTML = `<p class="text-xs text-[#8C827A]">${currentLang === 'hi' ? 'इस अवधि में कोई भुगतान रसीद नहीं है।' : 'No past payment batches in this period.'}</p>`;
+        container.innerHTML = `<p class="text-xs text-[#8C827A] py-3 text-center">${currentLang === 'hi' ? 'इस अवधि में कोई भुगतान रसीद नहीं है।' : 'No past payment batches in this period.'}</p>`;
         return;
       }
 
       container.innerHTML = batches.map(b => {
-        return `
-          <div class="p-3 rounded-2xl bg-[#FAF7F5] border border-white flex items-center justify-between text-xs">
-            <div>
-              <p class="font-bold text-[#2D2926]">₹${b.amount_paid} Paid on ${new Date(b.paid_at).toLocaleDateString()}</p>
-              <p class="text-[11px] text-[#7A726C]">${b.remarks || 'UPI Payment'}</p>
-            </div>
-            ${b.payment_screenshot_url ? `<a href="${b.payment_screenshot_url}" target="_blank" class="px-2.5 py-1 rounded-xl bg-white border border-[#EAE3DE] text-[10px] font-bold text-[#009E77] hover:underline">View Receipt</a>` : ''}
-          </div>
-        `;
-      }).join("");
-    }
+        const mode = getBatchMode(b);
+        let badgeHtml = "";
+        let borderClass = "border-[#EAE3DE]";
+        let bgClass = "bg-[#FAF7F5]";
 
-    // -------------------------------------------------------------
-    // TECHNICIAN "MY LEDGER" (PASSBOOK & NET SETTLEMENT)
-    // -------------------------------------------------------------
-
-    async function loadMyLedgerData() {
-      if (!currentUser || currentUser.role !== "third_party_tech") return;
-      try {
-        const res = await authFetch("/api/ledger");
-        const data = await res.json();
-        if (data.success) {
-          myLedgerRawData = data;
-          renderMyPaymentBatches(data.batches || []);
-          applyMyLedgerFilter();
-        }
-      } catch (e) {}
-    }
-
-    function setMyLedgerDateFilter(period) {
-      myLedgerCurrentFilter = period;
-      document.querySelectorAll("#myLedgerDateFilterPills button").forEach(btn => {
-        const p = btn.getAttribute("data-period");
-        if (p === period) {
-          btn.className = "my-filter-pill px-3 py-1.5 rounded-full text-xs font-bold transition bg-[#009E77] text-white shadow-xs cursor-pointer";
+        if (mode === "customer_cash_deposit") {
+          badgeHtml = `<span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-200">📥 काउंटर कैश जमा</span>`;
+          borderClass = "border-amber-200";
+          bgClass = "bg-amber-50/40";
+        } else if (mode === "advance") {
+          badgeHtml = `<span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-purple-100 text-purple-800 border border-purple-200">🎁 एडवांस</span>`;
+        } else if (mode === "cash") {
+          badgeHtml = `<span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">💵 नकद भुगतान</span>`;
         } else {
-          btn.className = "my-filter-pill px-3 py-1.5 rounded-full text-xs font-bold transition bg-white border border-[#EAE3DE] text-[#7A726C] hover:border-[#00C496] cursor-pointer";
+          badgeHtml = `<span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-sky-100 text-sky-800 border border-sky-200">⚡ UPI बैच</span>`;
         }
-      });
-      applyMyLedgerFilter();
-    }
-
-    function applyMyLedgerFilter() {
-      if (!myLedgerRawData) return;
-      const allCompleted = [...(myLedgerRawData.unpaidCalls || []), ...(myLedgerRawData.paidCalls || [])];
-      const filteredCalls = allCompleted.filter(c => isDateInPeriod(c.completed_at || c.created_at, myLedgerCurrentFilter));
-
-      // Metrics calculation for the filtered calls
-      const filteredEarned = filteredCalls.reduce((s, c) => {
-        const amt = c.admin_edited_amount !== null && c.admin_edited_amount !== undefined ? c.admin_edited_amount : c.tech_payout_amount;
-        return s + (Number(amt) || 0);
-      }, 0);
-
-      const filteredCustomerCash = filteredCalls.reduce((s, c) => s + (Number(c.customer_extra_collected) || 0), 0);
-
-      const filteredUnpaidCalls = filteredCalls.filter(c => c.payout_status === 'unpaid');
-      const filteredPendingWages = filteredUnpaidCalls.reduce((s, c) => {
-        const amt = c.admin_edited_amount !== null && c.admin_edited_amount !== undefined ? c.admin_edited_amount : c.tech_payout_amount;
-        return s + (Number(amt) || 0);
-      }, 0);
-
-      const filteredUnpaidCustCash = filteredUnpaidCalls.reduce((s, c) => s + (Number(c.customer_extra_collected) || 0), 0);
-
-      // Update 4 quick tiles
-      document.getElementById("myPassTotalCalls").textContent = filteredCalls.length;
-      document.getElementById("myPassEarned").textContent = `₹${filteredEarned}`;
-      
-      const custTileEl = document.getElementById("myPassCustCash");
-      if (custTileEl) custTileEl.textContent = `₹${filteredCustomerCash}`;
-
-      document.getElementById("myPassPending").textContent = `₹${filteredPendingWages}`;
-
-      // Render Smart Net Settlement Banner
-      // For settlement hero, we show unpaid wages vs customer cash held
-      renderNetSettlementBanner({
-        containerId: "myNetSettlementHero",
-        custCash: filteredCustomerCash,
-        pendingWages: filteredPendingWages,
-        periodLabel: getPeriodLabel(myLedgerCurrentFilter)
-      });
-
-      renderMyPassbookCalls(filteredCalls);
-    }
-
-    function renderMyPassbookCalls(calls) {
-      const container = document.getElementById("myPassbookCallsList");
-      if (!calls || calls.length === 0) {
-        container.innerHTML = `<p class="text-xs text-[#8C827A] py-6 text-center font-medium bg-[#FAF7F5] rounded-2xl border border-dashed border-[#EAE3DE]">${currentLang === 'hi' ? 'इस समय सीमा में कोई पूर्ण कॉल नहीं मिली।' : 'No completed calls found in this period.'}</p>`;
-        return;
-      }
-
-      container.innerHTML = calls.map(c => {
-        const isEdited = c.admin_edited_amount !== null && c.admin_edited_amount !== undefined;
-        const amount = isEdited ? c.admin_edited_amount : c.tech_payout_amount;
-        const custCash = Number(c.customer_extra_collected) || 0;
-        const net = custCash - amount;
-
-        let callNetText = "";
-        let callNetColor = "";
-        if (net > 0) {
-          callNetText = currentLang === 'hi' ? `🔴 -₹${net} (कंपनी को देय)` : `🔴 -₹${net} (To Deposit)`;
-          callNetColor = "text-rose-700";
-        } else if (net < 0) {
-          const diff = Math.abs(net);
-          callNetText = currentLang === 'hi' ? `🟢 +₹${diff} (कंपनी से देय)` : `🟢 +₹${diff} (To Receive)`;
-          callNetColor = "text-emerald-700";
-        } else {
-          callNetText = currentLang === 'hi' ? `🔵 ₹0 (बराबर)` : `🔵 ₹0 (Settled)`;
-          callNetColor = "text-sky-700";
-        }
-
-        const isPaid = c.payout_status === 'paid';
 
         return `
-          <div class="p-4 rounded-2xl bg-white border border-[#EAE3DE] hover:border-[#00C496] shadow-xs space-y-2.5 transition">
-            <div class="flex items-start justify-between gap-2">
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="font-extrabold text-sm text-[#2D2926]">${c.complaint_number}</span>
-                  <span class="text-xs font-semibold text-[#7A726C]">• ${c.customer_name}</span>
-                </div>
-                <p class="text-[11px] text-[#7A726C] mt-0.5">
-                  📅 ${new Date(c.completed_at || c.created_at).toLocaleDateString()}
-                  ${c.customer_address ? ` | 📍 ${c.customer_address}` : ''}
-                </p>
+          <div class="p-3 rounded-2xl ${bgClass} border ${borderClass} flex items-center justify-between text-xs transition shadow-2xs">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="font-black text-sm text-[#2D2926]">₹${b.amount_paid}</span>
+                ${badgeHtml}
               </div>
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase shrink-0 ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                ${isPaid ? (currentLang === 'hi' ? 'चुक्ता (PAID)' : 'PAID') : (currentLang === 'hi' ? 'बकाया (UNPAID)' : 'UNPAID')}
-              </span>
+              <p class="text-[11px] text-[#7A726C] font-medium">${b.remarks || 'Payment'}</p>
+              <p class="text-[10px] text-[#8C827A]">📅 ${new Date(b.paid_at).toLocaleDateString()} ${new Date(b.paid_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
             </div>
-
-            <!-- 3-Pillar Financial Breakdown of Call -->
-            <div class="p-2.5 rounded-xl bg-[#FAF7F5] border border-[#EAE3DE] grid grid-cols-3 gap-2 text-center text-xs">
-              <!-- Pillar 1: Tech Labor Fee -->
-              <div class="p-1.5 rounded-lg bg-white border border-[#EAE3DE]">
-                <span class="text-[9px] font-bold text-[#065F46] block uppercase tracking-tight">${currentLang === 'hi' ? 'टेक मजदूरी' : 'Tech Fee'}</span>
-                <span class="text-xs font-black text-[#008765]">+₹${amount}</span>
-              </div>
-              <!-- Pillar 2: Customer Cash Collected -->
-              <div class="p-1.5 rounded-lg bg-white border border-[#EAE3DE]">
-                <span class="text-[9px] font-bold text-[#B45309] block uppercase tracking-tight">${currentLang === 'hi' ? 'ग्राहक कैश' : 'Cust Cash'}</span>
-                <span class="text-xs font-black text-[#B45309]">₹${custCash}</span>
-              </div>
-              <!-- Pillar 3: Net for Call -->
-              <div class="p-1.5 rounded-lg bg-white border border-[#EAE3DE]">
-                <span class="text-[9px] font-bold text-[#7A726C] block uppercase tracking-tight">${currentLang === 'hi' ? 'कॉल नेट हिसाब' : 'Call Net'}</span>
-                <span class="text-[10px] font-black block mt-0.5 truncate ${callNetColor}">${callNetText}</span>
-              </div>
-            </div>
-
-            ${c.customer_extra_remark ? `
-              <p class="text-[10px] text-[#B45309] font-medium bg-amber-50/70 px-2.5 py-1 rounded-lg border border-amber-100">
-                🏷️ ${currentLang === 'hi' ? 'ग्राहक कैश विवरण:' : 'Customer Cash Note:'} ${c.customer_extra_remark}
-              </p>
-            ` : ''}
-
-            ${c.admin_edit_remark ? `
-              <p class="text-[10px] text-[#FF8A00] font-semibold bg-orange-50 px-2.5 py-1 rounded-lg">
-                ⚠️ ${currentLang === 'hi' ? 'एडमिन नोट:' : 'Admin Note:'} ${c.admin_edit_remark}
-              </p>
-            ` : ''}
+            ${b.payment_screenshot_url ? `<a href="${b.payment_screenshot_url}" target="_blank" class="px-2.5 py-1 rounded-xl bg-white border border-[#EAE3DE] text-[10px] font-bold text-[#009E77] hover:underline shrink-0">रसीद देखें</a>` : ''}
           </div>
         `;
       }).join("");
@@ -4527,77 +4278,44 @@
     function renderMyPaymentBatches(batches) {
       const container = document.getElementById("myPaymentBatchesList");
       if (!batches || batches.length === 0) {
-        container.innerHTML = `<p class="text-xs text-[#8C827A]">${currentLang === 'hi' ? 'कोई भुगतान रसीद नहीं है।' : 'No payment receipts yet.'}</p>`;
+        container.innerHTML = `<p class="text-xs text-[#8C827A] py-3 text-center">${currentLang === 'hi' ? 'कोई भुगतान रसीद नहीं है।' : 'No payment receipts yet.'}</p>`;
         return;
       }
 
       container.innerHTML = batches.map(b => {
+        const mode = getBatchMode(b);
+        let badgeHtml = "";
+        let borderClass = "border-[#EAE3DE]";
+        let bgClass = "bg-[#FAF7F5]";
+
+        if (mode === "customer_cash_deposit") {
+          badgeHtml = `<span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-200">📥 काउंटर पर जमा</span>`;
+          borderClass = "border-amber-200";
+          bgClass = "bg-amber-50/40";
+        } else if (mode === "advance") {
+          badgeHtml = `<span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-purple-100 text-purple-800 border border-purple-200">🎁 एडवांस मिला</span>`;
+        } else if (mode === "cash") {
+          badgeHtml = `<span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">💵 नकद प्राप्त</span>`;
+        } else {
+          badgeHtml = `<span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-sky-100 text-sky-800 border border-sky-200">⚡ UPI प्राप्त</span>`;
+        }
+
         return `
-          <div class="p-3 rounded-2xl bg-[#FAF7F5] border border-white flex items-center justify-between text-xs">
-            <div>
-              <p class="font-bold text-[#008765] text-sm">₹${b.amount_paid} Received</p>
-              <p class="text-[11px] text-[#7A726C]">${b.remarks} (${new Date(b.paid_at).toLocaleDateString()})</p>
+          <div class="p-3 rounded-2xl ${bgClass} border ${borderClass} flex items-center justify-between text-xs transition shadow-2xs">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="font-black text-sm text-[#008765]">₹${b.amount_paid}</span>
+                ${badgeHtml}
+              </div>
+              <p class="text-[11px] text-[#7A726C] font-medium">${b.remarks || 'Payment'}</p>
+              <p class="text-[10px] text-[#8C827A]">📅 ${new Date(b.paid_at).toLocaleDateString()} ${new Date(b.paid_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
             </div>
-            ${b.payment_screenshot_url ? `<a href="${b.payment_screenshot_url}" target="_blank" class="px-2.5 py-1 rounded-xl bg-white border border-[#EAE3DE] text-[10px] font-bold text-[#009E77] hover:underline">View UPI Proof</a>` : ''}
+            ${b.payment_screenshot_url ? `<a href="${b.payment_screenshot_url}" target="_blank" class="px-2.5 py-1 rounded-xl bg-white border border-[#EAE3DE] text-[10px] font-bold text-[#009E77] hover:underline shrink-0">रसीद देखें</a>` : ''}
           </div>
         `;
       }).join("");
     }
-
-    async function loadMyStockAndAssets() {
-      if (!currentUser) return;
-
-      // 1. If tech, load parts in custody
-      const stockSection = document.getElementById("myStockInHandSection");
-      if (currentUser.role === "third_party_tech") {
-        stockSection.classList.remove("hidden");
-        try {
-          const res = await authFetch("/api/inventory?status=assigned_to_tech");
-          const data = await res.json();
-          const container = document.getElementById("myStockInHandList");
-          if (data.success && data.items && data.items.length > 0) {
-            container.innerHTML = data.items.map(item => `
-              <div class="p-3 rounded-2xl bg-[#FAF7F5] border border-white flex items-center justify-between text-xs">
-                <div>
-                  <p class="font-bold text-[#2D2926]">${item.part_name}</p>
-                  <p class="text-[11px] text-[#009E77] font-mono">SN: ${item.serial_number}</p>
-                </div>
-                <span class="px-2 py-0.5 rounded-xl text-[10px] font-bold badge-handover">In Custody</span>
-              </div>
-            `).join("");
-          } else {
-            container.innerHTML = `<p class="text-xs text-[#8C827A]">No parts currently in your custody.</p>`;
-          }
-        } catch (e) {}
-      } else {
-        stockSection.classList.add("hidden");
-      }
-
-      // 2. Load Company Assets
-      try {
-        const res = await authFetch("/api/assets");
-        const data = await res.json();
-        const container = document.getElementById("myAssignedAssetsList");
-        if (data.success && data.assets && data.assets.length > 0) {
-          container.innerHTML = data.assets.map(a => `
-            <div class="p-3.5 rounded-2xl bg-[#FAF7F5] border border-white flex items-center justify-between text-xs">
-              <div>
-                <p class="font-bold text-[#2D2926]">${a.asset_name}</p>
-                <p class="text-[11px] text-[#7A726C] font-mono">Code: ${a.asset_code || 'N/A'}</p>
-              </div>
-              <span class="px-2.5 py-0.5 rounded-xl font-bold text-[10px] ${a.status === 'active' ? 'bg-[#D9F7EE] text-[#008765]' : 'bg-[#EAE3DE] text-[#7A726C]'}">
-                ${a.status.toUpperCase()}
-              </span>
-            </div>
-          `).join("");
-        } else {
-          container.innerHTML = `<p class="text-xs text-[#8C827A]">No company assets currently issued to you.</p>`;
-        }
-      } catch (e) {}
-      lucide.createIcons();
-    }
-
-    // -------------------------------------------------------------
+// -------------------------------------------------------------
     // STAFF & ASSETS DIRECTORY (ADMIN)
     // -------------------------------------------------------------
 
@@ -5415,5 +5133,94 @@
       }
     });
   </script>
+
+  <!-- DIRECT CASH / ADVANCE PAYMENT MODAL -->
+  <div id="directPaymentModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+    <div class="clay-card-white p-6 rounded-[32px] w-full max-w-md space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[#EAE3DE]">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">💵</span>
+          <div>
+            <h3 class="font-extrabold text-sm text-[#2D2926]">नकद भुगतान या एडवांस दर्ज करें</h3>
+            <p class="text-[11px] text-[#7A726C]">कर्मचारी को सीधे नकद, एडवांस या मनचाही राशि दें</p>
+          </div>
+        </div>
+        <button onclick="closeModal('directPaymentModal')" class="text-[#7A726C] hover:text-[#2D2926] p-1 font-bold text-lg cursor-pointer">✕</button>
+      </div>
+
+      <!-- Tech Name (Locked) -->
+      <div class="p-3 rounded-2xl bg-[#FAF7F5] border border-[#EAE3DE] flex items-center justify-between">
+        <span class="text-xs font-bold text-[#7A726C]">कर्मचारी / टेक्नीशियन:</span>
+        <span id="directPayTechName" class="text-xs font-extrabold text-[#009E77]">Vishal Kumar</span>
+      </div>
+
+      <!-- Payment Type -->
+      <div>
+        <label class="block text-xs font-bold text-[#2D2926] mb-1">भुगतान का प्रकार (Payment Mode) *</label>
+        <select id="directPaymentTypeInput" class="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3DE] text-xs font-bold text-[#2D2926] focus:border-[#009E77] bg-white">
+          <option value="cash">💵 नकद भुगतान (Cash in Hand)</option>
+          <option value="advance">🎁 एडवांस दिया (Advance Payment)</option>
+          <option value="upi">⚡ UPI / ऑनलाइन बैंक ट्रांसफर</option>
+        </select>
+      </div>
+
+      <!-- Amount Input -->
+      <div>
+        <label class="block text-xs font-bold text-[#2D2926] mb-1">दी गई राशि (Amount in ₹) *</label>
+        <input type="number" id="directPaymentAmountInput" placeholder="उदा. 500, 1000, 2000" class="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3DE] text-base font-extrabold text-[#009E77] focus:border-[#009E77] bg-white" />
+      </div>
+
+      <!-- Remarks Input -->
+      <div>
+        <label class="block text-xs font-bold text-[#2D2926] mb-1">रिमार्क / कारण (Remarks / Note)</label>
+        <input type="text" id="directPaymentRemarksInput" placeholder="उदा. हाथ में नकद दिया, दीपावली एडवांस, पेट्रोल खर्च" class="w-full px-3.5 py-2 rounded-xl border border-[#EAE3DE] text-xs text-[#2D2926] focus:border-[#009E77] bg-white" />
+      </div>
+
+      <div class="pt-2 flex items-center justify-end gap-2">
+        <button onclick="closeModal('directPaymentModal')" class="px-4 py-2 rounded-xl border border-[#EAE3DE] text-xs font-bold text-[#7A726C] hover:bg-[#FAF7F5] cursor-pointer">रद्द करें</button>
+        <button onclick="submitDirectPayment()" id="btnSubmitDirectPayment" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xs cursor-pointer">भुगतान दर्ज करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER CASH DEPOSIT AT COUNTER MODAL -->
+  <div id="customerCashDepositModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+    <div class="clay-card-white p-6 rounded-[32px] w-full max-w-md space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[#EAE3DE]">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📥</span>
+          <div>
+            <h3 class="font-extrabold text-sm text-[#2D2926]">काउंटर पर कस्टमर कैश जमा करें</h3>
+            <p class="text-[11px] text-[#7A726C]">जब टेक फील्ड से लाया हुआ कैश सर्विस सेंटर पर जमा कराए</p>
+          </div>
+        </div>
+        <button onclick="closeModal('customerCashDepositModal')" class="text-[#7A726C] hover:text-[#2D2926] p-1 font-bold text-lg cursor-pointer">✕</button>
+      </div>
+
+      <!-- Tech Name (Locked) -->
+      <div class="p-3 rounded-2xl bg-[#FAF7F5] border border-[#EAE3DE] flex items-center justify-between">
+        <span class="text-xs font-bold text-[#7A726C]">जमाकर्ता टेक्नीशियन:</span>
+        <span id="cashDepositTechName" class="text-xs font-extrabold text-[#B45309]">Vishal Kumar</span>
+      </div>
+
+      <!-- Amount Input -->
+      <div>
+        <label class="block text-xs font-bold text-[#2D2926] mb-1">काउंटर पर जमा कैश (Amount in ₹) *</label>
+        <input type="number" id="cashDepositAmountInput" placeholder="उदा. 600, 1350" class="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3DE] text-base font-extrabold text-[#B45309] focus:border-[#009E77] bg-white" />
+      </div>
+
+      <!-- Remarks Input -->
+      <div>
+        <label class="block text-xs font-bold text-[#2D2926] mb-1">रिमार्क (Remarks / Note)</label>
+        <input type="text" id="cashDepositRemarksInput" placeholder="उदा. कस्टमर कैश काउंटर पर जमा किया" class="w-full px-3.5 py-2 rounded-xl border border-[#EAE3DE] text-xs text-[#2D2926] focus:border-[#009E77] bg-white" />
+      </div>
+
+      <div class="pt-2 flex items-center justify-end gap-2">
+        <button onclick="closeModal('customerCashDepositModal')" class="px-4 py-2 rounded-xl border border-[#EAE3DE] text-xs font-bold text-[#7A726C] hover:bg-[#FAF7F5] cursor-pointer">रद्द करें</button>
+        <button onclick="submitCustomerCashDeposit()" id="btnSubmitCashDeposit" class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold shadow-xs cursor-pointer">कैश जमा सुरक्षित करें</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
