@@ -18,11 +18,26 @@ export async function onRequestGet({ request, env }) {
 
     // 1. Try KV first
     if (env.KV) {
-      // Direct product key
-      product = await env.KV.get(`product:${cleanSerial}`, "json");
+      // Direct product key or item key
+      product = (await env.KV.get(`product:${cleanSerial}`, "json")) || (await env.KV.get(`item:${cleanSerial.toUpperCase()}`, "json"));
       timeline = (await env.KV.get(`timeline:${cleanSerial}`, "json")) || [];
 
-      // If not found by exact key, search in products_list (case-insensitive)
+      // If not found by exact key, search in products_list or inventory_list
+      if (!product) {
+        const invList = (await env.KV.get("inventory_list", "json")) || [];
+        const foundInv = invList.find((p) => String(p.serial_number || "").trim().toUpperCase() === cleanSerial.toUpperCase());
+        if (foundInv) {
+          product = {
+            id: foundInv.id,
+            serial_number: foundInv.serial_number,
+            name: foundInv.part_name,
+            model: foundInv.model_number,
+            current_status: foundInv.status,
+            updated_at: foundInv.created_at,
+          };
+        }
+      }
+
       if (!product) {
         const list = (await env.KV.get("products_list", "json")) || [];
         product = list.find((p) => String(p.serial_number || "").trim().toUpperCase() === cleanSerial.toUpperCase());
@@ -46,9 +61,25 @@ export async function onRequestGet({ request, env }) {
     // 2. Try D1 if product not found yet
     if (!product && env.DB) {
       try {
-        product = await env.DB.prepare(
-          "SELECT * FROM products WHERE UPPER(serial_number) = UPPER(?)"
+        const invRow = await env.DB.prepare(
+          "SELECT * FROM inventory_items WHERE UPPER(serial_number) = UPPER(?)"
         ).bind(cleanSerial).first();
+        if (invRow) {
+          product = {
+            id: invRow.id,
+            serial_number: invRow.serial_number,
+            name: invRow.part_name,
+            model: invRow.model_number,
+            current_status: invRow.status,
+            updated_at: invRow.created_at,
+          };
+        }
+
+        if (!product) {
+          product = await env.DB.prepare(
+            "SELECT * FROM products WHERE UPPER(serial_number) = UPPER(?)"
+          ).bind(cleanSerial).first();
+        }
 
         const { results } = await env.DB.prepare(
           "SELECT * FROM audit_trail WHERE UPPER(serial_number) = UPPER(?) ORDER BY timestamp ASC"
