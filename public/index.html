@@ -42,22 +42,22 @@
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
     :root {
-      --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-      --bg-canvas: #EDE8E4;
+      --font-main: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Plus Jakarta Sans", "Helvetica Neue", sans-serif;
+      --bg-canvas: #F2F2F7;
       --clay-teal: linear-gradient(135deg, #00C496 0%, #009E77 100%);
       --clay-orange: linear-gradient(135deg, #FF9500 0%, #FF6E00 100%);
-      --clay-purple: linear-gradient(135deg, #B588F8 0%, #9055E8 100%);
-      --clay-white: linear-gradient(180deg, #FFFFFF 0%, #F8F5F2 100%);
-      --clay-rose: linear-gradient(135deg, #FF6584 0%, #E8365B 100%);
-      --clay-slate: linear-gradient(135deg, #718096 0%, #4A5568 100%);
+      --clay-purple: linear-gradient(135deg, #AF52DE 0%, #8E24AA 100%);
+      --clay-white: #FFFFFF;
+      --clay-rose: linear-gradient(135deg, #FF3B30 0%, #E8365B 100%);
+      --clay-slate: linear-gradient(135deg, #636366 0%, #48484A 100%);
     }
 
     body {
       font-family: var(--font-main);
-      background: radial-gradient(circle at 50% 12%, #FAF6F3 0%, #EDE6E1 45%, #DFD6D0 100%);
-      background-attachment: fixed;
-      color: #2D2926;
+      background-color: #F2F2F7;
+      color: #1C1C1E;
       -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
       user-select: none;
       min-height: 100vh;
       overflow-x: hidden;
@@ -67,165 +67,177 @@
       user-select: text;
     }
 
-    /* Ambient Floating Liquid Bubbles */
+    /* Ambient Subtle Glow */
     .ambient-orb {
       position: fixed;
       border-radius: 50%;
       pointer-events: none;
       z-index: 0;
+      opacity: 0.12;
     }
     .orb-1 {
       width: 280px;
       height: 280px;
       top: -60px;
       right: -40px;
-      background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.95), rgba(0, 196, 150, 0.22) 40%, rgba(0, 196, 150, 0.05) 75%);
-      box-shadow: 0 20px 50px rgba(0, 196, 150, 0.15), inset 0 -8px 20px rgba(0, 196, 150, 0.25);
-      filter: blur(1px);
+      background: radial-gradient(circle, #00C496 0%, rgba(0, 196, 150, 0) 70%);
+      filter: blur(25px);
     }
     .orb-2 {
       width: 220px;
       height: 220px;
       bottom: 40px;
       left: -50px;
-      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(255, 149, 0, 0.22) 45%, rgba(255, 149, 0, 0.04) 75%);
-      box-shadow: 0 20px 45px rgba(255, 149, 0, 0.14), inset 0 -8px 18px rgba(255, 149, 0, 0.22);
-      filter: blur(1px);
+      background: radial-gradient(circle, #FF9500 0%, rgba(255, 149, 0, 0) 70%);
+      filter: blur(25px);
     }
     .orb-3 {
-      width: 140px;
-      height: 140px;
+      width: 160px;
+      height: 160px;
       top: 45%;
       right: 5%;
-      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(181, 136, 248, 0.25) 45%, rgba(181, 136, 248, 0.05) 75%);
-      box-shadow: 0 15px 35px rgba(181, 136, 248, 0.16);
+      background: radial-gradient(circle, #AF52DE 0%, rgba(175, 82, 222, 0) 70%);
+      filter: blur(25px);
     }
 
-    /* Master Porcelain Baseplate */
+    /* Master Porcelain Baseplate (iOS 18 Frosted Glass) */
     .porcelain-plate {
-      background: #FAF7F5;
-      border: 1px solid rgba(255, 255, 255, 0.85);
-      border-radius: 40px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 28px;
       box-shadow: 
-        0 30px 70px -15px rgba(95, 80, 75, 0.15),
-        0 10px 25px -5px rgba(95, 80, 75, 0.08),
-        inset 0 3px 6px rgba(255, 255, 255, 0.95),
-        inset 0 -3px 6px rgba(0, 0, 0, 0.02);
+        0 12px 36px -6px rgba(0, 0, 0, 0.05),
+        0 2px 8px -2px rgba(0, 0, 0, 0.02);
       position: relative;
     }
 
-    /* Claymorphism 3D Tactile Cards & Components */
+    /* Premium iOS Cards */
     .clay-card-white {
-      background: var(--clay-white);
-      border-radius: 28px;
-      border: 1px solid rgba(255, 255, 255, 0.95);
+      background: #FFFFFF;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
       box-shadow: 
-        0 14px 30px -4px rgba(85, 75, 70, 0.09),
-        0 4px 10px -2px rgba(85, 75, 70, 0.04),
-        inset 0 2px 4px rgba(255, 255, 255, 0.95);
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        0 3px 12px -2px rgba(0, 0, 0, 0.04),
+        0 1px 3px rgba(0, 0, 0, 0.02);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .clay-card-white:hover {
-      transform: translateY(-4px);
+      transform: translateY(-2px);
       box-shadow: 
-        0 20px 40px -6px rgba(85, 75, 70, 0.13),
-        0 8px 16px -3px rgba(85, 75, 70, 0.06),
-        inset 0 2px 4px rgba(255, 255, 255, 1);
+        0 8px 24px -4px rgba(0, 0, 0, 0.07),
+        0 2px 6px rgba(0, 0, 0, 0.03);
     }
 
+    /* Tactile iOS Buttons */
     .clay-btn-teal {
       background: var(--clay-teal);
       color: #FFFFFF;
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      box-shadow: 
-        0 12px 26px -5px rgba(0, 196, 150, 0.42),
-        inset 0 2px 4px rgba(255, 255, 255, 0.45);
-      transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 4px 14px rgba(0, 158, 119, 0.28);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .clay-btn-teal:hover {
-      transform: translateY(-3px) scale(1.01);
-      box-shadow: 
-        0 18px 34px -5px rgba(0, 196, 150, 0.52),
-        inset 0 2px 4px rgba(255, 255, 255, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 158, 119, 0.38);
     }
     .clay-btn-teal:active {
-      transform: translateY(1px) scale(0.98);
-      box-shadow: 0 6px 14px -3px rgba(0, 196, 150, 0.35);
+      transform: scale(0.97);
     }
 
     .clay-btn-orange {
       background: var(--clay-orange);
       color: #FFFFFF;
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      box-shadow: 
-        0 12px 26px -5px rgba(255, 110, 0, 0.42),
-        inset 0 2px 4px rgba(255, 255, 255, 0.45);
-      transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 4px 14px rgba(255, 110, 0, 0.28);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .clay-btn-orange:hover {
-      transform: translateY(-3px) scale(1.01);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(255, 110, 0, 0.38);
+    }
+    .clay-btn-orange:active {
+      transform: scale(0.97);
     }
 
     .clay-btn-purple {
       background: var(--clay-purple);
       color: #FFFFFF;
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      box-shadow: 
-        0 12px 26px -5px rgba(144, 85, 232, 0.38),
-        inset 0 2px 4px rgba(255, 255, 255, 0.45);
-      transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 4px 14px rgba(142, 36, 170, 0.25);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .clay-btn-purple:hover {
-      transform: translateY(-3px) scale(1.01);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(142, 36, 170, 0.35);
+    }
+    .clay-btn-purple:active {
+      transform: scale(0.97);
     }
 
     .clay-btn-slate {
       background: var(--clay-slate);
       color: #FFFFFF;
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      box-shadow: 
-        0 10px 22px -4px rgba(74, 85, 104, 0.32),
-        inset 0 2px 3px rgba(255, 255, 255, 0.35);
-      transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 4px 12px rgba(72, 72, 74, 0.22);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .clay-btn-slate:hover {
+      transform: translateY(-2px);
+    }
+    .clay-btn-slate:active {
+      transform: scale(0.97);
     }
 
+    /* Clean iOS Input Fields */
     .clay-input {
-      background: #F2ECE8;
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      border-radius: 18px;
-      box-shadow: 
-        inset 0 2px 5px rgba(95, 80, 75, 0.08),
-        inset 0 1px 2px rgba(95, 80, 75, 0.05),
-        0 1px 2px rgba(255, 255, 255, 0.9);
-      transition: all 0.2s ease;
+      background: #F2F2F7;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
+      transition: all 0.18s ease;
     }
     .clay-input:focus {
       background: #FFFFFF;
-      border-color: #00C496;
-      box-shadow: 
-        0 0 0 4px rgba(0, 196, 150, 0.15),
-        inset 0 1px 2px rgba(0, 0, 0, 0.03);
+      border-color: #009E77;
+      box-shadow: 0 0 0 3px rgba(0, 158, 119, 0.16);
     }
 
     /* Badges */
-    .badge-installed { background: #D9F7EE; color: #008765; border: 1px solid rgba(0, 196, 150, 0.3); }
-    .badge-received { background: #EBF4FF; color: #1E60D5; border: 1px solid rgba(30, 96, 213, 0.25); }
-    .badge-storage { background: #E8F9ED; color: #167A3C; border: 1px solid rgba(22, 122, 60, 0.25); }
-    .badge-handover { background: #FFF1DE; color: #C05800; border: 1px solid rgba(255, 110, 0, 0.3); }
-    .badge-rejected { background: #FFE8ED; color: #C51D42; border: 1px solid rgba(232, 54, 91, 0.3); }
-    .badge-returned { background: #F3E8FF; color: #6B21A8; border: 1px solid rgba(147, 51, 234, 0.3); }
-    .badge-paid { background: #D1FAE5; color: #065F46; border: 1px solid rgba(5, 150, 105, 0.3); }
-    .badge-unpaid { background: #FEF3C7; color: #92400E; border: 1px solid rgba(217, 119, 6, 0.3); }
+    .badge-installed { background: #D9F7EE; color: #008765; border: 1px solid rgba(0, 196, 150, 0.25); }
+    .badge-received { background: #EBF4FF; color: #007AFF; border: 1px solid rgba(0, 122, 255, 0.2); }
+    .badge-storage { background: #E8F9ED; color: #167A3C; border: 1px solid rgba(22, 122, 60, 0.2); }
+    .badge-handover { background: #FFF1DE; color: #C05800; border: 1px solid rgba(255, 110, 0, 0.25); }
+    .badge-rejected { background: #FFE8ED; color: #E8365B; border: 1px solid rgba(232, 54, 91, 0.25); }
+    .badge-returned { background: #F3E8FF; color: #8E24AA; border: 1px solid rgba(142, 36, 170, 0.25); }
+    .badge-paid { background: #D1FAE5; color: #065F46; border: 1px solid rgba(5, 150, 105, 0.25); }
+    .badge-unpaid { background: #FEF3C7; color: #92400E; border: 1px solid rgba(217, 119, 6, 0.25); }
 
     .modal-backdrop {
-      background: rgba(45, 38, 35, 0.45);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
+    @media (max-width: 640px) {
+      .modal-backdrop {
+        align-items: flex-end !important;
+        padding: 0 !important;
+      }
+      .modal-backdrop > div {
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        border-top-left-radius: 28px !important;
+        border-top-right-radius: 28px !important;
+        max-height: 90vh !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -386,193 +398,211 @@
       </div>
 
       <!-- ================= VIEW 1: ADMIN DASHBOARD ================= -->
-      <div id="viewDashboard" class="space-y-6">
-        
-        <!-- Top 4 Summary Master Tiles -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
-          <!-- 1. Received Tile -->
-          <div class="clay-card-white p-4 sm:p-5 cursor-pointer" onclick="filterInventoryAndSwitch('received')">
-            <div class="flex items-center justify-between">
-              <span id="lblTileReceived" class="text-[11px] font-bold text-[#1E60D5] uppercase tracking-wider">Received</span>
-              <div class="w-7 h-7 rounded-xl bg-[#EBF4FF] text-[#1E60D5] flex items-center justify-center">
-                <i data-lucide="package-plus" class="w-3.5 h-3.5"></i>
-              </div>
-            </div>
-            <div id="statTileReceived" class="text-3xl font-extrabold text-[#1E60D5] mt-1.5">0</div>
-            <span id="subTileReceived" class="inline-block mt-2 text-[10px] font-extrabold px-2 py-0.5 rounded-xl badge-received">New Inbound</span>
-          </div>
+      <div id="viewDashboard" class="space-y-5">
 
-          <!-- 2. In Storage Tile -->
-          <div class="clay-card-white p-4 sm:p-5 cursor-pointer" onclick="filterInventoryAndSwitch('in_storage')">
-            <div class="flex items-center justify-between">
-              <span id="lblTileStorage" class="text-[11px] font-bold text-[#167A3C] uppercase tracking-wider">In Storage</span>
-              <div class="w-7 h-7 rounded-xl bg-[#E8F9ED] text-[#167A3C] flex items-center justify-center">
-                <i data-lucide="archive" class="w-3.5 h-3.5"></i>
-              </div>
-            </div>
-            <div id="statTileStorage" class="text-3xl font-extrabold text-[#167A3C] mt-1.5">0</div>
-            <span id="subTileStorage" class="inline-block mt-2 text-[10px] font-extrabold px-2 py-0.5 rounded-xl badge-storage">In Store Buckets</span>
-          </div>
-
-          <!-- 3. Rejected Tile -->
-          <div class="clay-card-white p-4 sm:p-5 cursor-pointer" onclick="filterInventoryAndSwitch('rejected_defective')">
-            <div class="flex items-center justify-between">
-              <span id="lblTileRejected" class="text-[11px] font-bold text-[#C51D42] uppercase tracking-wider">Rejected</span>
-              <div class="w-7 h-7 rounded-xl bg-[#FFE8ED] text-[#C51D42] flex items-center justify-center">
-                <i data-lucide="alert-octagon" class="w-3.5 h-3.5"></i>
-              </div>
-            </div>
-            <div id="statTileRejected" class="text-3xl font-extrabold text-[#C51D42] mt-1.5">0</div>
-            <span id="subTileRejected" class="inline-block mt-2 text-[10px] font-extrabold px-2 py-0.5 rounded-xl badge-rejected">Defective Returns</span>
-          </div>
-
-          <!-- 4. Installed / Handover Tile -->
-          <div class="clay-card-white p-4 sm:p-5 cursor-pointer" onclick="filterInventoryAndSwitch('assigned_to_tech')">
-            <div class="flex items-center justify-between">
-              <span id="lblTileHandover" class="text-[11px] font-bold text-[#008765] uppercase tracking-wider">Installed / Handover</span>
-              <div class="w-7 h-7 rounded-xl bg-[#D9F7EE] text-[#008765] flex items-center justify-center">
-                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-              </div>
-            </div>
-            <div id="statTileHandover" class="text-3xl font-extrabold text-[#008765] mt-1.5">0</div>
-            <span id="subTileHandover" class="inline-block mt-2 text-[10px] font-extrabold px-2 py-0.5 rounded-xl badge-installed">With Tech / Site</span>
-          </div>
-        </div>
-
-        <!-- Prominent Admin Financial Metric: Customer Cash in Hand (Admin Money) -->
-        <div id="adminCashHeldBanner" class="clay-card-white p-5 sm:p-6 rounded-[28px] border-l-4 border-l-[#FF8A00] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
-          <div class="flex items-start sm:items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-[#FFF1DE] text-[#C05800] flex items-center justify-center shrink-0 shadow-xs">
-              <i data-lucide="hand-coins" class="w-6 h-6"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 id="lblCustCashTitle" class="text-xs sm:text-sm font-black text-[#2D2926]">ग्राहक से वसूला गया कैश (टेक्नीशियन्स के पास)</h4>
-                <span class="px-2 py-0.5 rounded-lg bg-amber-100 text-[#92400E] text-[10px] font-extrabold uppercase tracking-wide">सर्विस सेंटर फंड</span>
-              </div>
-              <p id="lblCustCashSub" class="text-xs text-[#7A726C] mt-0.5">फील्ड कॉल्स के दौरान ग्राहकों द्वारा टेक्नीशियन्स को दिया गया अतिरिक्त कैश (जो सर्विस सेंटर/एडमिन का पैसा है)</p>
-            </div>
-          </div>
-          <div class="flex items-center justify-between md:justify-end gap-4 pt-3 md:pt-0 border-t md:border-t-0 border-[#EAE3DE]">
-            <div class="text-left md:text-right">
-              <span id="lblCustCashFieldTotal" class="text-[10px] font-extrabold uppercase text-[#7A726C] block">फील्ड में कुल कैश</span>
-              <span id="statCustCashInField" class="text-2xl sm:text-3xl font-black text-[#C05800]">₹0</span>
-            </div>
-            <button onclick="switchView('ledger')" class="px-4 py-2.5 rounded-2xl bg-[#009E77] hover:bg-[#008765] text-white text-xs font-black shadow-sm transition active:scale-95 flex items-center gap-1.5 shrink-0">
-              <i data-lucide="wallet" class="w-4 h-4"></i>
-              <span id="btnViewCashLedger">हिसाब व लेजर देखें</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- GLOBAL SEARCH BAR (Mobile Number, Complaint Number, Customer Name, Serial Number) -->
-        <div class="clay-card-white p-5 sm:p-6 rounded-[32px]">
+        <!-- 1. TOP PROMINENT SEARCH BAR (Customer, Mobile, Complaint, Serial) -->
+        <div class="clay-card-white p-4 sm:p-5 rounded-3xl shadow-sm">
           <div class="flex items-center justify-between mb-2">
             <label id="lblGlobalSearch" class="text-xs font-bold uppercase tracking-wider text-[#7A726C] flex items-center gap-1.5">
               <i data-lucide="search" class="w-3.5 h-3.5 text-[#009E77]"></i>
-              <span>Global Search (Customer Name, Mobile No., Complaint ID, Serial No)</span>
+              <span>ग्लोबल सर्च</span>
             </label>
-            <span id="hintGlobalSearch" class="text-[10px] text-[#7A726C] hidden sm:inline">Instant full audit timeline</span>
+            <span id="hintGlobalSearch" class="text-[10px] text-[#7A726C] hidden sm:inline">कस्टमर नाम, मोबाइल, कंप्लेंट या पार्ट सीरियल</span>
           </div>
           <div class="flex gap-2">
             <div class="relative flex-1">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-[#9C9289]">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#9C9289]">
                 <i data-lucide="search" class="w-4 h-4"></i>
               </span>
-              <input id="globalSearchInput" type="text" placeholder="Search by Customer Name, Mobile No., Complaint ID, or Serial No..." 
+              <input id="globalSearchInput" type="text" placeholder="कस्टमर नाम, मोबाइल, कंप्लेंट या सीरियल खोजें..." 
                 onkeydown="if(event.key==='Enter') executeGlobalSearch()"
-                class="w-full pl-11 pr-11 py-3.5 clay-input outline-none text-xs sm:text-sm font-bold text-[#2D2926]" />
-              <button type="button" onclick="openLiveScanner('globalSearchInput', () => executeGlobalSearch())" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#009E77] hover:scale-110 transition">
+                class="w-full pl-10 pr-10 py-3 clay-input outline-none text-xs sm:text-sm font-semibold text-[#1C1C1E]" />
+              <button type="button" onclick="openLiveScanner('globalSearchInput', () => executeGlobalSearch())" class="absolute inset-y-0 right-0 flex items-center pr-3 text-[#009E77] hover:scale-110 transition">
                 <i data-lucide="scan" class="w-4 h-4"></i>
               </button>
             </div>
-            <button onclick="executeGlobalSearch()" id="btnGlobalSearch" class="px-6 py-3.5 clay-btn-teal font-bold text-xs sm:text-sm transition">
-              Search
+            <button onclick="executeGlobalSearch()" id="btnGlobalSearch" class="px-5 py-3 clay-btn-teal font-bold text-xs sm:text-sm transition">
+              खोजें
             </button>
           </div>
 
           <!-- Global Search Result Container -->
-          <div id="globalSearchResults" class="hidden mt-4 pt-4 border-t border-[#EAE3DE] space-y-4">
+          <div id="globalSearchResults" class="hidden mt-3 pt-3 border-t border-[#EAE3DE] space-y-3">
             <!-- Rendered dynamically -->
           </div>
         </div>
 
-        <!-- Quick Actions Grid (6 Core Daily Operations) -->
-        <div>
-          <h2 id="headingAdminActions" class="text-base font-extrabold text-[#2D2926] mb-3.5 tracking-tight flex items-center gap-2">
-            <i data-lucide="zap" class="w-4 h-4 text-[#FF8A00]"></i>
-            <span id="titleQuickOps">Quick Operations</span>
-          </h2>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-            
-            <!-- 1. Receive Part (Teal Clay) -->
-            <button onclick="openModal('receiveModal')" class="clay-btn-teal p-4 text-left flex flex-col justify-between h-32 sm:h-36 shadow-md transition transform active:scale-95">
-              <div class="w-10 h-10 rounded-2xl bg-white/20 border border-white/40 flex items-center justify-center text-white shadow-sm">
-                <i data-lucide="package-plus" class="w-5 h-5"></i>
+        <!-- 2. OPERATIONS & FINANCIAL SUMMARY -->
+        <div id="adminCashHeldBanner" class="clay-card-white p-4 sm:p-5 rounded-2xl border-l-4 border-l-[#FF9500] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-[#FFF1DE] text-[#C05800] flex items-center justify-center shrink-0">
+              <i data-lucide="wallet" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 id="lblCustCashTitle" class="text-xs sm:text-sm font-bold text-[#1C1C1E]">ग्राहकों से वसूला गया कैश</h4>
+                <span class="px-1.5 py-0.5 rounded-md bg-amber-100 text-[#92400E] text-[9px] font-bold">सर्विस सेंटर फंड</span>
               </div>
-              <div>
-                <p id="actRecPart" class="font-extrabold text-xs sm:text-sm text-white leading-snug">1. Receive</p>
-                <p id="actRecPartSub" class="text-[10px] text-white/80 font-medium">Inbound Mal</p>
-              </div>
+              <p id="lblCustCashSub" class="text-[11px] text-[#7A726C] mt-0.5">फील्ड कॉल्स से टेक्नीशियन्स के पास जमा एक्स्ट्रा कैश</p>
+            </div>
+          </div>
+          <div class="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#EAE3DE]">
+            <div>
+              <span id="lblCustCashFieldTotal" class="text-[9px] font-bold uppercase text-[#7A726C] block">फील्ड कैश</span>
+              <span id="statCustCashInField" class="text-xl sm:text-2xl font-black text-[#C05800]">₹0</span>
+            </div>
+            <button onclick="switchView('ledger')" class="px-3.5 py-2 rounded-xl bg-[#009E77] hover:bg-[#008765] text-white text-xs font-bold shadow-xs transition active:scale-95 flex items-center gap-1 shrink-0">
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              <span id="btnViewCashLedger">लेजर देखें</span>
             </button>
-
-            <!-- 2. Storage Bucket (Porcelain Clay) -->
-            <button onclick="openModal('storageBucketModal')" class="clay-card-white p-4 text-left flex flex-col justify-between h-32 sm:h-36 border-emerald-100 hover:border-[#00C496] shadow-sm transition transform active:scale-95">
-              <div class="w-10 h-10 rounded-2xl bg-[#E8F9ED] text-[#009E77] flex items-center justify-center shadow-sm border border-[#00C496]/20">
-                <i data-lucide="archive" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <p id="actStoreBucket" class="font-extrabold text-xs sm:text-sm text-[#2D2926] leading-snug">2. Storage</p>
-                <p id="actStoreBucketSub" class="text-[10px] text-[#7A726C] font-medium">Rack / Shelf</p>
-              </div>
-            </button>
-
-            <!-- 3. Handover to Tech (Orange Clay) -->
-            <button onclick="openModal('handoverModal')" class="clay-btn-orange p-4 text-left flex flex-col justify-between h-32 sm:h-36 shadow-md transition transform active:scale-95">
-              <div class="w-10 h-10 rounded-2xl bg-white/20 border border-white/40 flex items-center justify-center text-white shadow-sm">
-                <i data-lucide="user-check" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <p id="actHandover" class="font-extrabold text-xs sm:text-sm text-white leading-snug">3. Handover</p>
-                <p id="actHandoverSub" class="text-[10px] text-white/80 font-medium">To Technician</p>
-              </div>
-            </button>
-
-            <!-- 4. Record Installation (Porcelain Clay) -->
-            <button onclick="openModal('installModal')" class="clay-card-white p-4 text-left flex flex-col justify-between h-32 sm:h-36 border-green-100 hover:border-[#00C496] shadow-sm transition transform active:scale-95">
-              <div class="w-10 h-10 rounded-2xl bg-[#D9F7EE] text-[#008765] flex items-center justify-center shadow-sm border border-[#00C496]/20">
-                <i data-lucide="check-circle" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <p id="actInstall" class="font-extrabold text-xs sm:text-sm text-[#2D2926] leading-snug">4. Record Install</p>
-                <p id="actInstallSub" class="text-[10px] text-[#7A726C] font-medium">GPS & Photo Form</p>
-              </div>
-            </button>
-
-            <!-- 5. Reject Defective (Purple Clay) -->
-            <button onclick="openModal('rejectModal')" class="clay-btn-purple p-4 text-left flex flex-col justify-between h-32 sm:h-36 shadow-md transition transform active:scale-95">
-              <div class="w-10 h-10 rounded-2xl bg-white/20 border border-white/40 flex items-center justify-center text-white shadow-sm">
-                <i data-lucide="alert-octagon" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <p id="actReject" class="font-extrabold text-xs sm:text-sm text-white leading-snug">5. Reject</p>
-                <p id="actRejectSub" class="text-[10px] text-white/80 font-medium">With Evidence</p>
-              </div>
-            </button>
-
-            <!-- 6. Return to Company (Slate Clay) -->
-            <button onclick="openModal('returnCompanyModal')" class="clay-btn-slate p-4 text-left flex flex-col justify-between h-32 sm:h-36 shadow-md transition transform active:scale-95">
-              <div class="w-10 h-10 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-white shadow-sm">
-                <i data-lucide="truck" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <p id="actReturnCompany" class="font-extrabold text-xs sm:text-sm text-white leading-snug">6. Pickup</p>
-                <p id="actReturnCompanySub" class="text-[10px] text-white/80 font-medium">Return Handover</p>
-              </div>
-            </button>
-
           </div>
         </div>
+
+        <!-- 4 Summary Master Metric Tiles -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
+          <!-- 1. Received Tile -->
+          <div class="clay-card-white p-3.5 sm:p-4 cursor-pointer" onclick="filterInventoryAndSwitch('received')">
+            <div class="flex items-center justify-between">
+              <span id="lblTileReceived" class="text-[10px] font-bold text-[#007AFF] uppercase tracking-wider">रिसीव्ड</span>
+              <div class="w-6 h-6 rounded-lg bg-[#EBF4FF] text-[#007AFF] flex items-center justify-center">
+                <i data-lucide="package-plus" class="w-3 h-3"></i>
+              </div>
+            </div>
+            <div id="statTileReceived" class="text-2xl font-black text-[#007AFF] mt-1">0</div>
+            <span id="subTileReceived" class="inline-block mt-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md badge-received">नया सामान</span>
+          </div>
+
+          <!-- 2. In Storage Tile -->
+          <div class="clay-card-white p-3.5 sm:p-4 cursor-pointer" onclick="filterInventoryAndSwitch('in_storage')">
+            <div class="flex items-center justify-between">
+              <span id="lblTileStorage" class="text-[10px] font-bold text-[#167A3C] uppercase tracking-wider">स्टोरेज में</span>
+              <div class="w-6 h-6 rounded-lg bg-[#E8F9ED] text-[#167A3C] flex items-center justify-center">
+                <i data-lucide="archive" class="w-3 h-3"></i>
+              </div>
+            </div>
+            <div id="statTileStorage" class="text-2xl font-black text-[#167A3C] mt-1">0</div>
+            <span id="subTileStorage" class="inline-block mt-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md badge-storage">स्टोर बकेट्स</span>
+          </div>
+
+          <!-- 3. Rejected Tile -->
+          <div class="clay-card-white p-3.5 sm:p-4 cursor-pointer" onclick="filterInventoryAndSwitch('rejected_defective')">
+            <div class="flex items-center justify-between">
+              <span id="lblTileRejected" class="text-[10px] font-bold text-[#E8365B] uppercase tracking-wider">रिजेक्टेड</span>
+              <div class="w-6 h-6 rounded-lg bg-[#FFE8ED] text-[#E8365B] flex items-center justify-center">
+                <i data-lucide="alert-octagon" class="w-3 h-3"></i>
+              </div>
+            </div>
+            <div id="statTileRejected" class="text-2xl font-black text-[#E8365B] mt-1">0</div>
+            <span id="subTileRejected" class="inline-block mt-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md badge-rejected">डिफेक्टिव</span>
+          </div>
+
+          <!-- 4. Installed / Handover Tile -->
+          <div class="clay-card-white p-3.5 sm:p-4 cursor-pointer" onclick="filterInventoryAndSwitch('assigned_to_tech')">
+            <div class="flex items-center justify-between">
+              <span id="lblTileHandover" class="text-[10px] font-bold text-[#008765] uppercase tracking-wider">फील्ड / टेक</span>
+              <div class="w-6 h-6 rounded-lg bg-[#D9F7EE] text-[#008765] flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-3 h-3"></i>
+              </div>
+            </div>
+            <div id="statTileHandover" class="text-2xl font-black text-[#008765] mt-1">0</div>
+            <span id="subTileHandover" class="inline-block mt-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md badge-installed">टेक के पास</span>
+          </div>
+        </div>
+
+        <!-- 3. 4 PRIMARY QUICK OPERATIONS (Compact iOS 4-Button Grid) -->
+        <div>
+          <div class="flex items-center justify-between mb-2.5">
+            <h2 id="headingAdminActions" class="text-xs font-black uppercase text-[#7A726C] tracking-wider flex items-center gap-1.5">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+              <span id="titleQuickOps">त्वरित कार्य (Quick Actions)</span>
+            </h2>
+            <div class="flex items-center gap-2">
+              <button onclick="openModal('storageBucketModal')" class="text-[11px] font-bold text-[#167A3C] hover:underline flex items-center gap-0.5">
+                <i data-lucide="archive" class="w-3 h-3"></i>
+                <span>स्टोरेज शेल्फ</span>
+              </button>
+              <span class="text-[#D1D1D6]">|</span>
+              <button onclick="openModal('rejectModal')" class="text-[11px] font-bold text-[#E8365B] hover:underline flex items-center gap-0.5">
+                <i data-lucide="alert-octagon" class="w-3 h-3"></i>
+                <span>रिजेक्ट</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+            <!-- 1. Receive Part -->
+            <button onclick="openModal('receiveModal')" class="clay-btn-teal p-3.5 text-left flex items-center justify-between rounded-2xl shadow-sm transition active:scale-95">
+              <div>
+                <p id="actRecPart" class="font-extrabold text-xs sm:text-sm text-white leading-tight">पार्ट रिसीव</p>
+                <p id="actRecPartSub" class="text-[10px] text-white/80 font-medium">इनबाउंड माल</p>
+              </div>
+              <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white shrink-0">
+                <i data-lucide="package-plus" class="w-4 h-4"></i>
+              </div>
+            </button>
+
+            <!-- 2. Handover -->
+            <button onclick="openModal('handoverModal')" class="clay-btn-orange p-3.5 text-left flex items-center justify-between rounded-2xl shadow-sm transition active:scale-95">
+              <div>
+                <p id="actHandover" class="font-extrabold text-xs sm:text-sm text-white leading-tight">हैंडओवर</p>
+                <p id="actHandoverSub" class="text-[10px] text-white/80 font-medium">टेक्नीशियन को दें</p>
+              </div>
+              <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white shrink-0">
+                <i data-lucide="user-check" class="w-4 h-4"></i>
+              </div>
+            </button>
+
+            <!-- 3. New Service Call -->
+            <button onclick="openModal('createCallModal')" class="clay-card-white p-3.5 text-left flex items-center justify-between rounded-2xl border-blue-200 hover:border-blue-400 shadow-sm transition active:scale-95 group">
+              <div>
+                <p class="font-extrabold text-xs sm:text-sm text-[#007AFF] leading-tight">+ नई कॉल</p>
+                <p class="text-[10px] text-[#7A726C] font-medium">असाइन करें</p>
+              </div>
+              <div class="w-8 h-8 rounded-xl bg-blue-50 text-[#007AFF] flex items-center justify-center shrink-0">
+                <i data-lucide="phone-call" class="w-4 h-4"></i>
+              </div>
+            </button>
+
+            <!-- 4. Return to Company -->
+            <button onclick="openModal('returnCompanyModal')" class="clay-btn-purple p-3.5 text-left flex items-center justify-between rounded-2xl shadow-sm transition active:scale-95">
+              <div>
+                <p id="actReturnCompany" class="font-extrabold text-xs sm:text-sm text-white leading-tight">कंपनी वापसी</p>
+                <p id="actReturnCompanySub" class="text-[10px] text-white/80 font-medium">चालान रिटर्न</p>
+              </div>
+              <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white shrink-0">
+                <i data-lucide="truck" class="w-4 h-4"></i>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. RECENT ACTIVITY FEED -->
+        <div class="clay-card-white p-4 sm:p-5 rounded-2xl shadow-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
+            <h3 id="headingRecentActivity" class="font-extrabold text-[#1C1C1E] text-xs sm:text-sm flex items-center gap-1.5">
+              <i data-lucide="history" class="w-4 h-4 text-[#009E77]"></i>
+              <span>हालिया गतिविधियाँ</span>
+            </h3>
+            
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#F2F2F7] border border-[#E5E5EA]">
+                <i data-lucide="calendar" class="w-3 h-3 text-[#7A726C]"></i>
+                <input type="date" id="recentActivityDateInput" onchange="filterActivityByDate(this.value)" 
+                  class="bg-transparent text-xs font-semibold text-[#1C1C1E] outline-none cursor-pointer" />
+              </div>
+              <button onclick="clearActivityDateFilter()" id="btnClearActivityDate" class="px-2.5 py-1 rounded-xl bg-[#F2F2F7] hover:bg-[#E5E5EA] text-xs font-bold text-[#1C1C1E] transition">
+                All
+              </button>
+              <button onclick="loadDashboardData()" id="btnRefreshActivity" class="text-xs font-bold text-[#009E77] hover:underline ml-1">Refresh</button>
+            </div>
+          </div>
+
+          <div id="activityFeedList" class="space-y-2">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
 
         <!-- Recent Activity Feed -->
         <div class="clay-card-white p-6 sm:p-7">
@@ -1912,23 +1942,23 @@
         tileStorage: "In Storage",
         tileRejected: "Rejected",
         tileHandover: "Installed",
-        titleQuickOps: "Quick Operations",
-        actRecPart: "1. Receive",
-        actRecPartSub: "Inbound Mal",
-        actStoreBucket: "2. Storage",
-        actStoreBucketSub: "Rack / Shelf",
-        actHandover: "3. Handover",
-        actHandoverSub: "To Technician",
-        actInstall: "4. Record Install",
-        actInstallSub: "GPS & Photo Form",
-        actReject: "5. Reject",
-        actRejectSub: "With Evidence",
-        actReturnCompany: "6. Pickup",
-        actReturnCompanySub: "Return Handover",
-        lblGlobalSearch: "Global Search (Customer Name, Mobile No., Complaint ID, Serial No)",
-        globalSearchPlaceholder: "Search by Customer Name, Mobile No., Complaint ID, or Serial No...",
+        titleQuickOps: "Quick Actions",
+        actRecPart: "Receive Part",
+        actRecPartSub: "Inbound",
+        actStoreBucket: "Storage",
+        actStoreBucketSub: "Buckets",
+        actHandover: "Handover",
+        actHandoverSub: "To Tech",
+        actInstall: "Install",
+        actInstallSub: "Field Proof",
+        actReject: "Reject",
+        actRejectSub: "Defective",
+        actReturnCompany: "Return",
+        actReturnCompanySub: "To Brand",
+        lblGlobalSearch: "Global Search",
+        globalSearchPlaceholder: "Search Customer, Mobile, Complaint or Serial...",
         btnSearch: "Search",
-        recentActivity: "Recent Activity & Audit Trail",
+        recentActivity: "Recent Activity",
         allCategories: "All Buckets",
         allStatus: "All Status",
         statusReceived: "Received",
@@ -1948,10 +1978,10 @@
         demoSonu: "🔧 Sonu (Field Tech)",
         lblShareWhatsApp: "Share Challan on WhatsApp",
         custCash: "Customer Cash Collected",
-        lblCustCashTitle: "Customer Cash Held by Technicians (Admin Money)",
-        lblCustCashSub: "Extra cash collected by field technicians from customers (Service Center funds to be deposited)",
-        lblCustCashFieldTotal: "Total Cash in Field",
-        btnViewCashLedger: "View Ledgers & Payouts",
+        lblCustCashTitle: "Customer Cash with Techs",
+        lblCustCashSub: "Extra cash collected in field to be deposited",
+        lblCustCashFieldTotal: "Cash in Field",
+        btnViewCashLedger: "View Ledger",
       },
       hi: {
         langSwitch: "🌐 English",
@@ -1978,31 +2008,36 @@
         tileReceived: "रिसीव्ड",
         tileStorage: "स्टोरेज में",
         tileRejected: "रिजेक्टेड",
-        tileHandover: "इंस्टॉल्ड",
-        titleQuickOps: "त्वरित कार्य (ऑपरेशन्स)",
-        actRecPart: "1. सामान प्राप्ति",
-        actRecPartSub: "इनबाउंड माल",
-        actStoreBucket: "2. स्टोरेज शेल्फ",
-        actStoreBucketSub: "रैक / बकेट",
-        actHandover: "3. टेक्नीशियन को दें",
-        actHandoverSub: "फील्ड टेक्नीशियन",
-        actInstall: "4. इंस्टॉलेशन फॉर्म",
-        actInstallSub: "फोटो व लोकेशन",
-        actReject: "5. डिफेक्टिव रिजेक्ट",
-        actRejectSub: "सबूत फोटो के साथ",
-        actReturnCompany: "6. कंपनी वापसी",
-        actReturnCompanySub: "चालान रिटर्न",
-        lblGlobalSearch: "ग्लोबल सर्च (कस्टमर नाम, मोबाइल नंबर, कंप्लेंट नं., सीरियल नंबर)",
-        globalSearchPlaceholder: "कस्टमर का नाम, मोबाइल नंबर, कंप्लेंट नंबर या सीरियल नंबर खोजें...",
+        tileHandover: "फील्ड/टेक",
+        titleQuickOps: "त्वरित कार्य (Quick Actions)",
+        actRecPart: "पार्ट रिसीव",
+        actRecPartSub: "इनबाउंड",
+        actStoreBucket: "स्टोरेज",
+        actStoreBucketSub: "बकेट्स",
+        actHandover: "हैंडओवर",
+        actHandoverSub: "टेक्नीशियन",
+        actInstall: "इंस्टॉल",
+        actInstallSub: "फील्ड प्रूफ",
+        actReject: "रिजेक्ट",
+        actRejectSub: "डिफेक्टिव",
+        actReturnCompany: "कंपनी वापसी",
+        actReturnCompanySub: "चालान",
+        lblGlobalSearch: "ग्लोबल सर्च",
+        globalSearchPlaceholder: "कस्टमर नाम, मोबाइल, कंप्लेंट या सीरियल खोजें...",
         btnSearch: "खोजें",
-        recentActivity: "हालिया गतिविधियां एवं ऑडिट ट्रेल",
+        recentActivity: "हालिया गतिविधियाँ",
         allCategories: "सभी बकेट्स",
         allStatus: "सभी स्टेटस",
         statusReceived: "रिसीव्ड",
         statusStorage: "स्टोरेज में",
-        statusAssigned: "टेक्नीशियन के पास",
+        statusAssigned: "टेक के पास",
         statusInstalled: "इंस्टॉल्ड",
         statusRejected: "रिजेक्टेड",
+        statusReturned: "कंपनी वापसी",
+        statusPending: "पेंडिंग",
+        statusCompleted: "पूर्ण",
+        statusPaid: "भुगतान पूर्ण",
+        statusUnpaid: "बकाया",
         statusReturned: "कंपनी वापसी",
         statusPending: "पेंडिंग",
         statusCompleted: "पूर्ण",
@@ -2773,6 +2808,15 @@
       lucide.createIcons();
     }
 
+    function toggleSearchTimeline(callId) {
+      const box = document.getElementById(`searchTimelineBox_${callId}`);
+      const chev = document.getElementById(`searchChev_${callId}`);
+      if (box) {
+        const isHidden = box.classList.toggle("hidden");
+        if (chev) chev.style.transform = isHidden ? "rotate(0deg)" : "rotate(180deg)";
+      }
+    }
+
     async function executeGlobalSearch() {
       const q = document.getElementById("globalSearchInput").value.trim();
       const container = document.getElementById("globalSearchResults");
@@ -2812,14 +2856,13 @@
             let partHtml = '';
             if (c.part_serial) {
               partHtml = `
-                <div class="p-3 rounded-2xl bg-[#E6F7F2] border border-[#009E77]/25 flex items-center justify-between text-xs shadow-2xs">
+                <div class="p-2.5 rounded-xl bg-[#E6F7F2] border border-[#009E77]/25 flex items-center justify-between text-xs shadow-2xs">
                   <div>
-                    <span class="text-[10px] font-black uppercase tracking-wider text-[#008765]">${currentLang === 'hi' ? 'लगाया गया स्पेयर पार्ट' : 'Installed Spare Part'}:</span>
-                    <p class="font-extrabold text-[#2D2926] mt-0.5">${c.part_name || 'Spare Part'} <span class="font-mono text-[#008765]">(${c.part_serial})</span></p>
-                    ${c.part_model ? `<p class="text-[11px] text-[#7A726C]">Model: ${c.part_model}</p>` : ''}
+                    <span class="text-[9px] font-black uppercase tracking-wider text-[#008765]">${currentLang === 'hi' ? 'स्पेयर पार्ट' : 'Spare Part'}:</span>
+                    <p class="font-extrabold text-[#1C1C1E]">${c.part_name || 'Spare Part'} <span class="font-mono text-[#008765]">(${c.part_serial})</span></p>
                   </div>
-                  <button type="button" onclick="openPartTimelineModal('${c.part_serial}')" class="px-2.5 py-1.5 rounded-xl bg-white border border-[#009E77]/30 text-[#008765] hover:bg-[#009E77] hover:text-white font-black text-[11px] transition shadow-xs flex items-center gap-1">
-                    <i data-lucide="history" class="w-3.5 h-3.5"></i>
+                  <button type="button" onclick="openPartTimelineModal('${c.part_serial}')" class="px-2 py-1 rounded-lg bg-white border border-[#009E77]/30 text-[#008765] hover:bg-[#009E77] hover:text-white font-bold text-[10px] transition shadow-2xs flex items-center gap-1">
+                    <i data-lucide="history" class="w-3 h-3"></i>
                     <span>${currentLang === 'hi' ? 'पार्ट हिस्ट्री' : 'Part History'}</span>
                   </button>
                 </div>
@@ -2829,24 +2872,36 @@
             let timelineHtml = '';
             if (c.timeline && c.timeline.length > 0) {
               timelineHtml = `
-                <div class="mt-2.5 pt-3 border-t border-[#EAE3DE]">
-                  <p class="text-[11px] font-black uppercase tracking-wider text-[#7A726C] mb-2 flex items-center gap-1.5">
-                    <i data-lucide="git-commit" class="w-3.5 h-3.5 text-[#009E77]"></i>
-                    <span>${currentLang === 'hi' ? '4-स्टेप क्रोनोलॉजिकल ऑडिट टाइमलाइन' : 'Chronological Audit Timeline'}</span>
-                  </p>
-                  <div class="space-y-2.5 border-l-2 border-[#009E77] ml-2.5 pl-3.5">
-                    ${c.timeline.map((step, sIdx) => {
-                      const desc = currentLang === 'hi' ? (step.action_description_hi || step.action_description_en) : (step.action_description_en || step.action_description_hi);
-                      const time = step.created_at ? new Date(step.created_at).toLocaleString() : '';
-                      return `
-                        <div class="relative text-xs">
-                          <div class="absolute -left-[20px] top-1 w-2.5 h-2.5 rounded-full bg-[#009E77] border-2 border-white shadow-xs"></div>
-                          <p class="font-bold text-[#2D2926] leading-snug">${desc}</p>
-                          <p class="text-[10px] text-[#7A726C] font-mono mt-0.5">${time}</p>
-                        </div>
-                      `;
-                    }).join('')}
-                  </div>
+                <div class="mt-2 pt-2 border-t border-[#EAE3DE] flex items-center justify-between">
+                  <button type="button" onclick="toggleSearchTimeline('${c.id}')" class="text-xs font-bold text-[#009E77] hover:underline flex items-center gap-1">
+                    <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
+                    <span>${currentLang === 'hi' ? 'टाइमलाइन देखें' : 'View Timeline'} (${c.timeline.length})</span>
+                    <i data-lucide="chevron-down" id="searchChev_${c.id}" class="w-3 h-3 transition-transform"></i>
+                  </button>
+                  <button type="button" onclick="openCallDetailsModal('${c.id}')" class="px-2.5 py-1 rounded-xl bg-[#F2F2F7] text-[#1C1C1E] font-bold text-[11px] hover:bg-[#E5E5EA] transition">
+                    ${currentLang === 'hi' ? 'विवरण' : 'Details'}
+                  </button>
+                </div>
+                <div id="searchTimelineBox_${c.id}" class="hidden mt-2 pt-2 border-t border-dashed border-[#EAE3DE] space-y-2 border-l-2 border-[#009E77] ml-2 pl-3">
+                  ${c.timeline.map((step) => {
+                    const desc = currentLang === 'hi' ? (step.action_description_hi || step.action_description_en) : (step.action_description_en || step.action_description_hi);
+                    const time = step.created_at ? new Date(step.created_at).toLocaleString() : '';
+                    return `
+                      <div class="relative text-xs">
+                        <div class="absolute -left-[17px] top-1 w-2 h-2 rounded-full bg-[#009E77] border-2 border-white"></div>
+                        <p class="font-bold text-[#1C1C1E] leading-snug">${desc}</p>
+                        <p class="text-[10px] text-[#7A726C] font-mono">${time}</p>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `;
+            } else {
+              timelineHtml = `
+                <div class="mt-2 pt-2 border-t border-[#EAE3DE] flex justify-end">
+                  <button type="button" onclick="openCallDetailsModal('${c.id}')" class="px-2.5 py-1 rounded-xl bg-[#F2F2F7] text-[#1C1C1E] font-bold text-[11px] hover:bg-[#E5E5EA] transition">
+                    ${currentLang === 'hi' ? 'विवरण' : 'Details'}
+                  </button>
                 </div>
               `;
             }
