@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, verifyAuth, getInventory, getServiceCalls, getPaymentBatches, getAuditLogs } from "../_utils.js";
+import { jsonResponse, errorResponse, verifyAuth, getInventory, getServiceCalls, getPaymentBatches, getAuditLogs, getUsers } from "../_utils.js";
 
 export async function onRequestGet({ request, env }) {
   const user = await verifyAuth(request);
@@ -73,6 +73,19 @@ export async function onRequestGet({ request, env }) {
       };
     }
 
+    const users = await getUsers(env);
+    const enrichedLogs = auditLogs.slice(0, 20).map(a => {
+      const actor = users.find(u => u.id === a.action_by_user_id);
+      const targetUser = users.find(u => u.id === a.assigned_to_user_id);
+      return {
+        ...a,
+        actor_name: actor ? actor.name : "Staff",
+        actor_phone: actor ? actor.mobile : "",
+        target_name: targetUser ? targetUser.name : null,
+        target_id: targetUser ? targetUser.id : null,
+      };
+    });
+
     return jsonResponse({
       success: true,
       userRole: user.role,
@@ -84,7 +97,7 @@ export async function onRequestGet({ request, env }) {
         total_items: inventory.length,
       },
       stats: roleSpecificData,
-      recentActivity: auditLogs.slice(0, 15),
+      recentActivity: enrichedLogs,
     });
   } catch (err) {
     return errorResponse(err.message, 500);

@@ -178,6 +178,17 @@ export async function onRequestPut({ request, env }) {
         action_description_en: `${user.name} dispatched defective part ${item.serial_number} to company with Challan #${item.challan_number}.`,
         action_description_hi: `${user.name} ने खराब पार्ट ${item.serial_number} को चालान #${item.challan_number} के साथ कंपनी भेजा।`,
       });
+    } else if (action === "mark_installed") {
+      item.status = "installed";
+      await saveInventoryItem(env, item);
+      await recordAudit(env, {
+        entity_type: "part",
+        entity_id: item.id,
+        action_by_user_id: user.id,
+        assigned_to_user_id: null,
+        action_description_en: `${user.name} recorded installation for part ${item.serial_number} (${remarks || "Installed"}).`,
+        action_description_hi: `${user.name} ने पार्ट ${item.serial_number} का इंस्टॉलेशन दर्ज किया (${remarks || "सफलतापूर्वक स्थापित"})।`,
+      });
     } else if (action === "mark_rejected") {
       item.status = "rejected_defective";
       await saveInventoryItem(env, item);

@@ -31,6 +31,11 @@ export async function onRequestGet({ request, env }) {
         return sum + (Number(amt) || 0);
       }, 0);
 
+      // Total money collected from customers by this technician (cash / extra parts / service)
+      const totalCustomerCollected = completedCalls.reduce((sum, c) => {
+        return sum + (Number(c.customer_extra_collected) || 0);
+      }, 0);
+
       const totalPaid = techBatches.reduce((sum, b) => sum + (Number(b.amount_paid) || 0), 0);
       const pendingBalance = Math.max(0, totalEarned - totalPaid);
 
@@ -42,6 +47,7 @@ export async function onRequestGet({ request, env }) {
           completedCalls: completedCalls.length,
           pendingCalls: techCalls.filter(c => c.status === "pending").length,
           totalEarned,
+          totalCustomerCollected,
           totalPaid,
           pendingBalance,
         },
@@ -61,6 +67,9 @@ export async function onRequestGet({ request, env }) {
         const amt = c.admin_edited_amount !== null && c.admin_edited_amount !== undefined ? c.admin_edited_amount : c.tech_payout_amount;
         return sum + (Number(amt) || 0);
       }, 0);
+      const customerCollected = tCalls.reduce((sum, c) => {
+        return sum + (Number(c.customer_extra_collected) || 0);
+      }, 0);
       const paid = tBatches.reduce((sum, b) => sum + (Number(b.amount_paid) || 0), 0);
       const pending = Math.max(0, earned - paid);
 
@@ -70,6 +79,7 @@ export async function onRequestGet({ request, env }) {
         mobile: t.mobile,
         totalCompletedCalls: tCalls.length,
         totalEarned: earned,
+        totalCustomerCollected: customerCollected,
         totalPaid: paid,
         pendingBalance: pending,
         unpaidCallsCount: tCalls.filter(c => c.payout_status === "unpaid").length,
