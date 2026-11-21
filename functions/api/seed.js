@@ -81,8 +81,23 @@ export async function onRequest({ request, env }) {
       // Status: rejected_defective (awaiting return to company)
       { id: 21, category_id: 1, part_name: "OnePlus 50\" 4K Screen Panel Assembly (Glass Cracked)", model_number: "PNL-1P-50UHD", serial_number: "SN-REJ-2026-001", status: "rejected_defective", current_holder_id: null, invoice_image_url: null, challan_number: null, return_slip_url: null, created_at: "2026-11-20T14:00:00Z" },
 
-      // Status: returned_to_company (dispatched with return challan)
-      { id: 22, category_id: 3, part_name: "Hitachi AC Inverter Compressor (Internal Coil Burnt)", model_number: "CMP-HT-15INV", serial_number: "SN-RET-2026-002", status: "returned_to_company", current_holder_id: null, invoice_image_url: null, challan_number: "CHAL-2026-881", return_slip_url: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=300", created_at: "2026-11-17T09:00:00Z" },
+      // Status: returned_to_company (dispatched with return challan & courier slip)
+      { 
+        id: 22, 
+        category_id: 3, 
+        part_name: "Hitachi AC Inverter Compressor (Internal Coil Burnt)", 
+        model_number: "CMP-HT-15INV", 
+        serial_number: "SN-RET-2026-002", 
+        status: "returned_to_company", 
+        current_holder_id: null, 
+        invoice_image_url: null, 
+        challan_number: "CHAL-2026-881", 
+        challan_image_url: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=500", 
+        return_slip_url: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=500", 
+        courier_name: "BlueDart Express",
+        courier_tracking_no: "BD-98273619-IN",
+        created_at: "2026-11-17T09:00:00Z" 
+      },
     ];
 
     // 6. Service Calls (16 calls with realistic Indian workflow, extra collections, admin edits, payout statuses)
@@ -92,11 +107,12 @@ export async function onRequest({ request, env }) {
         id: 1,
         complaint_number: "CMP-2026-1001",
         customer_name: "Arvind Shukla",
+        customer_name_hi: "अरविंद शुक्ला",
         customer_mobile: "9876543210",
         customer_address: "56, Rajajipuram, Lucknow, UP",
         rate_card_id: 1, // 32" TV Install (₹300)
         assigned_tech_id: 5, // Vishal
-        used_part_id: 13,
+        used_part_id: 23, // Sony 55" Bravia Main Board (SN-INST-2026-01)
         tech_payout_amount: 300,
         admin_edited_amount: null,
         admin_edit_remark: null,
@@ -215,12 +231,13 @@ export async function onRequest({ request, env }) {
         created_at: "2026-11-21T11:30:00Z",
       },
 
-      // Call 7: Completed, Paid (Sonu Singh)
+      // Call 7: Completed, Paid (Rohit Verma)
       {
         id: 7,
         complaint_number: "CMP-2026-1007",
-        customer_name: "Virendra Yadav",
-        customer_mobile: "9792001122",
+        customer_name: "Rohit Verma",
+        customer_name_hi: "रोहित वर्मा",
+        customer_mobile: "9839123400",
         customer_address: "Kalyanpur, Ring Road, Lucknow",
         rate_card_id: 4, // Fridge Gas (₹850)
         assigned_tech_id: 6, // Sonu
@@ -236,12 +253,13 @@ export async function onRequest({ request, env }) {
         completed_at: "2026-11-20T12:00:00Z",
         created_at: "2026-11-20T08:00:00Z",
       },
-      // Call 8: Completed, Paid (Sonu Singh)
+      // Call 8: Completed, Paid (Neha Sharma)
       {
         id: 8,
         complaint_number: "CMP-2026-1008",
-        customer_name: "Anjali Gupta",
-        customer_mobile: "9415556677",
+        customer_name: "Neha Sharma",
+        customer_name_hi: "नेहा शर्मा",
+        customer_mobile: "9839988771",
         customer_address: "Ashiyana Colony, Sector K, Lucknow",
         rate_card_id: 5, // Washing Machine Motor (₹500)
         assigned_tech_id: 6, // Sonu

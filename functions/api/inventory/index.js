@@ -116,7 +116,7 @@ export async function onRequestPut({ request, env }) {
 
   try {
     const body = await request.json();
-    const { id, serial_number, action, category_id, tech_id, challan_number, return_slip_url, remarks } = body;
+    const { id, serial_number, action, category_id, tech_id, challan_number, challan_image_url, return_slip_url, courier_name, courier_tracking_no, remarks } = body;
 
     let item = null;
     if (id) {
@@ -128,6 +128,17 @@ export async function onRequestPut({ request, env }) {
 
     if (!item) {
       return errorResponse("Inventory item not found.", 404);
+    }
+
+    // Direct field updates without state change (e.g. uploading challan photo or courier slip)
+    if (!action) {
+      if (challan_image_url) item.challan_image_url = challan_image_url;
+      if (return_slip_url) item.return_slip_url = return_slip_url;
+      if (challan_number) item.challan_number = challan_number;
+      if (courier_name) item.courier_name = courier_name;
+      if (courier_tracking_no) item.courier_tracking_no = courier_tracking_no;
+      await saveInventoryItem(env, item);
+      return jsonResponse({ success: true, item, message: "Inventory item updated successfully." });
     }
 
     const users = await getUsers(env);
@@ -167,7 +178,10 @@ export async function onRequestPut({ request, env }) {
       if (!challan_number) return errorResponse("Challan number is required.", 400);
       item.status = "returned_to_company";
       item.challan_number = String(challan_number).trim();
-      item.return_slip_url = return_slip_url || item.return_slip_url;
+      if (challan_image_url) item.challan_image_url = challan_image_url;
+      if (return_slip_url) item.return_slip_url = return_slip_url;
+      if (courier_name) item.courier_name = courier_name;
+      if (courier_tracking_no) item.courier_tracking_no = courier_tracking_no;
 
       await saveInventoryItem(env, item);
       await recordAudit(env, {
@@ -175,8 +189,8 @@ export async function onRequestPut({ request, env }) {
         entity_id: item.id,
         action_by_user_id: user.id,
         assigned_to_user_id: null,
-        action_description_en: `${user.name} dispatched defective part ${item.serial_number} to company with Challan #${item.challan_number}.`,
-        action_description_hi: `${user.name} ने खराब पार्ट ${item.serial_number} को चालान #${item.challan_number} के साथ कंपनी भेजा।`,
+        action_description_en: `${user.name} dispatched defective part ${item.serial_number} to company with Return Challan #${item.challan_number} (Courier: ${item.courier_name || 'Courier'}).`,
+        action_description_hi: `${user.name} ने खराब पार्ट ${item.serial_number} को चालान #${item.challan_number} व कूरियर स्लिप के साथ कंपनी भेजा।`,
       });
     } else if (action === "mark_installed") {
       item.status = "installed";
