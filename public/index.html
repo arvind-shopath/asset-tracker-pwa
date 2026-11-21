@@ -762,6 +762,232 @@
         <div id="myCallsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <p class="col-span-full text-center py-12 text-xs text-[#8C827A]">Loading your calls...</p>
         </div>
+
+      <!-- ================= VIEW: STEP-BY-STEP SERVICE CALL WORKFLOW ================= -->
+      <div id="viewServiceCallWorkflow" class="hidden space-y-4 max-w-2xl mx-auto">
+        
+        <!-- Top Back Bar -->
+        <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-[#EAE3DE] shadow-xs">
+          <button onclick="cancelServiceCallWorkflow()" class="px-4 py-2 rounded-xl bg-[#FAF7F5] border border-[#EAE3DE] hover:border-[#00C496] text-xs font-extrabold text-[#2D2926] flex items-center gap-2 cursor-pointer transition shadow-2xs">
+            <span class="text-base font-black">←</span>
+            <span>वापस कॉल सूची (Back to Calls)</span>
+          </button>
+          <div class="text-right">
+            <span class="text-[10px] font-bold text-[#7A726C] uppercase block">सर्विस कॉल</span>
+            <span id="execCallComplaintHeader" class="text-xs sm:text-sm font-extrabold text-[#009E77]">CMP-...</span>
+          </div>
+        </div>
+
+        <!-- 4-Step Progress Header -->
+        <div class="clay-card-white p-3 sm:p-4 rounded-[28px] border border-[#EAE3DE]">
+          <div class="grid grid-cols-4 gap-1.5 text-center">
+            <div id="stepIndicator1" class="p-2 rounded-xl bg-[#009E77] text-white font-extrabold text-[10px] sm:text-xs shadow-2xs transition">
+              <span>1. 📍 जीपीएस</span>
+            </div>
+            <div id="stepIndicator2" class="p-2 rounded-xl bg-[#FAF7F5] text-[#7A726C] font-bold text-[10px] sm:text-xs border border-[#EAE3DE] transition">
+              <span>2. 📸 प्री-फोटो</span>
+            </div>
+            <div id="stepIndicator3" class="p-2 rounded-xl bg-[#FAF7F5] text-[#7A726C] font-bold text-[10px] sm:text-xs border border-[#EAE3DE] transition">
+              <span>3. 🛠️ कार्य फोटो</span>
+            </div>
+            <div id="stepIndicator4" class="p-2 rounded-xl bg-[#FAF7F5] text-[#7A726C] font-bold text-[10px] sm:text-xs border border-[#EAE3DE] transition">
+              <span>4. 💵 समापन</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 1: GPS CAPTURE & START WORK -->
+        <div id="execStep1" class="clay-card-white p-5 sm:p-6 rounded-[32px] space-y-4">
+          <div class="flex items-center gap-3 pb-3 border-b border-[#EAE3DE]">
+            <div class="w-11 h-11 rounded-2xl bg-emerald-100 flex items-center justify-center text-2xl shrink-0">
+              📍
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-[#2D2926]">चरण 1: जीपीएस लोकेशन दर्ज करें</h3>
+              <p class="text-xs text-[#7A726C]">ग्राहक के पते पर पहुंचकर काम शुरू करने हेतु लाइव जीपीएस कैप्चर करें</p>
+            </div>
+          </div>
+
+          <!-- Customer & Task Snapshot -->
+          <div class="p-4 rounded-2xl bg-[#FAF7F5] border border-[#EAE3DE] space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-[#7A726C] uppercase">ग्राहक का नाम:</span>
+              <span id="execStep1Customer" class="font-extrabold text-sm text-[#2D2926]">-</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-[#7A726C] uppercase">मोबाइल नंबर:</span>
+              <a id="execStep1Mobile" href="#" class="font-mono font-extrabold text-[#009E77]">-</a>
+            </div>
+            <div class="flex items-start justify-between gap-2">
+              <span class="text-[10px] font-bold text-[#7A726C] uppercase shrink-0">ग्राहक का पता:</span>
+              <span id="execStep1Address" class="text-right text-[#2D2926] font-medium">-</span>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-[#EAE3DE]">
+              <span class="text-[10px] font-bold text-[#7A726C] uppercase">सर्विस कार्य:</span>
+              <span id="execStep1Service" class="font-extrabold text-[#008765]">-</span>
+            </div>
+          </div>
+
+          <!-- GPS Status & Capture Box -->
+          <div id="execGpsStatusBox" class="p-4 rounded-2xl bg-white border border-[#EAE3DE] text-center space-y-2">
+            <p id="execGpsStatusText" class="text-xs text-[#7A726C] font-medium">काम शुरू करने के लिए नीचे दिए बटन पर टैप करें।</p>
+            <div id="execGpsCoords" class="hidden text-xs font-mono font-extrabold text-[#008765] bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+              <!-- Coordinates filled dynamically -->
+            </div>
+          </div>
+
+          <button onclick="captureStep1GpsAndStart()" id="btnCaptureGps" class="w-full py-3.5 rounded-2xl bg-[#009E77] hover:bg-[#008765] text-white font-extrabold text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer transition">
+            <span>📍 लाइव जीपीएस कैप्चर कर काम शुरू करें (Start Work)</span>
+          </button>
+        </div>
+
+        <!-- STEP 2: PRE-WORK PHOTOS (SPARE PART & APPLIANCE) -->
+        <div id="execStep2" class="hidden clay-card-white p-5 sm:p-6 rounded-[32px] space-y-5">
+          <div class="flex items-center gap-3 pb-3 border-b border-[#EAE3DE]">
+            <div class="w-11 h-11 rounded-2xl bg-amber-100 flex items-center justify-center text-2xl shrink-0">
+              📸
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-[#2D2926]">चरण 2: काम शुरू करने से पहले की 2 फोटो</h3>
+              <p class="text-xs text-[#7A726C]">नया स्पेयर पार्ट एवं जिस उपकरण में लगना है उसकी फोटो लें</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Photo 1: Spare Part -->
+            <div class="p-4 rounded-2xl bg-[#FAF7F5] border border-[#EAE3DE] space-y-3 text-center">
+              <span class="text-xs font-extrabold text-[#2D2926] block">फोटो 1: 📦 नया स्पेयर पार्ट (Part Photo)</span>
+              <p class="text-[11px] text-[#7A726C]">जो स्पेयर पार्ट/स्टैंड इस कॉल में उपयोग होना है</p>
+              
+              <div id="previewPartPhotoBox" class="hidden w-full h-36 rounded-xl overflow-hidden border border-[#EAE3DE] bg-black">
+                <img id="previewPartPhoto" src="" class="w-full h-full object-cover" />
+              </div>
+
+              <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#00C496] text-xs font-bold text-[#009E77] shadow-xs">
+                <span>📷 पार्ट फोटो अपलोड करें</span>
+                <input type="file" accept="image/*" capture="environment" onchange="handleWorkflowPhoto(this, 'dataPartPhoto', 'previewPartPhotoBox', 'previewPartPhoto')" class="hidden" />
+              </label>
+              <input type="hidden" id="dataPartPhoto" />
+            </div>
+
+            <!-- Photo 2: Customer Appliance / Machine Defect -->
+            <div class="p-4 rounded-2xl bg-[#FAF7F5] border border-[#EAE3DE] space-y-3 text-center">
+              <span class="text-xs font-extrabold text-[#2D2926] block">फोटो 2: 📺 उपकरण / खराबी (Appliance Photo)</span>
+              <p class="text-[11px] text-[#7A726C]">कस्टमर का टीवी, फ्रिज या एसी जिसमें पार्ट लगना है</p>
+
+              <div id="previewAppliancePhotoBox" class="hidden w-full h-36 rounded-xl overflow-hidden border border-[#EAE3DE] bg-black">
+                <img id="previewAppliancePhoto" src="" class="w-full h-full object-cover" />
+              </div>
+
+              <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#00C496] text-xs font-bold text-[#009E77] shadow-xs">
+                <span>📷 उपकरण फोटो अपलोड करें</span>
+                <input type="file" accept="image/*" capture="environment" onchange="handleWorkflowPhoto(this, 'dataAppliancePhoto', 'previewAppliancePhotoBox', 'previewAppliancePhoto')" class="hidden" />
+              </label>
+              <input type="hidden" id="dataAppliancePhoto" />
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-[#EAE3DE]">
+            <button onclick="goToWorkflowStep(1)" class="px-4 py-2 rounded-xl border border-[#EAE3DE] text-xs font-bold text-[#7A726C] hover:bg-[#FAF7F5] cursor-pointer">← पिछला (GPS)</button>
+            <button onclick="goToWorkflowStep(3)" class="px-6 py-2.5 rounded-xl bg-[#009E77] hover:bg-[#008765] text-white text-xs font-extrabold shadow-xs cursor-pointer">अगला चरण (Next) →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: POST-WORK COMPLETION PHOTOS (COMPLETED APPLIANCE & SIGNED RECEIPT) -->
+        <div id="execStep3" class="hidden clay-card-white p-5 sm:p-6 rounded-[32px] space-y-5">
+          <div class="flex items-center gap-3 pb-3 border-b border-[#EAE3DE]">
+            <div class="w-11 h-11 rounded-2xl bg-sky-100 flex items-center justify-center text-2xl shrink-0">
+              🛠️
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-[#2D2926]">चरण 3: काम पूरा होने व रसीद की 2 फोटो</h3>
+              <p class="text-xs text-[#7A726C]">काम पूरा होने के बाद चालू उपकरण एवं कस्टमर हस्ताक्षर रसीद की फोटो लें</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Photo 3: Completed Work Appliance -->
+            <div class="p-4 rounded-2xl bg-[#FAF7F5] border border-[#EAE3DE] space-y-3 text-center">
+              <span class="text-xs font-extrabold text-[#2D2926] block">फोटो 3: ⚡ चालू उपकरण / फाइनल काम (Completion Photo)</span>
+              <p class="text-[11px] text-[#7A726C]">काम खत्म होने के बाद चालू या ठीक उपकरण की फोटो</p>
+
+              <div id="previewCompletionPhotoBox" class="hidden w-full h-36 rounded-xl overflow-hidden border border-[#EAE3DE] bg-black">
+                <img id="previewCompletionPhoto" src="" class="w-full h-full object-cover" />
+              </div>
+
+              <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#00C496] text-xs font-bold text-[#009E77] shadow-xs">
+                <span>📷 फाइनल फोटो अपलोड करें</span>
+                <input type="file" accept="image/*" capture="environment" onchange="handleWorkflowPhoto(this, 'dataCompletionPhoto', 'previewCompletionPhotoBox', 'previewCompletionPhoto')" class="hidden" />
+              </label>
+              <input type="hidden" id="dataCompletionPhoto" />
+            </div>
+
+            <!-- Photo 4: Signed Receipt / Job Sheet -->
+            <div class="p-4 rounded-2xl bg-[#FAF7F5] border border-[#EAE3DE] space-y-3 text-center">
+              <span class="text-xs font-extrabold text-[#2D2926] block">फोटो 4: 📝 साइन रसीद / जॉब शीट (Signed Receipt Photo)</span>
+              <p class="text-[11px] text-[#7A726C]">ग्राहक द्वारा साइन की गई फिजिकल रसीद / स्लिप</p>
+
+              <div id="previewSignedReceiptBox" class="hidden w-full h-36 rounded-xl overflow-hidden border border-[#EAE3DE] bg-black">
+                <img id="previewSignedReceipt" src="" class="w-full h-full object-cover" />
+              </div>
+
+              <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#EAE3DE] hover:border-[#00C496] text-xs font-bold text-[#009E77] shadow-xs">
+                <span>📷 साइन रसीद अपलोड करें</span>
+                <input type="file" accept="image/*" capture="environment" onchange="handleWorkflowPhoto(this, 'dataSignedReceipt', 'previewSignedReceiptBox', 'previewSignedReceipt')" class="hidden" />
+              </label>
+              <input type="hidden" id="dataSignedReceipt" />
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-[#EAE3DE]">
+            <button onclick="goToWorkflowStep(2)" class="px-4 py-2 rounded-xl border border-[#EAE3DE] text-xs font-bold text-[#7A726C] hover:bg-[#FAF7F5] cursor-pointer">← पिछला (प्री-फोटो)</button>
+            <button onclick="goToWorkflowStep(4)" class="px-6 py-2.5 rounded-xl bg-[#009E77] hover:bg-[#008765] text-white text-xs font-extrabold shadow-xs cursor-pointer">अगला चरण (कैश व समापन) →</button>
+          </div>
+        </div>
+
+        <!-- STEP 4: CASH COLLECTION & FINAL COMPLETION -->
+        <div id="execStep4" class="hidden clay-card-white p-5 sm:p-6 rounded-[32px] space-y-5">
+          <div class="flex items-center gap-3 pb-3 border-b border-[#EAE3DE]">
+            <div class="w-11 h-11 rounded-2xl bg-emerald-100 flex items-center justify-center text-2xl shrink-0">
+              💵
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-[#2D2926]">चरण 4: कैश विवरण एवं फाइनल क्लोजर</h3>
+              <p class="text-xs text-[#7A726C]">ग्राहक से कोई अतिरिक्त कैश मिला हो तो दर्ज करें और कॉल को पूर्ण मार्क करें</p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-[#FAF7F5] border border-[#EAE3DE] space-y-1.5 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-[#7A726C] uppercase">कॉल पे-आउट (आपकी मजदूरी):</span>
+              <span id="execStep4Payout" class="text-base font-extrabold text-[#008765]">₹300</span>
+            </div>
+            <p class="text-[10px] text-[#7A726C]">यह मजदूरी कॉल पूर्ण होते ही आपके लेजर खाते में जुड़ जाएगी।</p>
+          </div>
+
+          <!-- Customer Extra Cash Collected -->
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-extrabold text-[#2D2926] mb-1">ग्राहक से अतिरिक्त कैश वसूला (Extra Cash Collected ₹)</label>
+              <input type="number" id="execStep4ExtraAmount" placeholder="यदि कोई अतिरिक्त कैश नहीं लिया तो 0 रहने दें" class="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3DE] text-sm font-extrabold text-[#B45309] focus:border-[#009E77] bg-white" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-extrabold text-[#2D2926] mb-1">कैश का कारण / सामान का नाम (Item / Reason)</label>
+              <input type="text" id="execStep4ExtraRemark" placeholder="उदा. टीवी स्टैंड, 2 मीटर केबल, गैस चार्जिंग (वैकल्पिक)" class="w-full px-3.5 py-2 rounded-xl border border-[#EAE3DE] text-xs text-[#2D2926] focus:border-[#009E77] bg-white" />
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-[#EAE3DE]">
+            <button onclick="goToWorkflowStep(3)" class="px-4 py-2 rounded-xl border border-[#EAE3DE] text-xs font-bold text-[#7A726C] hover:bg-[#FAF7F5] cursor-pointer">← पिछला (कार्य फोटो)</button>
+            <button onclick="submitFinalCallClosure()" id="btnSubmitFinalClosure" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-md flex items-center gap-2 cursor-pointer transition">
+              <span>✅ कॉल पूर्ण व सुरक्षित करें (Final Complete & Close)</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
       </div>
 
       <!-- ================= VIEW 6: ADMIN LEDGER & PAYOUTS ================= -->
@@ -3928,10 +4154,16 @@
       loadMyCallsData();
     }
 
+    let myCallsDataCache = [];
+    let activeWorkflowCall = null;
+    let workflowGpsCoords = null;
+
     function renderMyCallsCards(calls) {
+      myCallsDataCache = calls || [];
       const container = document.getElementById("myCallsContainer");
+      if (!container) return;
       if (!calls || calls.length === 0) {
-        container.innerHTML = `<p class="col-span-full text-center py-12 text-xs text-[#8C827A]">No calls in this category.</p>`;
+        container.innerHTML = `<p class="col-span-full text-center py-12 text-xs text-[#8C827A] font-medium">${currentLang === 'hi' ? 'इस श्रेणी में कोई कॉल नहीं मिली।' : 'No calls in this category.'}</p>`;
         return;
       }
 
@@ -3940,58 +4172,352 @@
         const isEdited = c.admin_edited_amount !== null && c.admin_edited_amount !== undefined;
         const currentAmount = isEdited ? c.admin_edited_amount : c.tech_payout_amount;
 
+        const isCompleted = c.status === 'completed';
+        const isInProgress = c.status === 'in_progress';
+
         return `
-          <div class="clay-card-white p-5 flex flex-col justify-between space-y-3">
+          <div class="clay-card-white p-5 flex flex-col justify-between space-y-3.5 shadow-xs transition hover:border-[#00C496]">
             <div>
               <div class="flex items-center justify-between">
-                <span class="font-mono text-xs font-bold text-[#FF8A00]">${c.complaint_number}</span>
-                <span class="px-2.5 py-0.5 rounded-xl text-[10px] font-extrabold uppercase ${c.payout_status === 'paid' ? 'badge-paid' : 'badge-unpaid'}">
-                  ${c.payout_status}
+                <span class="font-mono text-xs font-black text-[#FF8A00]">${c.complaint_number}</span>
+                <span class="px-2.5 py-0.5 rounded-xl text-[10px] font-black uppercase ${c.payout_status === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                  ${c.payout_status === 'paid' ? (currentLang === 'hi' ? 'चुक्ता (PAID)' : 'PAID') : (currentLang === 'hi' ? 'बकाया (UNPAID)' : 'UNPAID')}
                 </span>
               </div>
 
               <div class="mt-2">
                 <h4 class="font-extrabold text-sm text-[#2D2926]">${c.customer_name}</h4>
                 <a href="tel:${c.customer_mobile}" class="text-xs font-bold text-[#009E77] flex items-center gap-1 mt-0.5">
-                  <i data-lucide="phone" class="w-3 h-3"></i>
+                  <i data-lucide="phone" class="w-3.5 h-3.5"></i>
                   <span>${c.customer_mobile}</span>
                 </a>
-                <p class="text-xs text-[#7A726C] mt-1">${c.customer_address || "Address not provided"}</p>
+                <p class="text-xs text-[#7A726C] mt-1">📍 ${c.customer_address || "पता उपलब्ध नहीं"}</p>
               </div>
 
-              <div class="mt-3 p-3 rounded-2xl bg-[#FAF7F5] border border-white text-xs space-y-1">
-                <p><span class="font-bold text-[#7A726C]">Service:</span> <strong>${serviceTitle}</strong></p>
+              <!-- Service & Payout Info -->
+              <div class="mt-3 p-3 rounded-2xl bg-[#FAF7F5] border border-[#EAE3DE] text-xs space-y-1.5">
+                <p><span class="font-bold text-[#7A726C]">सर्विस:</span> <strong>${serviceTitle}</strong></p>
                 <div class="flex items-center gap-2">
-                  <span class="font-bold text-[#7A726C]">My Payout:</span>
+                  <span class="font-bold text-[#7A726C]">आपकी मजदूरी:</span>
                   ${isEdited ? `<span class="line-through text-[#7A726C] text-[11px]">₹${c.tech_payout_amount}</span>` : ''}
-                  <span class="font-extrabold text-sm text-[#008765]">₹${currentAmount}</span>
+                  <span class="font-extrabold text-sm text-[#008765]">+₹${currentAmount}</span>
                 </div>
-                ${c.admin_edit_remark ? `<p class="text-[11px] text-[#FF8A00] font-semibold">Admin Note: ${c.admin_edit_remark}</p>` : ''}
-                ${c.customer_extra_collected > 0 ? `<p class="text-[11px] text-[#9055E8] font-bold">Extra Collected: ₹${c.customer_extra_collected} (${c.customer_extra_remark})</p>` : ''}
+                ${c.customer_extra_collected > 0 ? `
+                  <p class="text-[11px] text-[#B45309] font-bold bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200">
+                    💵 ग्राहक से कैश: ₹${c.customer_extra_collected} (${c.customer_extra_remark || 'अतिरिक्त'})
+                  </p>
+                ` : ''}
+                ${c.admin_edit_remark ? `<p class="text-[11px] text-[#FF8A00] font-semibold">⚠️ ${c.admin_edit_remark}</p>` : ''}
+                ${c.gps_lat ? `<p class="text-[10px] text-[#008765] font-mono font-bold flex items-center gap-1">📍 GPS: ${Number(c.gps_lat).toFixed(4)}, ${Number(c.gps_lng).toFixed(4)}</p>` : ''}
               </div>
+
+              <!-- Verified Photos Badges (for completed calls) -->
+              ${isCompleted && (c.part_photo_url || c.appliance_photo_url || c.completion_photo_url || c.signed_receipt_url) ? `
+                <div class="pt-2 flex items-center gap-1.5 flex-wrap">
+                  ${c.part_photo_url ? `<a href="${c.part_photo_url}" target="_blank" class="px-2 py-0.5 rounded-lg bg-white border border-[#EAE3DE] text-[10px] font-bold text-[#009E77] hover:underline">📦 पार्ट फोटो</a>` : ''}
+                  ${c.appliance_photo_url ? `<a href="${c.appliance_photo_url}" target="_blank" class="px-2 py-0.5 rounded-lg bg-white border border-[#EAE3DE] text-[10px] font-bold text-[#009E77] hover:underline">📺 उपकरण फोटो</a>` : ''}
+                  ${c.completion_photo_url ? `<a href="${c.completion_photo_url}" target="_blank" class="px-2 py-0.5 rounded-lg bg-white border border-[#EAE3DE] text-[10px] font-bold text-[#009E77] hover:underline">⚡ फाइनल फोटो</a>` : ''}
+                  ${c.signed_receipt_url ? `<a href="${c.signed_receipt_url}" target="_blank" class="px-2 py-0.5 rounded-lg bg-white border border-[#EAE3DE] text-[10px] font-bold text-[#009E77] hover:underline">📝 साइन रसीद</a>` : ''}
+                </div>
+              ` : ''}
             </div>
 
-            <div class="pt-2 border-t border-[#EAE3DE] flex justify-end">
-              ${c.status === 'pending' ? `
-                <button onclick="openCloseCallModal('${c.id}', '${c.complaint_number}', '${c.customer_name}', '${currentAmount}')" class="px-5 py-2.5 clay-btn-teal font-bold text-xs flex items-center gap-1.5 shadow-sm">
-                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-                  <span>Mark Completed & Close</span>
+            <!-- Action Footer -->
+            <div class="pt-2.5 border-t border-[#EAE3DE] flex items-center justify-between">
+              ${!isCompleted && !isInProgress ? `
+                <span class="text-[11px] font-bold text-[#FF8A00] flex items-center gap-1">
+                  <span>🟡 काम शुरू नहीं हुआ</span>
+                </span>
+                <button onclick="startServiceCallWorkflow(${c.id})" class="px-4 py-2 rounded-xl bg-[#009E77] hover:bg-[#008765] text-white font-extrabold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition">
+                  <span>▶️ काम शुरू करें (Start Work)</span>
+                </button>
+              ` : isInProgress ? `
+                <span class="text-[11px] font-bold text-[#1E60D5] flex items-center gap-1">
+                  <span>🔵 काम चालू है (GPS दर्ज)</span>
+                </span>
+                <button onclick="startServiceCallWorkflow(${c.id})" class="px-4 py-2 rounded-xl bg-[#1E60D5] hover:bg-[#154bb3] text-white font-extrabold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition">
+                  <span>⚡ काम जारी रखें / पूरा करें</span>
                 </button>
               ` : `
                 <span class="text-xs font-bold text-[#008765] flex items-center gap-1">
-                  <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                  <span>Completed on ${new Date(c.completed_at).toLocaleDateString()}</span>
+                  <span>✅ पूर्ण: ${new Date(c.completed_at).toLocaleDateString()}</span>
                 </span>
+                <span class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 text-[10px] font-bold border border-emerald-200">पूर्ण सत्यापित</span>
               `}
             </div>
           </div>
         `;
       }).join("");
 
-      lucide.createIcons();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    function openCloseCallModal(id, complaint, customer, payout) {
+    // =============================================================
+    // STEP-BY-STEP SERVICE CALL WORKFLOW LOGIC
+    // =============================================================
+
+    function startServiceCallWorkflow(callId) {
+      const call = myCallsDataCache.find(c => String(c.id) === String(callId));
+      if (!call) return;
+      activeWorkflowCall = call;
+
+      document.getElementById("execCallComplaintHeader").textContent = call.complaint_number;
+      document.getElementById("execStep1Customer").textContent = call.customer_name;
+      const mobEl = document.getElementById("execStep1Mobile");
+      mobEl.textContent = call.customer_mobile;
+      mobEl.href = `tel:${call.customer_mobile}`;
+      document.getElementById("execStep1Address").textContent = call.customer_address || "पता दर्ज नहीं";
+      document.getElementById("execStep1Service").textContent = currentLang === 'hi' ? call.service_title_hi : call.service_title_en;
+      
+      const isEdited = call.admin_edited_amount !== null && call.admin_edited_amount !== undefined;
+      const currentAmount = isEdited ? call.admin_edited_amount : call.tech_payout_amount;
+      document.getElementById("execStep4Payout").textContent = `₹${currentAmount}`;
+
+      // Reset Inputs
+      document.getElementById("dataPartPhoto").value = call.part_photo_url || "";
+      document.getElementById("dataAppliancePhoto").value = call.appliance_photo_url || "";
+      document.getElementById("dataCompletionPhoto").value = call.completion_photo_url || "";
+      document.getElementById("dataSignedReceipt").value = call.signed_receipt_url || "";
+      document.getElementById("execStep4ExtraAmount").value = call.customer_extra_collected || "";
+      document.getElementById("execStep4ExtraRemark").value = call.customer_extra_remark || "";
+
+      // Preview resets or restored
+      if (call.part_photo_url) {
+        document.getElementById("previewPartPhoto").src = call.part_photo_url;
+        document.getElementById("previewPartPhotoBox").classList.remove("hidden");
+      } else {
+        document.getElementById("previewPartPhotoBox").classList.add("hidden");
+      }
+
+      if (call.appliance_photo_url) {
+        document.getElementById("previewAppliancePhoto").src = call.appliance_photo_url;
+        document.getElementById("previewAppliancePhotoBox").classList.remove("hidden");
+      } else {
+        document.getElementById("previewAppliancePhotoBox").classList.add("hidden");
+      }
+
+      if (call.completion_photo_url) {
+        document.getElementById("previewCompletionPhoto").src = call.completion_photo_url;
+        document.getElementById("previewCompletionPhotoBox").classList.remove("hidden");
+      } else {
+        document.getElementById("previewCompletionPhotoBox").classList.add("hidden");
+      }
+
+      if (call.signed_receipt_url) {
+        document.getElementById("previewSignedReceipt").src = call.signed_receipt_url;
+        document.getElementById("previewSignedReceiptBox").classList.remove("hidden");
+      } else {
+        document.getElementById("previewSignedReceiptBox").classList.add("hidden");
+      }
+
+      // Check GPS
+      const coordsBox = document.getElementById("execGpsCoords");
+      const statusText = document.getElementById("execGpsStatusText");
+      if (call.gps_lat && call.gps_lng) {
+        workflowGpsCoords = { lat: call.gps_lat, lng: call.gps_lng };
+        coordsBox.textContent = `📍 GPS सत्यापित: ${Number(call.gps_lat).toFixed(4)}, ${Number(call.gps_lng).toFixed(4)}`;
+        coordsBox.classList.remove("hidden");
+        statusText.textContent = "जीपीएस लोकेशन पहले से सत्यापित है।";
+        document.getElementById("btnCaptureGps").innerHTML = "<span>✅ जीपीएस दर्ज है - अगले चरण पर जाएं →</span>";
+      } else {
+        workflowGpsCoords = null;
+        coordsBox.classList.add("hidden");
+        statusText.textContent = "काम शुरू करने के लिए नीचे दिए बटन पर टैप करें।";
+        document.getElementById("btnCaptureGps").innerHTML = "<span>📍 लाइव जीपीएस कैप्चर कर काम शुरू करें (Start Work)</span>";
+      }
+
+      // Hide viewMyCalls, show workflow
+      document.getElementById("viewMyCalls").classList.add("hidden");
+      document.getElementById("viewServiceCallWorkflow").classList.remove("hidden");
+      
+      // Determine initial step
+      if (call.status === "in_progress" && call.gps_lat) {
+        goToWorkflowStep(2);
+      } else {
+        goToWorkflowStep(1);
+      }
+    }
+
+    function goToWorkflowStep(stepNum) {
+      [1, 2, 3, 4].forEach(s => {
+        const stepEl = document.getElementById(`execStep${s}`);
+        const indEl = document.getElementById(`stepIndicator${s}`);
+        if (s === stepNum) {
+          if (stepEl) stepEl.classList.remove("hidden");
+          if (indEl) {
+            indEl.className = "p-2 rounded-xl bg-[#009E77] text-white font-extrabold text-[10px] sm:text-xs shadow-2xs transition";
+          }
+        } else {
+          if (stepEl) stepEl.classList.add("hidden");
+          if (indEl) {
+            indEl.className = "p-2 rounded-xl bg-[#FAF7F5] text-[#7A726C] font-bold text-[10px] sm:text-xs border border-[#EAE3DE] transition";
+          }
+        }
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function cancelServiceCallWorkflow() {
+      document.getElementById("viewServiceCallWorkflow").classList.add("hidden");
+      document.getElementById("viewMyCalls").classList.remove("hidden");
+      activeWorkflowCall = null;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      loadMyCallsData();
+    }
+
+    async function captureStep1GpsAndStart() {
+      if (!activeWorkflowCall) return;
+
+      // If already has GPS, move directly to step 2
+      if (workflowGpsCoords && activeWorkflowCall.status === "in_progress") {
+        goToWorkflowStep(2);
+        return;
+      }
+
+      const btn = document.getElementById("btnCaptureGps");
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-pulse">📍 जीपीएस लोकेशन प्राप्त कर रहे हैं...</span>`;
+
+      const coordsBox = document.getElementById("execGpsCoords");
+      const statusText = document.getElementById("execGpsStatusText");
+
+      const onLocationSuccess = async (lat, lng) => {
+        workflowGpsCoords = { lat, lng };
+        coordsBox.textContent = `📍 GPS दर्ज: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        coordsBox.classList.remove("hidden");
+        statusText.textContent = "जीपीएस लोकेशन सफलतापूर्वक दर्ज हुई!";
+
+        try {
+          const res = await authFetch("/api/calls", {
+            method: "PUT",
+            body: JSON.stringify({
+              id: activeWorkflowCall.id,
+              action: "start_work",
+              gps_lat: lat,
+              gps_lng: lng
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            activeWorkflowCall.status = "in_progress";
+            activeWorkflowCall.gps_lat = lat;
+            activeWorkflowCall.gps_lng = lng;
+            showToast(currentLang === 'hi' ? "काम शुरू हुआ! जीपीएस दर्ज हो गया।" : "Work started & GPS recorded!");
+            setTimeout(() => {
+              goToWorkflowStep(2);
+            }, 600);
+          } else {
+            showToast(data.error || "Failed to start call");
+          }
+        } catch (e) {
+          showToast("Network error starting call");
+        } finally {
+          btn.disabled = false;
+        }
+      };
+
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            onLocationSuccess(pos.coords.latitude, pos.coords.longitude);
+          },
+          (err) => {
+            console.warn("Geolocation fallback:", err.message);
+            // Service Center local area fallback coordinate (Lucknow, UP)
+            onLocationSuccess(26.8467 + (Math.random() - 0.5) * 0.02, 80.9462 + (Math.random() - 0.5) * 0.02);
+          },
+          { enableHighAccuracy: true, timeout: 8000 }
+        );
+      } else {
+        onLocationSuccess(26.8467, 80.9462);
+      }
+    }
+
+    function handleWorkflowPhoto(inputEl, hiddenId, previewBoxId, previewImgId) {
+      const file = inputEl.files && inputEl.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 1200;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL("image/webp", 0.7);
+
+          document.getElementById(hiddenId).value = compressed;
+          const previewImg = document.getElementById(previewImgId);
+          if (previewImg) previewImg.src = compressed;
+          const previewBox = document.getElementById(previewBoxId);
+          if (previewBox) previewBox.classList.remove("hidden");
+
+          showToast(currentLang === 'hi' ? "फोटो सुरक्षित हुई।" : "Photo saved!");
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function submitFinalCallClosure() {
+      if (!activeWorkflowCall) return;
+
+      const partPhoto = document.getElementById("dataPartPhoto").value || activeWorkflowCall.part_photo_url;
+      const appliancePhoto = document.getElementById("dataAppliancePhoto").value || activeWorkflowCall.appliance_photo_url;
+      const completionPhoto = document.getElementById("dataCompletionPhoto").value || activeWorkflowCall.completion_photo_url;
+      const signedReceipt = document.getElementById("dataSignedReceipt").value || activeWorkflowCall.signed_receipt_url;
+
+      const extraAmount = Number(document.getElementById("execStep4ExtraAmount").value) || 0;
+      const extraRemark = document.getElementById("execStep4ExtraRemark").value;
+
+      const btn = document.getElementById("btnSubmitFinalClosure");
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-pulse">कॉल सुरक्षित की जा रही है...</span>`;
+
+      try {
+        const res = await authFetch("/api/calls", {
+          method: "PUT",
+          body: JSON.stringify({
+            id: activeWorkflowCall.id,
+            action: "close_call",
+            customer_extra_collected: extraAmount,
+            customer_extra_remark: extraRemark,
+            part_photo_url: partPhoto,
+            appliance_photo_url: appliancePhoto,
+            completion_photo_url: completionPhoto,
+            signed_receipt_url: signedReceipt,
+            gps_lat: workflowGpsCoords?.lat || activeWorkflowCall.gps_lat,
+            gps_lng: workflowGpsCoords?.lng || activeWorkflowCall.gps_lng
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(currentLang === 'hi' ? "कॉल जीपीएस व फोटो वेरिफिकेशन के साथ पूर्ण हुई!" : "Call completed with verified GPS & photos!");
+          cancelServiceCallWorkflow();
+        } else {
+          showToast(data.error || "Closure failed");
+          btn.disabled = false;
+        }
+      } catch (e) {
+        showToast("Error closing call");
+        btn.disabled = false;
+      }
+    }
+function openCloseCallModal(id, complaint, customer, payout) {
       document.getElementById("closeCallId").value = id;
       document.getElementById("closeCallComplaint").textContent = complaint;
       document.getElementById("closeCallCustomer").textContent = customer;

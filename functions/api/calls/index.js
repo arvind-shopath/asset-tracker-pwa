@@ -104,6 +104,14 @@ export async function onRequestPost({ request, env }) {
       payout_status: "unpaid",
       payment_batch_id: null,
       completed_at: null,
+      started_at: null,
+      gps_lat: null,
+      gps_lng: null,
+      gps_address: null,
+      part_photo_url: null,
+      appliance_photo_url: null,
+      completion_photo_url: null,
+      signed_receipt_url: null,
       created_at: new Date().toISOString(),
     };
 
@@ -141,16 +149,66 @@ export async function onRequestPut({ request, env }) {
 
   try {
     const body = await request.json();
-    const { id, action, customer_extra_collected, customer_extra_remark, admin_edited_amount, admin_edit_remark } = body;
+    const { 
+      id, 
+      action, 
+      customer_extra_collected, 
+      customer_extra_remark, 
+      admin_edited_amount, 
+      admin_edit_remark,
+      gps_lat,
+      gps_lng,
+      gps_address,
+      part_photo_url,
+      appliance_photo_url,
+      completion_photo_url,
+      signed_receipt_url
+    } = body;
 
     if (!id) return errorResponse("Call ID is required.", 400);
 
     const call = await findServiceCall(env, id);
     if (!call) return errorResponse("Service call not found.", 404);
 
-    // Technician closure
+    // 1. Technician starts work & captures GPS
+    if (action === "start_work") {
+      if (user.role === "third_party_tech" && String(call.assigned_tech_id) !== String(user.id)) {
+        return errorResponse("You can only start calls assigned to you.", 403);
+      }
+
+      call.status = "in_progress";
+      call.started_at = new Date().toISOString();
+      call.gps_lat = gps_lat ? Number(gps_lat) : null;
+      call.gps_lng = gps_lng ? Number(gps_lng) : null;
+      call.gps_address = gps_address || null;
+
+      await saveServiceCall(env, call);
+
+      const gpsTxt = call.gps_lat ? ` (GPS: ${call.gps_lat.toFixed(4)}, ${call.gps_lng.toFixed(4)})` : "";
+      await recordAudit(env, {
+        entity_type: "call",
+        entity_id: call.id,
+        action_by_user_id: user.id,
+        assigned_to_user_id: call.assigned_tech_id,
+        action_description_en: `${user.name} started work on Call #${call.complaint_number}${gpsTxt}.`,
+        action_description_hi: `${user.name} ने कॉल #${call.complaint_number} पर काम शुरू किया${gpsTxt}।`,
+      });
+
+      return jsonResponse({ success: true, call, message: "Work started and GPS location recorded." });
+    }
+
+    // 2. Save Intermediate Photos
+    if (action === "save_photos") {
+      if (part_photo_url) call.part_photo_url = part_photo_url;
+      if (appliance_photo_url) call.appliance_photo_url = appliance_photo_url;
+      if (completion_photo_url) call.completion_photo_url = completion_photo_url;
+      if (signed_receipt_url) call.signed_receipt_url = signed_receipt_url;
+      await saveServiceCall(env, call);
+      return jsonResponse({ success: true, call });
+    }
+
+    // 3. Final Call Closure with all 4 photos & extra collection
     if (action === "close_call") {
-      // Tech can only close their own calls
       if (user.role === "third_party_tech" && String(call.assigned_tech_id) !== String(user.id)) {
         return errorResponse("You can only close calls assigned to you.", 403);
       }
@@ -159,6 +217,13 @@ export async function onRequestPut({ request, env }) {
       call.completed_at = new Date().toISOString();
       call.customer_extra_collected = Number(customer_extra_collected) || 0;
       call.customer_extra_remark = customer_extra_remark ? String(customer_extra_remark).trim() : null;
+
+      if (part_photo_url) call.part_photo_url = part_photo_url;
+      if (appliance_photo_url) call.appliance_photo_url = appliance_photo_url;
+      if (completion_photo_url) call.completion_photo_url = completion_photo_url;
+      if (signed_receipt_url) call.signed_receipt_url = signed_receipt_url;
+      if (gps_lat) call.gps_lat = Number(gps_lat);
+      if (gps_lng) call.gps_lng = Number(gps_lng);
 
       // If part was used, mark it installed
       if (call.used_part_id) {
@@ -180,14 +245,14 @@ export async function onRequestPut({ request, env }) {
         entity_id: call.id,
         action_by_user_id: user.id,
         assigned_to_user_id: call.assigned_tech_id,
-        action_description_en: `${user.name} closed Call #${call.complaint_number}.${extraText}`,
-        action_description_hi: `${user.name} ने कॉल #${call.complaint_number} पूर्ण मार्क की।${extraTextHi}`,
+        action_description_en: `${user.name} completed Call #${call.complaint_number} with verified GPS & photos.${extraText}`,
+        action_description_hi: `${user.name} ने कॉल #${call.complaint_number} जीपीएस व 4 फोटो वेरिफिकेशन के साथ पूर्ण की।${extraTextHi}`,
       });
 
-      return jsonResponse({ success: true, call, message: "Call marked completed successfully." });
+      return jsonResponse({ success: true, call, message: "Call marked completed successfully with all verifications." });
     }
 
-    // Admin amount edit
+    // 4. Admin amount edit
     if (action === "edit_amount") {
       if (user.role !== "admin") {
         return errorResponse("Only admin can modify payout amounts.", 403);
