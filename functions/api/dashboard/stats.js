@@ -1,58 +1,90 @@
-import { jsonResponse, errorResponse, verifyAuth } from "../_utils.js";
+import { jsonResponse, errorResponse, verifyAuth, getInventory, getServiceCalls, getPaymentBatches, getAuditLogs } from "../_utils.js";
 
 export async function onRequestGet({ request, env }) {
   const user = await verifyAuth(request);
   if (!user) return errorResponse("Authentication required.", 401);
 
   try {
-    const counts = {
-      total: 0,
-      received: 0,
-      in_storage: 0,
-      handed_over: 0,
-      installed: 0,
-      rejected: 0,
-      picked_up: 0,
-    };
+    const inventory = await getInventory(env);
+    const auditLogs = await getAuditLogs(env);
 
-    let recentActivity = [];
+    // 4 Master Tiles
+    const receivedCount = inventory.filter(i => i.status === "received").length;
+    const inStorageCount = inventory.filter(i => i.status === "in_storage").length;
+    const rejectedCount = inventory.filter(i => i.status === "rejected_defective").length;
+    const installedHandoverCount = inventory.filter(i => i.status === "installed" || i.status === "assigned_to_tech").length;
 
-    // 1. From KV
-    if (env.KV) {
-      const list = (await env.KV.get("products_list", "json")) || [];
-      list.forEach((p) => {
-        if (counts[p.current_status] !== undefined) {
-          counts[p.current_status]++;
-        }
-        counts.total++;
-      });
-      recentActivity = (await env.KV.get("recent_activity", "json")) || [];
-    }
+    let roleSpecificData = {};
 
-    // 2. From D1 fallback if KV is empty
-    if (counts.total === 0 && env.DB) {
-      try {
-        const statusCounts = await env.DB.prepare(
-          `SELECT current_status, COUNT(*) as count FROM products GROUP BY current_status`
-        ).all();
-        (statusCounts.results || []).forEach((row) => {
-          counts[row.current_status] = row.count;
-          counts.total += row.count;
-        });
-        const rec = await env.DB.prepare(
-          `SELECT a.*, p.name as product_name 
-           FROM audit_trail a 
-           LEFT JOIN products p ON a.product_id = p.id 
-           ORDER BY a.timestamp DESC LIMIT 10`
-        ).all();
-        if (rec.results) recentActivity = rec.results;
-      } catch (e) {}
+    if (user.role === "third_party_tech") {
+      const myCalls = await getServiceCalls(env, user.id);
+      const myBatches = await getPaymentBatches(env, user.id);
+
+      const totalCalls = myCalls.length;
+      const completedCalls = myCalls.filter(c => c.status === "completed");
+      const pendingCalls = myCalls.filter(c => c.status === "pending");
+
+      // Calculate total earnings: use admin_edited_amount if available, else tech_payout_amount
+      const totalEarned = completedCalls.reduce((sum, c) => {
+        const amt = c.admin_edited_amount !== null && c.admin_edited_amount !== undefined ? c.admin_edited_amount : c.tech_payout_amount;
+        return sum + (Number(amt) || 0);
+      }, 0);
+
+      const totalPaid = myBatches.reduce((sum, b) => sum + (Number(b.amount_paid) || 0), 0);
+      const pendingBalance = Math.max(0, totalEarned - totalPaid);
+
+      const myStock = inventory.filter(i => String(i.current_holder_id) === String(user.id) && i.status === "assigned_to_tech");
+
+      roleSpecificData = {
+        totalCalls,
+        completedCount: completedCalls.length,
+        pendingCallsCount: pendingCalls.length,
+        totalEarned,
+        totalPaid,
+        pendingBalance,
+        stockInHandCount: myStock.length,
+      };
+    } else if (user.role === "in_house_staff") {
+      // In-house staff strictly gets inventory numbers, no payouts or call rates!
+      roleSpecificData = {
+        totalInventory: inventory.length,
+      };
+    } else {
+      // Admin gets full financial overview & call stats
+      const allCalls = await getServiceCalls(env);
+      const allBatches = await getPaymentBatches(env);
+
+      const pendingCallsCount = allCalls.filter(c => c.status === "pending").length;
+      const completedCallsCount = allCalls.filter(c => c.status === "completed").length;
+      
+      const totalPayoutDue = allCalls.filter(c => c.status === "completed").reduce((sum, c) => {
+        const amt = c.admin_edited_amount !== null && c.admin_edited_amount !== undefined ? c.admin_edited_amount : c.tech_payout_amount;
+        return sum + (Number(amt) || 0);
+      }, 0);
+      const totalPayoutPaid = allBatches.reduce((sum, b) => sum + (Number(b.amount_paid) || 0), 0);
+
+      roleSpecificData = {
+        totalCalls: allCalls.length,
+        pendingCallsCount,
+        completedCallsCount,
+        totalPayoutDue,
+        totalPayoutPaid,
+        pendingPayoutBalance: Math.max(0, totalPayoutDue - totalPayoutPaid),
+      };
     }
 
     return jsonResponse({
       success: true,
-      stats: counts,
-      recentActivity: recentActivity || [],
+      userRole: user.role,
+      tiles: {
+        received: receivedCount,
+        in_storage: inStorageCount,
+        rejected: rejectedCount,
+        installed_handover: installedHandoverCount,
+        total_items: inventory.length,
+      },
+      stats: roleSpecificData,
+      recentActivity: auditLogs.slice(0, 15),
     });
   } catch (err) {
     return errorResponse(err.message, 500);

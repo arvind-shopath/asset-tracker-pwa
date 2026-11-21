@@ -1,72 +1,118 @@
 -- ============================================================================
--- Asset & Installation Tracking Web App (PWA) - Cloudflare D1 Database Schema
+-- Electronics & Home Appliances Service Center - Cloudflare D1 Database Schema
 -- ============================================================================
 
--- 1. Users Table (Admin & Employees)
+-- 1. Users Table (Admin, In-House Staff, Third-Party Technicians)
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    phone TEXT UNIQUE NOT NULL,
-    pin TEXT NOT NULL,
-    role TEXT NOT NULL CHECK(role IN ('admin', 'employee')),
+    mobile TEXT UNIQUE NOT NULL,
+    pin_or_password TEXT NOT NULL,
+    role TEXT NOT NULL CHECK(role IN ('admin', 'in_house_staff', 'third_party_tech')),
     is_active INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Products Table (Primary Master Record)
-CREATE TABLE IF NOT EXISTS products (
+-- 2. Categories Table (Inventory Buckets)
+CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    serial_number TEXT UNIQUE NOT NULL,
-    name TEXT NOT NULL,
-    model TEXT,
-    supplier TEXT,
-    current_status TEXT NOT NULL DEFAULT 'received' 
-        CHECK(current_status IN ('received', 'in_storage', 'handed_over', 'installed', 'rejected', 'picked_up')),
-    storage_location TEXT,
-    assigned_to_phone TEXT,
-    assigned_to_name TEXT,
-    customer_name TEXT,
-    customer_phone TEXT,
-    customer_address TEXT,
-    gps_lat REAL,
-    gps_lng REAL,
-    installed_photo_key TEXT,
-    rejected_reason TEXT,
-    rejected_remarks TEXT,
-    rejected_photo_key TEXT,
-    pickup_person_name TEXT,
-    pickup_person_phone TEXT,
-    pickup_vehicle_no TEXT,
-    pickup_remarks TEXT,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    name_en TEXT NOT NULL,
+    name_hi TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Audit Trail Table (Complete Immutable Timeline Log)
-CREATE TABLE IF NOT EXISTS audit_trail (
+-- 3. Inventory Items Table (Spare Parts & Stock)
+CREATE TABLE IF NOT EXISTS inventory_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    product_id INTEGER NOT NULL,
-    serial_number TEXT NOT NULL,
-    action TEXT NOT NULL,
-    actor_name TEXT NOT NULL,
-    actor_phone TEXT NOT NULL,
-    actor_role TEXT NOT NULL,
-    details_json TEXT,
-    photo_key TEXT,
-    gps_lat REAL,
-    gps_lng REAL,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    category_id INTEGER,
+    part_name TEXT NOT NULL,
+    model_number TEXT,
+    serial_number TEXT UNIQUE NOT NULL,
+    status TEXT NOT NULL DEFAULT 'received' 
+        CHECK(status IN ('received', 'in_storage', 'assigned_to_tech', 'installed', 'rejected_defective', 'returned_to_company')),
+    current_holder_id INTEGER,
+    invoice_image_url TEXT,
+    challan_number TEXT,
+    return_slip_url TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    FOREIGN KEY (current_holder_id) REFERENCES users(id)
 );
 
--- Indexes for lightning-fast queries
-CREATE INDEX IF NOT EXISTS idx_products_serial ON products(serial_number);
-CREATE INDEX IF NOT EXISTS idx_products_status ON products(current_status);
-CREATE INDEX IF NOT EXISTS idx_audit_product ON audit_trail(product_id);
-CREATE INDEX IF NOT EXISTS idx_audit_serial ON audit_trail(serial_number);
-CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
+-- 4. Company Assets Table (Tools & Equipment assigned to staff/techs)
+CREATE TABLE IF NOT EXISTS company_assets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    asset_name TEXT NOT NULL,
+    asset_code TEXT,
+    assigned_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'returned')),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
--- 4. Initial Seed: Super Admin Account
--- Phone: 9876543210 | PIN: 1234
-INSERT OR IGNORE INTO users (id, name, phone, pin, role) 
-VALUES (1, 'System Administrator', '9876543210', '1234', 'admin');
+-- 5. Rate Cards Table (Fixed Payout Master per Service)
+CREATE TABLE IF NOT EXISTS rate_cards (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    service_title_en TEXT NOT NULL,
+    service_title_hi TEXT NOT NULL,
+    fixed_amount REAL NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. Service Calls Table (Call Assignments, Closure, Extra Collections)
+CREATE TABLE IF NOT EXISTS service_calls (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    complaint_number TEXT UNIQUE NOT NULL,
+    customer_name TEXT NOT NULL,
+    customer_mobile TEXT NOT NULL,
+    customer_address TEXT,
+    rate_card_id INTEGER,
+    assigned_tech_id INTEGER,
+    used_part_id INTEGER,
+    tech_payout_amount REAL NOT NULL DEFAULT 0,
+    admin_edited_amount REAL,
+    admin_edit_remark TEXT,
+    customer_extra_collected REAL DEFAULT 0,
+    customer_extra_remark TEXT,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'completed', 'cancelled')),
+    payout_status TEXT NOT NULL DEFAULT 'unpaid' CHECK(payout_status IN ('unpaid', 'paid')),
+    payment_batch_id INTEGER,
+    completed_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (rate_card_id) REFERENCES rate_cards(id),
+    FOREIGN KEY (assigned_tech_id) REFERENCES users(id),
+    FOREIGN KEY (used_part_id) REFERENCES inventory_items(id)
+);
+
+-- 7. Payment Batches Table (Technician Payment Settlements)
+CREATE TABLE IF NOT EXISTS payment_batches (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tech_id INTEGER NOT NULL,
+    amount_paid REAL NOT NULL,
+    payment_screenshot_url TEXT,
+    remarks TEXT,
+    paid_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tech_id) REFERENCES users(id)
+);
+
+-- 8. Audit Logs Table (Timeline & Real-time Notifications)
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    entity_type TEXT NOT NULL CHECK(entity_type IN ('part', 'call', 'payment', 'asset')),
+    entity_id INTEGER NOT NULL,
+    action_by_user_id INTEGER,
+    assigned_to_user_id INTEGER,
+    action_description_en TEXT NOT NULL,
+    action_description_hi TEXT NOT NULL,
+    is_read INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (action_by_user_id) REFERENCES users(id)
+);
+
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_users_mobile ON users(mobile);
+CREATE INDEX IF NOT EXISTS idx_inventory_serial ON inventory_items(serial_number);
+CREATE INDEX IF NOT EXISTS idx_inventory_status ON inventory_items(status);
+CREATE INDEX IF NOT EXISTS idx_calls_complaint ON service_calls(complaint_number);
+CREATE INDEX IF NOT EXISTS idx_calls_tech ON service_calls(assigned_tech_id);
+CREATE INDEX IF NOT EXISTS idx_audit_entity ON audit_logs(entity_type, entity_id);
