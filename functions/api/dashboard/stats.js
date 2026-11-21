@@ -62,6 +62,9 @@ export async function onRequestGet({ request, env }) {
         return sum + (Number(amt) || 0);
       }, 0);
       const totalPayoutPaid = allBatches.reduce((sum, b) => sum + (Number(b.amount_paid) || 0), 0);
+      const totalCustomerCashCollected = allCalls.reduce((sum, c) => {
+        return sum + (Number(c.customer_extra_collected) || 0);
+      }, 0);
 
       roleSpecificData = {
         totalCalls: allCalls.length,
@@ -70,6 +73,7 @@ export async function onRequestGet({ request, env }) {
         totalPayoutDue,
         totalPayoutPaid,
         pendingPayoutBalance: Math.max(0, totalPayoutDue - totalPayoutPaid),
+        totalCustomerCashCollected,
       };
     }
 
