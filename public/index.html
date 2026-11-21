@@ -936,8 +936,8 @@
               <input id="newStaffPin" type="password" required maxlength="40" placeholder="e.g. 1234" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
             </div>
             <div class="sm:col-span-4 flex justify-between items-center mt-1">
-              <button type="button" onclick="openModal('assignAssetModal')" class="px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3DE] text-[#2D2926] font-bold text-xs hover:bg-[#F2ECE8]">
-                + Assign Company Asset
+              <button type="button" onclick="openCompanyAssetsMaster()" class="px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3DE] text-[#2D2926] font-bold text-xs hover:bg-[#F2ECE8]">
+                📦 कंपनी टूल्स मास्टर
               </button>
               <button type="submit" id="btnSaveStaff" class="px-6 py-3 clay-btn-teal font-bold text-xs sm:text-sm transition">
                 + Save Member
@@ -948,9 +948,19 @@
 
         <!-- Staff List with Assets -->
         <div class="clay-card-white p-6 sm:p-7 rounded-[32px]">
-          <div class="flex items-center justify-between mb-4">
-            <h3 id="headingStaffList" class="font-extrabold text-[#2D2926] text-sm">Active Staff & Technician Directory</h3>
-            <button onclick="loadStaffDirectory()" id="btnRefreshStaff" class="text-xs font-bold text-[#009E77] hover:underline">Refresh</button>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4">
+            <div class="flex items-center gap-2">
+              <h3 id="headingStaffList" class="font-extrabold text-[#2D2926] text-sm">Active Staff & Technician Directory</h3>
+              <span class="text-xs text-[#7A726C]">•</span>
+              <button onclick="loadStaffDirectory()" id="btnRefreshStaff" class="text-xs font-bold text-[#009E77] hover:underline flex items-center gap-1">
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                <span>Refresh</span>
+              </button>
+            </div>
+            <button type="button" onclick="openCompanyAssetsMaster()" class="px-3.5 py-2 rounded-2xl bg-[#FFF8F0] hover:bg-[#FFEED9] border border-[#FF9500]/40 text-[#C05800] font-extrabold text-xs flex items-center gap-1.5 shadow-2xs transition active:scale-95">
+              <i data-lucide="wrench" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+              <span>📦 कंपनी टूल्स मास्टर</span>
+            </button>
           </div>
           <div id="staffListDirectory" class="space-y-3">
             <p class="text-xs text-[#8C827A] py-3 text-center">Loading staff members...</p>
@@ -2480,6 +2490,10 @@
       });
 
       document.getElementById("bottomNavBar").classList.remove("hidden");
+      if (currentUser && currentUser.role === "admin") {
+        const btnAddCat = document.getElementById("btnAdminAddCat");
+        if (btnAddCat) btnAddCat.classList.remove("hidden");
+      }
       lucide.createIcons();
     }
 
@@ -4672,24 +4686,38 @@
     // Assign Asset Submit
     async function handleAssignAssetSubmit(e) {
       e.preventDefault();
-      const userId = document.getElementById("assignAssetUserSelect").value;
+      const userId = document.getElementById("assignAssetUserId").value;
+      const assetId = document.getElementById("assignAssetSelectedId").value;
       const name = document.getElementById("assignAssetName").value.trim();
       const code = document.getElementById("assignAssetCode").value.trim();
+
+      if (!userId) {
+        showToast("कृपया पहले कर्मचारी चुनें।", "error");
+        return;
+      }
+      if (!name) {
+        showToast("कृपया औजार का नाम दर्ज करें।", "error");
+        return;
+      }
 
       try {
         const res = await authFetch("/api/assets", {
           method: "POST",
           body: JSON.stringify({
             user_id: userId,
+            asset_id: assetId || undefined,
             asset_name: name,
             asset_code: code,
           }),
         });
         const data = await res.json();
         if (data.success) {
-          showToast(currentLang === "hi" ? "एसेट सफलतापूर्वक जारी हुआ!" : "Asset issued successfully!");
+          showToast(currentLang === "hi" ? "औजार कर्मचारी को सफलतापूर्वक सौंपा गया!" : "Asset assigned successfully!");
           closeModal("assignAssetModal");
           loadStaffDirectory();
+          loadCompanyAssetsMaster();
+        } else {
+          showToast(data.error || "Failed to assign asset.", "error");
         }
       } catch (err) {
         showToast(err.message, "error");
@@ -4770,10 +4798,180 @@
       }, 150);
     }
 
-    function openAssignAssetModalForUser(userId, userName) {
-      const uSelect = document.getElementById("assignAssetUserSelect");
-      if (uSelect) uSelect.value = String(userId);
+    // -------------------------------------------------------------
+    // COMPANY ASSETS & TOOLS MASTER MANAGEMENT
+    // -------------------------------------------------------------
+
+    async function loadCompanyAssetsMaster() {
+      try {
+        const res = await authFetch("/api/assets");
+        const data = await res.json();
+        if (data.success) {
+          appCompanyAssets = data.assets || [];
+          populateAssetMasterPicker();
+          renderCompanyAssetsMasterList();
+        }
+      } catch (e) {
+        console.error("loadCompanyAssetsMaster error:", e);
+      }
+    }
+
+    function openCompanyAssetsMaster() {
+      openModal("companyAssetsMasterModal");
+      loadCompanyAssetsMaster();
+    }
+
+    function renderCompanyAssetsMasterList() {
+      const container = document.getElementById("companyAssetsMasterList");
+      const badge = document.getElementById("masterAssetsCountBadge");
+      if (!container) return;
+
+      if (!appCompanyAssets || appCompanyAssets.length === 0) {
+        container.innerHTML = `<p class="text-xs text-[#8C827A] py-6 text-center">${currentLang === 'hi' ? 'कंपनी स्टोर में कोई औजार दर्ज नहीं है।' : 'No company assets recorded.'}</p>`;
+        if (badge) badge.textContent = "0 Tools";
+        return;
+      }
+
+      if (badge) badge.textContent = `${appCompanyAssets.length} Tools`;
+
+      container.innerHTML = appCompanyAssets.map(a => {
+        const isAssigned = a.status === "active" && a.user_id;
+        const statusBadge = isAssigned
+          ? `<span class="px-2 py-0.5 rounded-lg text-[9px] font-bold bg-amber-100 text-[#92400E]">असाइंड: ${a.user_name || 'Staff'}</span>`
+          : `<span class="px-2 py-0.5 rounded-lg text-[9px] font-bold bg-[#E8F9ED] text-[#167A3C]">स्टोर में उपलब्ध (Available)</span>`;
+
+        return `
+          <div class="p-3 rounded-2xl bg-white border border-[#EAE3DE] flex items-center justify-between text-xs shadow-2xs">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-[#F0EAE5] text-[#5C534D] flex items-center justify-center shrink-0">
+                <i data-lucide="wrench" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h5 class="font-bold text-[#1C1C1E]">${a.asset_name}</h5>
+                <p class="text-[10px] font-mono font-semibold text-[#7A726C]">${a.asset_code || 'No Code'}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              ${statusBadge}
+              ${isAssigned && currentUser && currentUser.role === "admin" ? `
+                <button onclick="returnCompanyAsset(${a.id}, '${(a.asset_name || '').replace(/'/g, "\\'")}')" class="px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[10px] transition">
+                  वापस लें
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join("");
+      lucide.createIcons();
+    }
+
+    function populateAssetMasterPicker() {
+      const picker = document.getElementById("assignAssetMasterPicker");
+      if (!picker) return;
+
+      picker.innerHTML = `<option value="">${currentLang === 'hi' ? '-- उपलब्ध टूल चुनें (Select Available Tool) --' : '-- Select Available Tool --'}</option>`;
+
+      // Filter available tools that are not currently with any technician
+      const availableTools = appCompanyAssets.filter(a => a.status === "available" || !a.user_id);
+
+      availableTools.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.id;
+        opt.textContent = `🧰 ${t.asset_name} (${t.asset_code || 'No Code'})`;
+        opt.dataset.name = t.asset_name;
+        opt.dataset.code = t.asset_code || "";
+        picker.appendChild(opt);
+      });
+
+      const customOpt = document.createElement("option");
+      customOpt.value = "custom";
+      customOpt.textContent = currentLang === 'hi' ? "✍️ + नया टूल नाम टाइप करें (Type New Tool)..." : "✍️ + Type New Tool Name...";
+      picker.appendChild(customOpt);
+    }
+
+    function handleAssetPickerChange(val) {
+      const nameInput = document.getElementById("assignAssetName");
+      const codeInput = document.getElementById("assignAssetCode");
+      const selectedIdInput = document.getElementById("assignAssetSelectedId");
+
+      if (!val || val === "custom") {
+        if (selectedIdInput) selectedIdInput.value = "";
+        if (nameInput) {
+          nameInput.value = "";
+          nameInput.focus();
+        }
+        if (codeInput) codeInput.value = "";
+        return;
+      }
+
+      const tool = appCompanyAssets.find(t => String(t.id) === String(val));
+      if (tool) {
+        if (selectedIdInput) selectedIdInput.value = tool.id;
+        if (nameInput) nameInput.value = tool.asset_name;
+        if (codeInput) codeInput.value = tool.asset_code || "";
+      }
+    }
+
+    function openAssignAssetModalForUser(userId, userName, userRole, userPhone) {
+      const userObj = (appStaff || []).find(u => String(u.id) === String(userId));
+      const uName = userName || (userObj ? userObj.name : "Employee");
+      const uRole = userRole || (userObj ? userObj.role : "third_party_tech");
+      const uPhone = userPhone || (userObj ? (userObj.mobile || userObj.phone) : "");
+
+      document.getElementById("assignAssetUserId").value = userId;
+      document.getElementById("assignAssetSelectedId").value = "";
+      document.getElementById("assignAssetLockedUserName").textContent = uName;
+      document.getElementById("assignAssetLockedUserPhone").textContent = `${formatRoleName(uRole)} • ${uPhone}`;
+      document.getElementById("assignAssetName").value = "";
+      document.getElementById("assignAssetCode").value = "";
+
       openModal("assignAssetModal");
+      loadCompanyAssetsMaster();
+    }
+
+    async function handleCreateMasterAssetSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById("newMasterAssetName").value.trim();
+      const code = document.getElementById("newMasterAssetCode").value.trim();
+
+      try {
+        const res = await authFetch("/api/assets", {
+          method: "POST",
+          body: JSON.stringify({ asset_name: name, asset_code: code }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(currentLang === "hi" ? "नया टूल कंपनी स्टोर में दर्ज हुआ!" : "New tool added to master store!");
+          document.getElementById("newMasterAssetName").value = "";
+          document.getElementById("newMasterAssetCode").value = "";
+          loadCompanyAssetsMaster();
+        } else {
+          showToast(data.error || "Failed to create asset.", "error");
+        }
+      } catch (err) {
+        showToast(err.message, "error");
+      }
+    }
+
+    async function returnCompanyAsset(assetId, assetName) {
+      if (!confirm(`${assetName || 'औजार'} को स्टोर में वापस जमा करना चाहते हैं?`)) return;
+
+      try {
+        const res = await authFetch("/api/assets", {
+          method: "PUT",
+          body: JSON.stringify({ id: assetId, action: "return" }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(currentLang === "hi" ? `${assetName} स्टोर में वापस जमा हुआ!` : `${assetName} returned to store!`);
+          loadStaffDirectory();
+          loadCompanyAssetsMaster();
+        } else {
+          showToast(data.error || "Failed to return asset.", "error");
+        }
+      } catch (err) {
+        showToast(err.message, "error");
+      }
     }
 
     // Modal Submission Handlers for Installation & Rejection
