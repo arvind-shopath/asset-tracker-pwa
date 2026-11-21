@@ -630,18 +630,31 @@
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                 <span id="btnInvReceive">+ Receive Part</span>
               </button>
-              <button id="btnAdminAddCat" onclick="openModal('categoryModal')" class="hidden px-3.5 py-2.5 rounded-2xl bg-white border border-[#EAE3DE] text-[#2D2926] font-bold text-xs hover:bg-[#F2ECE8] shadow-sm flex items-center gap-1.5">
-                <i data-lucide="folder-plus" class="w-3.5 h-3.5 text-[#009E77]"></i>
-                <span id="lblAddCatBtn">+ Category</span>
-              </button>
+              
             </div>
           </div>
 
-          <!-- Category Buckets Pills -->
-          <div class="pt-1">
-            <div id="categoryBucketsList" class="flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar">
-              <!-- Rendered dynamically -->
+          <!-- Smart Category Buckets Dropdown & Admin + Add Bucket -->
+          <div class="flex items-center gap-2 pt-1">
+            <div class="relative flex-1 sm:max-w-xs">
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#009E77]">
+                <i data-lucide="layers" class="w-4 h-4"></i>
+              </div>
+              <select id="categoryBucketSelect" onchange="filterInventoryByCategory(this.value)" 
+                class="w-full pl-9 pr-8 py-2.5 rounded-2xl bg-white border border-[#EAE3DE] text-xs font-bold text-[#1C1C1E] outline-none shadow-xs focus:border-[#009E77] cursor-pointer appearance-none">
+                <option value="all">📦 सभी बकेट्स (All Buckets)</option>
+                <!-- Populated dynamically -->
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#7A726C]">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
             </div>
+
+            <!-- + नई बकेट (+ Category) Button - Visible ONLY for Admin -->
+            <button id="btnAdminAddCat" onclick="openModal('categoryModal')" class="hidden px-3.5 py-2.5 rounded-2xl bg-[#009E77]/10 hover:bg-[#009E77]/20 border border-[#009E77]/30 text-[#008765] font-extrabold text-xs transition active:scale-95 flex items-center gap-1.5 shadow-2xs shrink-0">
+              <i data-lucide="folder-plus" class="w-4 h-4 text-[#009E77]"></i>
+              <span id="lblAddCatBtn">+ नई बकेट</span>
+            </button>
           </div>
 
           <!-- Status Filters -->
@@ -1656,94 +1669,117 @@
     </div>
   </div>
 
-  <!-- 11. ASSIGN COMPANY ASSET MODAL (Admin) -->
-  <div id="assignAssetModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
-    <div class="porcelain-plate w-full max-w-md p-7 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 id="modalAssignAssetTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
+  <!-- 11. ASSIGN COMPANY ASSET MODAL (Admin - Locked Employee & Master Tool Picker) -->
+  <div id="assignAssetModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop" style="position: fixed; inset: 0; z-index: 60000 !important;">
+    <div class="porcelain-plate w-full max-w-md p-6 sm:p-7 space-y-4 shadow-2xl relative" style="z-index: 60001 !important;">
+      <div class="flex items-center justify-between border-b border-[#EAE3DE] pb-3">
+        <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-xl bg-[#FF9500]/20 text-[#FF8A00] flex items-center justify-center">
             <i data-lucide="briefcase" class="w-4 h-4"></i>
           </div>
-          <span>Issue Company Asset to Staff</span>
-        </h3>
+          <div>
+            <h3 id="modalAssignAssetTitle" class="font-extrabold text-[#2D2926] text-sm">कंपनी का औजार / एसेट सौंपें</h3>
+            <p class="text-[11px] text-[#7A726C]">कर्मचारी को कंपनी का टूल जारी करें</p>
+          </div>
+        </div>
         <button onclick="closeModal('assignAssetModal')" class="p-1.5 text-[#7A726C] hover:text-[#2D2926]">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <form onsubmit="handleAssignAssetSubmit(event)" class="space-y-3.5">
+        <!-- 1. LOCKED EMPLOYEE PROFILE (Cannot be changed / No accidental reassign) -->
+        <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between shadow-2xs">
+          <div>
+            <span class="text-[9px] font-bold text-[#B45309] uppercase tracking-wider block">कर्मचारी / टेक्नीशियन (फिक्स)</span>
+            <h4 id="assignAssetLockedUserName" class="font-extrabold text-sm text-[#1C1C1E]">--</h4>
+            <p id="assignAssetLockedUserPhone" class="text-xs text-[#7A726C] font-mono mt-0.5">--</p>
+          </div>
+          <span class="px-2 py-0.5 rounded-lg bg-white border border-amber-300 text-[9px] font-black text-[#B45309] shadow-2xs">
+            🔒 LOCKED
+          </span>
+        </div>
+        <input type="hidden" id="assignAssetUserId" value="" />
+        <input type="hidden" id="assignAssetSelectedId" value="" />
+
+        <!-- 2. MASTER TOOL PICKER (Select from Available Company Tools) -->
         <div>
-          <label class="block text-[11px] font-bold text-[#7A726C] mb-1">Select Employee / Technician *</label>
-          <select id="assignAssetUserSelect" required class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none bg-[#F2ECE8]">
-            <!-- Populated dynamically -->
-          </select>
+          <label class="block text-[11px] font-bold text-[#7A726C] mb-1">कंपनी के उपलब्ध टूल्स में से चुनें (Choose Tool from Master) *</label>
+          <div class="relative">
+            <select id="assignAssetMasterPicker" onchange="handleAssetPickerChange(this.value)" class="w-full px-3.5 py-3 clay-input text-xs sm:text-sm font-semibold outline-none bg-white cursor-pointer">
+              <option value="">-- उपलब्ध टूल चुनें (Select Available Tool) --</option>
+              <!-- Populated dynamically from available master company tools -->
+            </select>
+          </div>
         </div>
 
-        <div>
-          <label class="block text-[11px] font-bold text-[#7A726C] mb-1">Asset Name *</label>
-          <input id="assignAssetName" type="text" required placeholder="e.g. Pro Tool Bag, Digital Bill Machine, TCR Book" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
+        <!-- 3. Pre-filled / Editable Tool Details -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] font-bold text-[#7A726C] mb-1">टूल का नाम (Asset Name) *</label>
+            <input id="assignAssetName" type="text" required placeholder="e.g. Master Tool Bag Set, Digital Multimeter" class="w-full px-3.5 py-2.5 clay-input text-xs sm:text-sm font-semibold outline-none bg-white" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] font-bold text-[#7A726C] mb-1">टूल सीरियल / कोड (Asset Code)</label>
+            <input id="assignAssetCode" type="text" placeholder="e.g. TB-VISH-01" class="w-full px-3.5 py-2.5 clay-input text-xs sm:text-sm font-semibold outline-none bg-white font-mono" />
+          </div>
         </div>
 
-        <div>
-          <label class="block text-[11px] font-bold text-[#7A726C] mb-1">Asset Code / Serial</label>
-          <input id="assignAssetCode" type="text" placeholder="e.g. TB-2026-09" class="w-full px-4 py-3 clay-input text-xs sm:text-sm font-semibold outline-none" />
-        </div>
-
-        <button type="submit" class="w-full py-4 clay-btn-orange font-bold text-xs sm:text-sm transition mt-2">
-          Confirm Asset Assignment
+        <button type="submit" class="w-full py-3.5 clay-btn-orange font-bold text-xs sm:text-sm transition mt-2 shadow-sm">
+          ✓ औजार सौंपना सुरक्षित करें (Confirm Assignment)
         </button>
       </form>
     </div>
   </div>
 
-  <!-- 12. LIVE BARCODE / QR SCANNER MODAL -->
-  <div id="scannerModal" class="hidden fixed inset-0 flex items-center justify-center p-4 modal-backdrop" style="position: fixed; inset: 0; z-index: 99999 !important; background: rgba(20, 16, 14, 0.75);">
-    <div class="porcelain-plate w-full max-w-sm p-6 space-y-4 shadow-2xl relative" style="z-index: 100000 !important;">
-      <div class="flex items-center justify-between">
-        <h3 id="modalScannerTitle" class="font-extrabold text-[#2D2926] text-sm flex items-center gap-2">
-          <i data-lucide="scan" class="w-4 h-4 text-[#00C496]"></i>
-          <span>Scan Barcode or QR Code</span>
-        </h3>
-        <button onclick="closeScannerModal()" class="p-1.5 rounded-full text-[#7A726C] hover:text-[#2D2926]">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div id="reader" class="w-full rounded-3xl overflow-hidden bg-black aspect-square shadow-inner"></div>
-      <p id="modalScannerHint" class="text-[11px] text-[#7A726C] text-center font-medium">Position the barcode or QR code inside the camera frame.</p>
-      
-      <button onclick="closeScannerModal()" id="btnCancelScan" class="w-full py-3 rounded-2xl bg-white border border-[#EAE3DE] text-[#5C534D] font-bold text-xs hover:bg-[#F2ECE8] shadow-sm">
-        Cancel
-      </button>
-    </div>
-  </div>
-
-  <!-- 13. PART & CALL TIMELINE AUDIT MODAL POPUP -->
-  <div id="partTimelineModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop" style="position: fixed; inset: 0; z-index: 60000 !important;">
-    <div class="porcelain-plate w-full max-w-lg p-6 sm:p-7 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl relative" style="z-index: 60001 !important;">
+  <!-- 11B. COMPANY ASSETS MASTER REPOSITORY MODAL (Admin) -->
+  <div id="companyAssetsMasterModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop" style="position: fixed; inset: 0; z-index: 60000 !important;">
+    <div class="porcelain-plate w-full max-w-xl p-6 sm:p-7 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl relative" style="z-index: 60001 !important;">
       <div class="flex items-center justify-between border-b border-[#EAE3DE] pb-3">
         <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-2xl bg-[#009E77]/15 text-[#009E77] flex items-center justify-center shrink-0">
-            <i data-lucide="history" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-[#FF9500]/20 text-[#FF8A00] flex items-center justify-center shrink-0">
+            <i data-lucide="wrench" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 id="timelineModalTitle" class="font-black text-[#2D2926] text-sm sm:text-base">Life-Cycle Timeline Audit</h3>
-            <p id="timelineModalSubtitle" class="text-xs text-[#7A726C]">Complete step-by-step audit history</p>
+            <h3 class="font-black text-[#2D2926] text-sm sm:text-base">कंपनी एसेट्स व टूल्स मास्टर</h3>
+            <p class="text-xs text-[#7A726C]">सर्विस सेंटर के सभी औजारों व मशीनों का प्रबंधन</p>
           </div>
         </div>
-        <button onclick="closeModal('partTimelineModal')" class="p-2 rounded-xl text-[#7A726C] hover:text-[#2D2926] hover:bg-[#F0EAE5] transition">
+        <button onclick="closeModal('companyAssetsMasterModal')" class="p-2 rounded-xl text-[#7A726C] hover:text-[#2D2926] hover:bg-[#F0EAE5] transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div id="timelineModalContent" class="space-y-4 pt-1">
-        <div class="py-8 text-center text-xs text-[#7A726C]">Loading audit timeline...</div>
+      <!-- Add New Tool to Master Section (Admin only) -->
+      <div class="p-4 rounded-2xl bg-[#F8F5F2] border border-[#EAE3DE] space-y-3">
+        <h4 class="font-extrabold text-xs text-[#1C1C1E] flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-[#009E77]"></i>
+          <span>+ नया टूल/एसेट मास्टर में जोड़ें (Add New Tool)</span>
+        </h4>
+        <form onsubmit="handleCreateMasterAssetSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div class="sm:col-span-2">
+            <input id="newMasterAssetName" type="text" required placeholder="टूल का नाम (e.g. Vacuum Pump, Clamp Meter)" class="w-full px-3.5 py-2.5 clay-input text-xs font-semibold outline-none bg-white" />
+          </div>
+          <div>
+            <input id="newMasterAssetCode" type="text" placeholder="कोड (e.g. VP-01)" class="w-full px-3.5 py-2.5 clay-input text-xs font-semibold outline-none bg-white font-mono" />
+          </div>
+          <div class="sm:col-span-3 flex justify-end">
+            <button type="submit" class="px-4 py-2 clay-btn-teal text-xs font-bold transition shadow-xs">
+              + स्टोर मास्टर में जोड़ें
+            </button>
+          </div>
+        </form>
       </div>
 
-      <div class="pt-3 border-t border-[#EAE3DE] flex justify-end">
-        <button onclick="closeModal('partTimelineModal')" class="px-5 py-2.5 rounded-2xl bg-[#2D2926] hover:bg-black text-white font-bold text-xs transition shadow-sm">
-          Close Window
-        </button>
+      <!-- Assets Repository List -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <h4 class="font-extrabold text-xs uppercase tracking-wider text-[#7A726C]">सभी रजिस्टर्ड औजार व एसेट्स</h4>
+          <span id="masterAssetsCountBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-[#EBF4FF] text-[#007AFF]">0 Tools</span>
+        </div>
+        <div id="companyAssetsMasterList" class="space-y-2 max-h-64 overflow-y-auto no-scrollbar">
+          <!-- Rendered dynamically -->
+        </div>
       </div>
     </div>
   </div>
@@ -1875,6 +1911,7 @@
     let appCategories = [];
     let appRateCards = [];
     let appStaff = [];
+    let appCompanyAssets = [];
     let appInventory = [];
     let appCalls = [];
     let appAssets = [];
@@ -2502,7 +2539,10 @@
       else if (viewId === "ledger") loadLedgerOverview();
       else if (viewId === "myLedger") loadMyLedgerData();
       else if (viewId === "myStock") loadMyStockAndAssets();
-      else if (viewId === "staff") loadStaffDirectory();
+      else if (viewId === "staff") {
+        loadStaffDirectory();
+        loadCompanyAssetsMaster();
+      }
     }
 
     // -------------------------------------------------------------
@@ -4208,7 +4248,16 @@
 
       container.innerHTML = appStaff.map(u => {
         const assetsList = u.assigned_assets && u.assigned_assets.length > 0
-          ? u.assigned_assets.map(a => `<span class="px-2.5 py-1 rounded-xl bg-white border border-[#EAE3DE] text-[10px] font-bold text-[#5C534D] shadow-sm">🧰 ${a.asset_name} (${a.asset_code})</span>`).join(" ")
+          ? u.assigned_assets.map(a => `
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white border border-[#EAE3DE] text-[10px] font-bold text-[#5C534D] shadow-2xs">
+                <span>🧰 ${a.asset_name} (${a.asset_code})</span>
+                ${currentUser && currentUser.role === "admin" ? `
+                  <button onclick="event.stopPropagation(); returnCompanyAsset(${a.id}, '${(a.asset_name || '').replace(/'/g, "\\'")}')" title="${currentLang === 'hi' ? 'स्टोर में वापस जमा करें' : 'Return to store'}" class="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md p-0.5 transition">
+                    <i data-lucide="x" class="w-3 h-3"></i>
+                  </button>
+                ` : ''}
+              </span>
+            `).join(" ")
           : `<span class="text-[10px] text-[#8C827A] italic">${currentLang === 'hi' ? 'कोई एसेट नहीं सौंपा गया' : 'No assets assigned'}</span>`;
 
         const isTech = u.role === "third_party_tech";
@@ -4228,7 +4277,7 @@
                 <i data-lucide="package" class="w-3.5 h-3.5 text-[#FF9500]"></i>
                 <span>${currentLang === 'hi' ? 'पास मौजूद सामान' : 'Stock in Hand'}</span>
               </button>
-              <button onclick="event.stopPropagation(); openAssignAssetModalForUser(${u.id}, '${u.name}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#F0EAE5] hover:bg-[#EAE3DE] text-[#5C534D] text-[10px] font-bold transition">
+              <button onclick="event.stopPropagation(); openAssignAssetModalForUser(${u.id}, '${(u.name || '').replace(/'/g, "\\'")}', '${u.role}', '${u.mobile || u.phone}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#F0EAE5] hover:bg-[#EAE3DE] text-[#5C534D] text-[10px] font-bold transition">
                 <i data-lucide="plus" class="w-3 h-3"></i>
                 <span>${currentLang === 'hi' ? 'औजार सौंपें' : '+ Assign Tool'}</span>
               </button>
@@ -4241,7 +4290,7 @@
                 <i data-lucide="package" class="w-3.5 h-3.5 text-[#009E77]"></i>
                 <span>${currentLang === 'hi' ? 'स्टॉक देखें' : 'View Stock'}</span>
               </button>
-              <button onclick="event.stopPropagation(); openAssignAssetModalForUser(${u.id}, '${u.name}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#F0EAE5] hover:bg-[#EAE3DE] text-[#5C534D] text-[10px] font-bold transition">
+              <button onclick="event.stopPropagation(); openAssignAssetModalForUser(${u.id}, '${(u.name || '').replace(/'/g, "\\'")}', '${u.role}', '${u.mobile || u.phone}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#F0EAE5] hover:bg-[#EAE3DE] text-[#5C534D] text-[10px] font-bold transition">
                 <i data-lucide="plus" class="w-3 h-3"></i>
                 <span>${currentLang === 'hi' ? 'औजार सौंपें' : '+ Assign Tool'}</span>
               </button>
