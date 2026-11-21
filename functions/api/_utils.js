@@ -258,8 +258,10 @@ export async function saveInventoryItem(env, item) {
   return item;
 }
 
+export const findProduct = findInventoryItem;
+export const saveProduct = saveInventoryItem;
+
 export async function getCompanyAssets(env, userId = null) {
-  let list = [];
   if (env.KV) {
     try {
       list = (await env.KV.get("company_assets_list", "json")) || [];
